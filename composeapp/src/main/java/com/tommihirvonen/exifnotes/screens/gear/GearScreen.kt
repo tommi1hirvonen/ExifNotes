@@ -135,6 +135,8 @@ fun GearScreen(
         },
         filmStockSortMode = filmStockSortMode.value,
         onFilmStockSort = filmStocksViewModel::setSortMode,
+        manufacturers = filmStocksViewModel.filteredManufacturers,
+        isoValues = filmStocksViewModel.filteredIsoValues,
         filmStockFilters = filmStocksViewModel.filterSet,
         onFilmStockFiltersChanged = { filmStocksViewModel.filterSet = it }
     )
@@ -195,6 +197,8 @@ private fun GearScreenLargePreview() {
         onDeleteFilmStock = {},
         filmStockSortMode = FilmStockSortMode.NAME,
         onFilmStockSort = {},
+        manufacturers = emptyList(),
+        isoValues = emptyList(),
         filmStockFilters = FilmStockFilterSet(),
         onFilmStockFiltersChanged = {}
     )
@@ -222,6 +226,8 @@ private fun GearScreenPreview() {
         onDeleteFilmStock = {},
         filmStockSortMode = FilmStockSortMode.NAME,
         onFilmStockSort = {},
+        manufacturers = emptyList(),
+        isoValues = emptyList(),
         filmStockFilters = FilmStockFilterSet(),
         onFilmStockFiltersChanged = {}
     )
@@ -248,6 +254,8 @@ private fun GearContent(
     onDeleteFilmStock: (FilmStock) -> Unit,
     filmStockSortMode: FilmStockSortMode,
     onFilmStockSort: (FilmStockSortMode) -> Unit,
+    manufacturers: List<String>,
+    isoValues: List<Int>,
     filmStockFilters: FilmStockFilterSet,
     onFilmStockFiltersChanged: (FilmStockFilterSet) -> Unit
 ) {
@@ -305,6 +313,8 @@ private fun GearContent(
                         onNavigateUp = onNavigateUp,
                         filmStockSortMode = filmStockSortMode,
                         onFilmStockSort = onFilmStockSort,
+                        manufacturers = manufacturers,
+                        isoValues = isoValues,
                         filmStockFilters = filmStockFilters,
                         onFilmStockFiltersChanged = onFilmStockFiltersChanged
                     )

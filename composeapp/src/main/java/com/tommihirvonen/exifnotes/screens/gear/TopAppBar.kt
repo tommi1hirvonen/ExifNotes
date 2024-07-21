@@ -18,18 +18,28 @@
 
 package com.tommihirvonen.exifnotes.screens.gear
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -38,12 +48,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateMap
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
+import com.tommihirvonen.exifnotes.screens.DialogContent
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,6 +70,8 @@ private fun TopAppBarPreview() {
         onNavigateUp = {},
         filmStockSortMode = FilmStockSortMode.NAME,
         onFilmStockSort = {},
+        manufacturers = emptyList(),
+        isoValues = emptyList(),
         filmStockFilters = FilmStockFilterSet(),
         onFilmStockFiltersChanged = {}
     )
@@ -69,6 +85,8 @@ fun AppBar(
     onNavigateUp: () -> Unit,
     filmStockSortMode: FilmStockSortMode,
     onFilmStockSort: (FilmStockSortMode) -> Unit,
+    manufacturers: List<String>,
+    isoValues: List<Int>,
     filmStockFilters: FilmStockFilterSet,
     onFilmStockFiltersChanged: (FilmStockFilterSet) -> Unit
 ) {
@@ -99,6 +117,9 @@ fun AppBar(
                 FilterDropdownMenu(
                     expanded = showFilterDropdown,
                     onDismiss = { showFilterDropdown = false },
+                    manufacturers = manufacturers,
+                    isoValues = isoValues,
+                    filmStockFilters = filmStockFilters,
                     onFilmStockFiltersChanged = onFilmStockFiltersChanged
                 )
             }
@@ -110,8 +131,13 @@ fun AppBar(
 private fun FilterDropdownMenu(
     expanded: Boolean,
     onDismiss: () -> Unit,
+    manufacturers: List<String>,
+    isoValues: List<Int>,
+    filmStockFilters: FilmStockFilterSet,
     onFilmStockFiltersChanged: (FilmStockFilterSet) -> Unit
 ) {
+    var showManufacturersDialog by remember { mutableStateOf(false) }
+    var showIsoDialog by remember { mutableStateOf(false) }
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss
@@ -124,14 +150,14 @@ private fun FilterDropdownMenu(
             text = { Text(stringResource(R.string.Manufacturer)) },
             onClick = {
                 onDismiss()
-                // TODO
+                showManufacturersDialog = true
             }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.ISO)) },
             onClick = {
                 onDismiss()
-                // TODO
+                showIsoDialog = true
             }
         )
         DropdownMenuItem(
@@ -160,6 +186,29 @@ private fun FilterDropdownMenu(
             onClick = {
                 onDismiss()
                 onFilmStockFiltersChanged(FilmStockFilterSet())
+            }
+        )
+    }
+    if (showManufacturersDialog) {
+        MultiChoiceDialog(
+            title = stringResource(R.string.Manufacturer),
+            initialItems = manufacturers.map { it to filmStockFilters.manufacturers.contains(it) },
+            onDismiss = { showManufacturersDialog = false },
+            onConfirm = { values ->
+                showManufacturersDialog = false
+                onFilmStockFiltersChanged(filmStockFilters.copy(manufacturers = values))
+            }
+        )
+    }
+    if (showIsoDialog) {
+        MultiChoiceDialog(
+            title = stringResource(R.string.ISO),
+            initialItems = isoValues.map { it.toString() to filmStockFilters.isoValues.contains(it) },
+            onDismiss = { showIsoDialog = false },
+            onConfirm = { values ->
+                showIsoDialog = false
+                val v = values.mapNotNull { it.toIntOrNull() }
+                onFilmStockFiltersChanged(filmStockFilters.copy(isoValues = v))
             }
         )
     }
@@ -212,5 +261,102 @@ private fun SortDropdownMenu(
                 )
             }
         )
+    }
+}
+
+@Preview
+@Composable
+private fun MultiChoiceDialogPreview() {
+    MultiChoiceDialog(
+        title = "Select manufacturers",
+        initialItems = listOf(
+            "Fujifilm" to true,
+            "Ilford" to false,
+            "Kodak" to true
+        ),
+        onDismiss = {},
+        onConfirm = {}
+    )
+}
+
+@Composable
+private fun MultiChoiceDialog(
+    title: String,
+    initialItems: List<Pair<String, Boolean>>,
+    onDismiss: () -> Unit,
+    onConfirm: (List<String>) -> Unit
+) {
+    val items = remember(initialItems) {
+        initialItems.toMutableStateMap()
+    }
+    val list = items.map { it.key }.sorted().toList()
+    Dialog(onDismissRequest = { /*TODO*/ }) {
+        DialogContent {
+            Column(modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+            ) {
+                Row {
+                    Text(text = title, style = MaterialTheme.typography.titleLarge)
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .weight(1f, fill = false)
+                ) {
+                    items(items = list) { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val prev = items[item] ?: false
+                                    items[item] = !prev
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = items[item] ?: false,
+                                onCheckedChange = { items[item] = it }
+                            )
+                            Text(item)
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = {
+                            for (key in items.keys) {
+                                items[key] = false
+                            }
+                        }
+                    ) {
+                        Text(stringResource(R.string.DeselectAll))
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.Cancel))
+                        }
+                        TextButton(
+                            onClick = {
+                                onDismiss()
+                                val selectedItems = items
+                                    .filter { it.value }
+                                    .map { it.key }
+                                    .toList()
+                                onConfirm(selectedItems)
+                            }
+                        ) {
+                            Text(stringResource(R.string.OK))
+                        }
+                    }
+                }
+            }
+        }
     }
 }
