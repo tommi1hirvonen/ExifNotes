@@ -60,7 +60,7 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
         )
     }
 
-    internal fun getFilmStock(filmStockId: Long) = database
+    fun getFilmStock(filmStockId: Long) = database
         .from(TABLE_FILM_STOCKS)
         .where { KEY_FILM_STOCK_ID eq filmStockId }
         .firstOrNull(filmStockMapper)
