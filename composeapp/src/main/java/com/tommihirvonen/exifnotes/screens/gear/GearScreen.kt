@@ -29,30 +29,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Camera
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.CameraRoll
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -298,66 +290,12 @@ private fun GearContent(
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    TopAppBar(
-                        title = { Text(stringResource(R.string.Gear)) },
-                        navigationIcon = {
-                            IconButton(onClick = onNavigateUp) {
-                                Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
-                            }
-                        },
+                    AppBar(
                         scrollBehavior = scrollBehavior,
-                        actions = {
-                            if (pagerState.currentPage == 3) {
-                                var showSortDropdown by remember { mutableStateOf(false) }
-                                IconButton(onClick = { /*TODO*/ }) {
-                                    Icon(Icons.Outlined.FilterList, "")
-                                }
-                                IconButton(onClick = { showSortDropdown = true }) {
-                                    Icon(Icons.AutoMirrored.Outlined.Sort, "")
-                                }
-                                DropdownMenu(
-                                    expanded = showSortDropdown,
-                                    onDismissRequest = { showSortDropdown = false }
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.SortFilmStocksBy),
-                                        modifier = Modifier.padding(horizontal = 8.dp)
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.Name)) },
-                                        onClick = {
-                                            showSortDropdown = false
-                                            onFilmStockSort(FilmStockSortMode.NAME)
-                                        },
-                                        trailingIcon = {
-                                            RadioButton(
-                                                selected = filmStockSortMode == FilmStockSortMode.NAME,
-                                                onClick = {
-                                                    onFilmStockSort(FilmStockSortMode.NAME)
-                                                    showSortDropdown = false
-                                                }
-                                            )
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.ISO)) },
-                                        onClick = {
-                                            showSortDropdown = false
-                                            onFilmStockSort(FilmStockSortMode.ISO)
-                                        },
-                                        trailingIcon = {
-                                            RadioButton(
-                                                selected = filmStockSortMode == FilmStockSortMode.ISO,
-                                                onClick = {
-                                                    onFilmStockSort(FilmStockSortMode.ISO)
-                                                    showSortDropdown = false
-                                                }
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        currentPagerPage = pagerState.currentPage,
+                        onNavigateUp = onNavigateUp,
+                        filmStockSortMode = filmStockSortMode,
+                        onFilmStockSort = onFilmStockSort
                     )
                 },
                 floatingActionButton = {
