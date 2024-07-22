@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.gear.lenses
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -47,6 +49,7 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -214,6 +217,7 @@ private fun LensEditContent(
     var minApertureExpanded by remember { mutableStateOf(false) }
     var showCustomApertureValuesInfo by remember { mutableStateOf(false) }
     var showAddCustomApertureValueDialog by remember { mutableStateOf(false) }
+    var showRemoveCustomApertureValuesDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -423,7 +427,7 @@ private fun LensEditContent(
                 DropdownButton(
                     modifier = Modifier.weight(1f),
                     text = customApertureValues.sorted().distinct().joinToString(),
-                    onClick = { /*TODO*/ }
+                    onClick = { showRemoveCustomApertureValuesDialog = true }
                 )
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
@@ -554,6 +558,48 @@ private fun LensEditContent(
                             keyboardType = KeyboardType.Number
                         )
                     )
+                }
+            }
+        )
+    }
+    if (showRemoveCustomApertureValuesDialog) {
+        var values by remember(customApertureValues) { mutableStateOf(customApertureValues) }
+        AlertDialog(
+            onDismissRequest = { showRemoveCustomApertureValuesDialog = false },
+            dismissButton = {
+                TextButton(onClick = { showRemoveCustomApertureValuesDialog = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRemoveCustomApertureValuesDialog = false
+                        onSetCustomApertureValues(values)
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    for (value in values) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(value.toString())
+                            Spacer(modifier = Modifier.width(16.dp))
+                            OutlinedIconButton(onClick = { values = values.minus(value) }) {
+                                Icon(Icons.Outlined.DeleteOutline, "")
+                            }
+                        }
+                    }
                 }
             }
         )
