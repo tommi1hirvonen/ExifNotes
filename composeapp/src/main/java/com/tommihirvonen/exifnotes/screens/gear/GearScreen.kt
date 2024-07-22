@@ -92,6 +92,7 @@ fun GearScreen(
     val filters = gearViewModel.filters.collectAsState()
     val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
     val filmStockSortMode = filmStocksViewModel.sortMode.collectAsState()
+    var confirmDeleteCamera by remember { mutableStateOf<Camera?>(null) }
     var confirmDeleteLens by remember { mutableStateOf<Lens?>(null) }
     var confirmDeleteFilter by remember { mutableStateOf<Filter?>(null) }
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
@@ -137,6 +138,15 @@ fun GearScreen(
         },
         onNavigateUp = onNavigateUp,
         onEditCamera = onEditCamera,
+        onDeleteCamera = { camera ->
+            confirmDeleteCamera = camera
+        },
+        onEditCameraCompatibleLenses = { camera ->
+            // TODO
+        },
+        onEditCameraCompatibleFilters = { camera ->
+            // TODO
+        },
         onEditLens = onEditLens,
         onDeleteLens = { lens ->
             confirmDeleteLens = lens
@@ -168,6 +178,37 @@ fun GearScreen(
         filmStockFilters = filmStocksViewModel.filterSet,
         onFilmStockFiltersChanged = { filmStocksViewModel.filterSet = it }
     )
+    when (val camera = confirmDeleteCamera) {
+        is Camera -> AlertDialog(
+            title = { Text(stringResource(R.string.ConfirmCameraDelete)) },
+            text = {
+                Column {
+                    Text(camera.name)
+                    val inUse = gearViewModel.isCameraInUse(camera)
+                    if (inUse) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.CameraIsInUseConfirmation))
+                    }
+                }
+            },
+            onDismissRequest = { confirmDeleteCamera = null },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteCamera = null }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmDeleteCamera = null
+                        gearViewModel.deleteCamera(camera)
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
+        )
+    }
     when (val lens = confirmDeleteLens) {
         is Lens -> AlertDialog(
             title = { Text(stringResource(R.string.ConfirmLensDelete)) },
@@ -307,6 +348,9 @@ private fun GearScreenLargePreview() {
         filterCompatibleLensesProvider = { _ -> emptyList() },
         onNavigateUp = {},
         onEditCamera = {},
+        onDeleteCamera = {},
+        onEditCameraCompatibleLenses = {},
+        onEditCameraCompatibleFilters = {},
         onEditLens = {},
         onDeleteLens = {},
         onEditLensCompatibleCameras = {},
@@ -342,6 +386,9 @@ private fun GearScreenPreview() {
         filterCompatibleLensesProvider = { _ -> emptyList() },
         onNavigateUp = {},
         onEditCamera = {},
+        onDeleteCamera = {},
+        onEditCameraCompatibleLenses = {},
+        onEditCameraCompatibleFilters = {},
         onEditLens = {},
         onDeleteLens = {},
         onEditLensCompatibleCameras = {},
@@ -376,6 +423,9 @@ private fun GearContent(
     filterCompatibleLensesProvider: (Filter) -> (List<Lens>),
     onNavigateUp: () -> Unit,
     onEditCamera: (Camera?) -> Unit,
+    onDeleteCamera: (Camera) -> Unit,
+    onEditCameraCompatibleLenses: (Camera) -> Unit,
+    onEditCameraCompatibleFilters: (Camera) -> Unit,
     onEditLens: (Lens?) -> Unit,
     onDeleteLens: (Lens) -> Unit,
     onEditLensCompatibleCameras: (Lens) -> Unit,
@@ -493,7 +543,10 @@ private fun GearContent(
                                 cameras = cameras,
                                 compatibleLensesProvider = cameraCompatibleLensesProvider,
                                 compatibleFiltersProvider = cameraCompatibleFiltersProvider,
-                                onCameraClick = onEditCamera
+                                onEdit = onEditCamera,
+                                onDelete = onDeleteCamera,
+                                onEditCompatibleLenses = onEditCameraCompatibleLenses,
+                                onEditCompatibleFilters = onEditCameraCompatibleFilters
                             )
                             1 -> LensesScreen(
                                 lenses = lenses,

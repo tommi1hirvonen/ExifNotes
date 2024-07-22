@@ -56,6 +56,7 @@
     <string name="Both">Both</string>
     <string name="Camera">Camera</string>
     <string name="CameraNoColon">Camera</string>
+    <string name="CameraIsInUseConfirmation">Camera is in use. Delete anyway?</string>
     <string name="Cameras">CAMERAS</string>
     <string name="CamerasNoCap">Cameras</string>
     <string name="Cancel">Cancel</string>

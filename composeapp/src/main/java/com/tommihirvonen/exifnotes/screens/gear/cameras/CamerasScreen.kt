@@ -27,12 +27,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Camera
+import androidx.compose.material.icons.outlined.Circle
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -53,7 +65,10 @@ fun CamerasScreen(
     cameras: State<List<Camera>> = State.InProgress(),
     compatibleLensesProvider: (Camera) -> (List<Lens>) = { _ -> emptyList() },
     compatibleFiltersProvider: (Camera) -> (List<Filter>) = { _ -> emptyList() },
-    onCameraClick: (Camera) -> Unit = {}
+    onEdit: (Camera) -> Unit = {},
+    onDelete: (Camera) -> Unit = {},
+    onEditCompatibleLenses: (Camera) -> Unit = {},
+    onEditCompatibleFilters: (Camera) -> Unit = {}
 ) {
     if (cameras is State.InProgress) {
         Column(
@@ -95,7 +110,10 @@ fun CamerasScreen(
                     camera = camera,
                     compatibleLenses = compatibleLensesProvider(camera),
                     compatibleFilters = compatibleFiltersProvider(camera),
-                    onClick = { onCameraClick(camera) }
+                    onEdit = { onEdit(camera) },
+                    onDelete = {onDelete(camera) },
+                    onEditCompatibleLenses = { onEditCompatibleLenses(camera) },
+                    onEditCompatibleFilters = { onEditCompatibleFilters(camera) }
                 )
             }
         }
@@ -113,7 +131,10 @@ private fun CameraCardInterchangeablePreview() {
         camera = camera,
         compatibleLenses = listOf(lens1, lens2, lens3),
         compatibleFilters = emptyList(),
-        onClick = {}
+        onEdit = {},
+        onDelete = {},
+        onEditCompatibleLenses = {},
+        onEditCompatibleFilters = {}
     )
 }
 
@@ -132,7 +153,10 @@ private fun CameraCardFixedLensPreview() {
         camera = camera,
         compatibleLenses = emptyList(),
         compatibleFilters = listOf(filter1, filter2),
-        onClick = {}
+        onEdit = {},
+        onDelete = {},
+        onEditCompatibleLenses = {},
+        onEditCompatibleFilters = {}
     )
 }
 
@@ -141,14 +165,18 @@ private fun CameraCard(
     camera: Camera,
     compatibleLenses: List<Lens>,
     compatibleFilters: List<Filter>,
-    onClick: () -> Unit
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onEditCompatibleLenses: () -> Unit,
+    onEditCompatibleFilters: () -> Unit
 ) {
+    var showDropdown by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxWidth()) {
         Card(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 6.dp)
                 .fillMaxWidth(),
-            onClick = onClick,
+            onClick = { showDropdown = true },
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
             Column(
@@ -196,6 +224,46 @@ private fun CameraCard(
                     }
                 }
             }
+        }
+        DropdownMenu(
+            expanded = showDropdown,
+            onDismissRequest = { showDropdown = false }
+        ) {
+            if (camera.isFixedLens) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.SelectCompatibleFilters)) },
+                    leadingIcon = { Icon(Icons.Outlined.Circle, "") },
+                    onClick = {
+                        showDropdown = false
+                        onEditCompatibleFilters()
+                    }
+                )
+            } else {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.SelectCompatibleLenses)) },
+                    leadingIcon = { Icon(Icons.Outlined.Camera, "") },
+                    onClick = {
+                        showDropdown = false
+                        onEditCompatibleLenses()
+                    }
+                )
+            }
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.Edit)) },
+                leadingIcon = { Icon(Icons.Outlined.Edit, "") },
+                onClick = {
+                    showDropdown = false
+                    onEdit()
+                }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.Delete)) },
+                leadingIcon = { Icon(Icons.Outlined.Delete, "") },
+                onClick = {
+                    showDropdown = false
+                    onDelete()
+                }
+            )
         }
     }
 }

@@ -66,6 +66,8 @@ class GearViewModel @Inject constructor(
         }
     }
 
+    fun isCameraInUse(camera: Camera) = cameraRepository.isCameraBeingUsed(camera)
+
     fun isLensInUse(lens: Lens) = lensRepository.isLensInUse(lens)
 
     fun isFilterInUse(filter: Filter) = filterRepository.isFilterBeingUsed(filter)
