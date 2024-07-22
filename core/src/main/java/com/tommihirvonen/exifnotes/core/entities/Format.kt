@@ -24,11 +24,15 @@ import com.tommihirvonen.exifnotes.core.R
 enum class Format {
     MM35, MEDIUM_FORMAT_120, APS_110, SHEET;
 
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmFormats).getOrNull(ordinal)
-
     companion object {
         fun from(value: Int) =
             entries.firstOrNull { it.ordinal == value } ?: MM35
+    }
+
+    fun description(context: Context) = when (this) {
+        MM35 -> "35 mm"
+        MEDIUM_FORMAT_120 -> "120"
+        APS_110 -> "110"
+        SHEET -> context.getString(R.string.Sheet)
     }
 }
