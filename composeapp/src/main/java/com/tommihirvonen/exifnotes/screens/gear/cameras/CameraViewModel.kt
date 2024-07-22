@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
@@ -57,6 +58,7 @@ class CameraViewModel @AssistedInject constructor(
     private val _minShutter = MutableStateFlow(camera.minShutter)
     private val _maxShutter = MutableStateFlow(camera.maxShutter)
     private val _exposureCompIncrements = MutableStateFlow(camera.exposureCompIncrements)
+    private val _format = MutableStateFlow(camera.format)
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _shutterRangeError = MutableStateFlow("")
@@ -69,6 +71,7 @@ class CameraViewModel @AssistedInject constructor(
     val minShutter = _minShutter.asStateFlow()
     val maxShutter = _maxShutter.asStateFlow()
     val exposureCompIncrements = _exposureCompIncrements.asStateFlow()
+    val format = _format.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
     val shutterRangeError = _shutterRangeError.asStateFlow()
@@ -127,6 +130,11 @@ class CameraViewModel @AssistedInject constructor(
     fun setExposureCompIncrements(value: PartialIncrement) {
         camera.exposureCompIncrements = value
         _exposureCompIncrements.value = value
+    }
+
+    fun setFormat(value: Format) {
+        camera.format = value
+        _format.value = value
     }
 
     fun validate(): Boolean = camera.validate(

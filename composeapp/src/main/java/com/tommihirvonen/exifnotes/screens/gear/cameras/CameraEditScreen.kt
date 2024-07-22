@@ -62,6 +62,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
@@ -84,6 +85,7 @@ fun CameraEditScreen(
     val maxShutter = cameraViewModel.maxShutter.collectAsState()
     val shutterValues = cameraViewModel.shutterValues.collectAsState()
     val exposureCompIncrements = cameraViewModel.exposureCompIncrements.collectAsState()
+    val format = cameraViewModel.format.collectAsState()
     val makeError = cameraViewModel.makeError.collectAsState()
     val modelError = cameraViewModel.modelError.collectAsState()
     val shutterRangeError = cameraViewModel.shutterRangeError.collectAsState()
@@ -97,6 +99,7 @@ fun CameraEditScreen(
         maxShutter = maxShutter.value ?: "",
         shutterValues = shutterValues.value,
         exposureCompIncrements = exposureCompIncrements.value,
+        format = format.value,
         makeError = makeError.value,
         modelError = modelError.value,
         shutterRangeError = shutterRangeError.value,
@@ -108,6 +111,7 @@ fun CameraEditScreen(
         onSetMaxShutter = cameraViewModel::setMaxShutter,
         onClearShutterRange = cameraViewModel::clearShutterRange,
         onSetExposureCompIncrements = cameraViewModel::setExposureCompIncrements,
+        onSetFormat = cameraViewModel::setFormat,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (cameraViewModel.validate()) {
@@ -131,6 +135,7 @@ private fun CameraEditContentPreview() {
         maxShutter = "30\"",
         shutterValues = emptyList(),
         exposureCompIncrements = PartialIncrement.THIRD,
+        format = Format.MM35,
         makeError = false,
         modelError = false,
         shutterRangeError = "Sample error",
@@ -142,6 +147,7 @@ private fun CameraEditContentPreview() {
         onSetMinShutter = {},
         onClearShutterRange = {},
         onSetExposureCompIncrements = {},
+        onSetFormat = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -159,6 +165,7 @@ private fun CameraEditContent(
     maxShutter: String,
     shutterValues: List<String>,
     exposureCompIncrements: PartialIncrement,
+    format: Format,
     makeError: Boolean,
     modelError: Boolean,
     shutterRangeError: String,
@@ -170,6 +177,7 @@ private fun CameraEditContent(
     onSetMinShutter: (String) -> Unit,
     onClearShutterRange: () -> Unit,
     onSetExposureCompIncrements: (PartialIncrement) -> Unit,
+    onSetFormat: (Format) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -179,6 +187,7 @@ private fun CameraEditContent(
     var maxShutterExpanded by remember { mutableStateOf(false) }
     var minShutterExpanded by remember { mutableStateOf(false) }
     var exposureCompIncrementsExpanded by remember { mutableStateOf(false) }
+    var formatExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -394,6 +403,41 @@ private fun CameraEditContent(
                                 onClick = {
                                     onSetExposureCompIncrements(increment)
                                     exposureCompIncrementsExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            // TODO fixed lens
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.DefaultFormat),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                ExposedDropdownMenuBox(
+                    expanded = formatExpanded,
+                    onExpandedChange = { formatExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.menuAnchor(),
+                        readOnly = true,
+                        value = format.description(context),
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = formatExpanded,
+                        onDismissRequest = { formatExpanded = false }
+                    ) {
+                        Format.entries.forEach { format ->
+                            DropdownMenuItem(
+                                text = { Text(format.description(context)) },
+                                onClick = {
+                                    onSetFormat(format)
+                                    formatExpanded = false
                                 }
                             )
                         }
