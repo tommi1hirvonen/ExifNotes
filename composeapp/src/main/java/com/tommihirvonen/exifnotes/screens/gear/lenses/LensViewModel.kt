@@ -54,6 +54,9 @@ class LensViewModel @AssistedInject constructor(
     private val _serialNumber = MutableStateFlow(lens.serialNumber)
     private val _minFocalLength = MutableStateFlow(lens.minFocalLength)
     private val _maxFocalLength = MutableStateFlow(lens.maxFocalLength)
+    private val _minAperture = MutableStateFlow(lens.minAperture)
+    private val _maxAperture = MutableStateFlow(lens.maxAperture)
+    private val _customApertureValues = MutableStateFlow(getCustomApertureValues())
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _apertureRangeError = MutableStateFlow("")
@@ -65,6 +68,9 @@ class LensViewModel @AssistedInject constructor(
     val serialNumber = _serialNumber.asStateFlow()
     val minFocalLength = _minFocalLength.asStateFlow()
     val maxFocalLength = _maxFocalLength.asStateFlow()
+    val minAperture = _minAperture.asStateFlow()
+    val maxAperture = _maxAperture.asStateFlow()
+    val customApertureValues = _customApertureValues.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
     val apertureRangeError = _apertureRangeError.asStateFlow()
@@ -86,6 +92,34 @@ class LensViewModel @AssistedInject constructor(
     fun setSerialNumber(value: String) {
         lens.serialNumber = value.ifEmpty { null }
         _serialNumber.value = value
+    }
+
+    fun clearApertureRange() {
+        setMinAperture(null)
+        setMaxAperture(null)
+    }
+
+    fun setCustomApertureValues(values: List<Float>) {
+        lens.customApertureValues = values.filter { it >= 0f }.sorted().distinct()
+        _customApertureValues.value = getCustomApertureValues()
+    }
+
+    private fun getCustomApertureValues(): String {
+        return lens.customApertureValues.sorted().distinct().joinToString()
+    }
+
+    private fun setMinAperture(value: String?) {
+        if (lens.minAperture != value) {
+            lens.minAperture = value
+            _apertureRangeError.value = ""
+        }
+    }
+
+    private fun setMaxAperture(value: String?) {
+        if (lens.maxAperture != value) {
+            lens.maxAperture = value
+            _apertureRangeError.value = ""
+        }
     }
 
     fun validate(): Boolean {

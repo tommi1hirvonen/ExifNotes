@@ -299,7 +299,7 @@ private fun DropdownButtonPreview() {
     Row {
         DropdownButton(
             modifier = Modifier.weight(0.5f),
-            hint = "Dropdown button",
+            text = "Dropdown button",
             onClick = {}
         )
         ExposedDropdownMenuBox(
@@ -323,7 +323,7 @@ private fun DropdownButtonPreview() {
 @Composable
 fun DropdownButton(
     modifier: Modifier = Modifier,
-    hint: String = "",
+    text: String = "",
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(4.dp)
@@ -346,7 +346,7 @@ fun DropdownButton(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = hint,
+                text = text,
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

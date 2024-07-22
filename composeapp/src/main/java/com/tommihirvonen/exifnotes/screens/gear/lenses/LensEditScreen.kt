@@ -80,6 +80,9 @@ fun LensEditScreen(
     val serialNumber = lensViewModel.serialNumber.collectAsState()
     val minFocalLength = lensViewModel.minFocalLength.collectAsState()
     val maxFocalLength = lensViewModel.maxFocalLength.collectAsState()
+    val minAperture = lensViewModel.minAperture.collectAsState()
+    val maxAperture = lensViewModel.maxAperture.collectAsState()
+    val customApertureValues = lensViewModel.customApertureValues.collectAsState()
     val makeError = lensViewModel.makeError.collectAsState()
     val modelError = lensViewModel.modelError.collectAsState()
     val apertureRangeError = lensViewModel.apertureRangeError.collectAsState()
@@ -92,6 +95,9 @@ fun LensEditScreen(
         serialNumber = serialNumber.value ?: "",
         minFocalLength = minFocalLength.value,
         maxFocalLength = maxFocalLength.value,
+        minAperture = minAperture.value ?: "",
+        maxAperture = maxAperture.value ?: "",
+        customApertureValues = customApertureValues.value,
         makeError = makeError.value,
         modelError = modelError.value,
         apertureRangeError = apertureRangeError.value,
@@ -120,6 +126,9 @@ private fun LensEditContentPreview() {
         serialNumber = "123ASD456",
         minFocalLength = 28,
         maxFocalLength = 28,
+        minAperture = "22",
+        maxAperture = "2.8",
+        customApertureValues = "3.5, 4.6",
         makeError = false,
         modelError = false,
         apertureRangeError = "Sample error",
@@ -142,6 +151,9 @@ private fun LensEditContent(
     serialNumber: String,
     minFocalLength: Int,
     maxFocalLength: Int,
+    minAperture: String,
+    maxAperture: String,
+    customApertureValues: String,
     makeError: Boolean,
     modelError: Boolean,
     apertureRangeError: String,
@@ -241,7 +253,7 @@ private fun LensEditContent(
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = "",
+                            value = maxAperture,
                             isError = apertureRangeError.isNotEmpty(),
                             onValueChange = { /*TODO*/ },
                             trailingIcon = {
@@ -276,7 +288,7 @@ private fun LensEditContent(
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = "",
+                            value = minAperture,
                             isError = apertureRangeError.isNotEmpty(),
                             onValueChange = { /*TODO*/ },
                             trailingIcon = {
@@ -324,6 +336,7 @@ private fun LensEditContent(
             ) {
                 DropdownButton(
                     modifier = Modifier.weight(1f),
+                    text = customApertureValues,
                     onClick = { /*TODO*/ }
                 )
                 Box(
