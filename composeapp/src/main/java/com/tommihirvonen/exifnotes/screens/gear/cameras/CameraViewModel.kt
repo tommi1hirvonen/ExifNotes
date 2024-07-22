@@ -25,6 +25,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.util.validate
@@ -59,6 +60,7 @@ class CameraViewModel @AssistedInject constructor(
     private val _maxShutter = MutableStateFlow(camera.maxShutter)
     private val _exposureCompIncrements = MutableStateFlow(camera.exposureCompIncrements)
     private val _format = MutableStateFlow(camera.format)
+    private val _fixedLensSummary = MutableStateFlow(getFixedLensSummary())
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _shutterRangeError = MutableStateFlow("")
@@ -72,6 +74,7 @@ class CameraViewModel @AssistedInject constructor(
     val maxShutter = _maxShutter.asStateFlow()
     val exposureCompIncrements = _exposureCompIncrements.asStateFlow()
     val format = _format.asStateFlow()
+    val fixedLensSummary = _fixedLensSummary.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
     val shutterRangeError = _shutterRangeError.asStateFlow()
@@ -137,6 +140,16 @@ class CameraViewModel @AssistedInject constructor(
         _format.value = value
     }
 
+    fun setLens(lens: Lens) {
+        camera.lens = lens
+        _fixedLensSummary.value = getFixedLensSummary()
+    }
+
+    fun clearLens() {
+        camera.lens = null
+        _fixedLensSummary.value = getFixedLensSummary()
+    }
+
     fun validate(): Boolean = camera.validate(
         makeValidation,
         modelValidation,
@@ -158,6 +171,30 @@ class CameraViewModel @AssistedInject constructor(
             false
         } else {
             true
+        }
+    }
+
+    private fun getFixedLensSummary(): String {
+        val lens = camera.lens
+        return if (lens == null) {
+            context.resources.getString(R.string.ClickToSet)
+        } else {
+            val (minFocal, maxFocal) = lens.minFocalLength to lens.maxFocalLength
+            val focalText = when {
+                minFocal != maxFocal -> "$minFocal-${maxFocal}mm"
+                minFocal > 0 -> "${minFocal}mm"
+                else -> null
+            }
+            val maxAperture = lens.maxAperture
+            val apertureText = if (maxAperture == null) {
+                null
+            } else {
+                "f/$maxAperture"
+            }
+            val text = listOfNotNull(focalText, apertureText).joinToString(" ").ifEmpty {
+                context.resources.getString(R.string.ClickToEdit)
+            }
+            text
         }
     }
 

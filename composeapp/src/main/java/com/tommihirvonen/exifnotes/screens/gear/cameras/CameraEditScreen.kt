@@ -32,6 +32,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -45,6 +47,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -65,6 +68,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
+import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
@@ -86,6 +90,7 @@ fun CameraEditScreen(
     val shutterValues = cameraViewModel.shutterValues.collectAsState()
     val exposureCompIncrements = cameraViewModel.exposureCompIncrements.collectAsState()
     val format = cameraViewModel.format.collectAsState()
+    val fixedLensSummary = cameraViewModel.fixedLensSummary.collectAsState()
     val makeError = cameraViewModel.makeError.collectAsState()
     val modelError = cameraViewModel.modelError.collectAsState()
     val shutterRangeError = cameraViewModel.shutterRangeError.collectAsState()
@@ -100,6 +105,7 @@ fun CameraEditScreen(
         shutterValues = shutterValues.value,
         exposureCompIncrements = exposureCompIncrements.value,
         format = format.value,
+        fixedLensSummary = fixedLensSummary.value,
         makeError = makeError.value,
         modelError = modelError.value,
         shutterRangeError = shutterRangeError.value,
@@ -113,6 +119,8 @@ fun CameraEditScreen(
         onSetExposureCompIncrements = cameraViewModel::setExposureCompIncrements,
         onSetFormat = cameraViewModel::setFormat,
         onNavigateUp = onNavigateUp,
+        onEditFixedLens = { /*TODO*/ },
+        onClearFixedLens = cameraViewModel::clearLens,
         onSubmit = {
             if (cameraViewModel.validate()) {
                 gearViewModel.submitCamera(cameraViewModel.camera)
@@ -136,6 +144,7 @@ private fun CameraEditContentPreview() {
         shutterValues = emptyList(),
         exposureCompIncrements = PartialIncrement.THIRD,
         format = Format.MM35,
+        fixedLensSummary = "Click to set",
         makeError = false,
         modelError = false,
         shutterRangeError = "Sample error",
@@ -149,6 +158,8 @@ private fun CameraEditContentPreview() {
         onSetExposureCompIncrements = {},
         onSetFormat = {},
         onNavigateUp = {},
+        onEditFixedLens = {},
+        onClearFixedLens = {},
         onSubmit = {}
     )
 }
@@ -166,6 +177,7 @@ private fun CameraEditContent(
     shutterValues: List<String>,
     exposureCompIncrements: PartialIncrement,
     format: Format,
+    fixedLensSummary: String,
     makeError: Boolean,
     modelError: Boolean,
     shutterRangeError: String,
@@ -179,6 +191,8 @@ private fun CameraEditContent(
     onSetExposureCompIncrements: (PartialIncrement) -> Unit,
     onSetFormat: (Format) -> Unit,
     onNavigateUp: () -> Unit,
+    onEditFixedLens: () -> Unit,
+    onClearFixedLens: () -> Unit,
     onSubmit: () -> Unit
 ) {
     val context = LocalContext.current
@@ -188,6 +202,7 @@ private fun CameraEditContent(
     var minShutterExpanded by remember { mutableStateOf(false) }
     var exposureCompIncrementsExpanded by remember { mutableStateOf(false) }
     var formatExpanded by remember { mutableStateOf(false) }
+    var showFixedLensInfo by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -409,7 +424,35 @@ private fun CameraEditContent(
                     }
                 }
             }
-            // TODO fixed lens
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.FixedLens),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                DropdownButton(
+                    modifier = Modifier.weight(1f),
+                    text = fixedLensSummary,
+                    onClick = onEditFixedLens
+                )
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                ) {
+                    FilledTonalIconButton(onClick = onClearFixedLens) {
+                        Icon(Icons.Outlined.Clear, "")
+                    }
+                }
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    FilledTonalIconButton(onClick = { showFixedLensInfo = true }) {
+                        Icon(Icons.Outlined.Info, "")
+                    }
+                }
+            }
             Column(modifier = Modifier.padding(top = 16.dp)) {
                 Text(
                     text = stringResource(R.string.DefaultFormat),
@@ -443,6 +486,17 @@ private fun CameraEditContent(
                         }
                     }
                 }
+            }
+            if (showFixedLensInfo) {
+                AlertDialog(
+                    text = { Text(stringResource(R.string.FixedLensHelp)) },
+                    onDismissRequest = { showFixedLensInfo = false },
+                    confirmButton = {
+                        TextButton(onClick = { showFixedLensInfo = false }) {
+                            Text(stringResource(R.string.Close))
+                        }
+                    }
+                )
             }
         }
     }
