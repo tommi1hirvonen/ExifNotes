@@ -63,7 +63,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
@@ -74,12 +73,10 @@ import com.tommihirvonen.exifnotes.util.copy
 
 @Composable
 fun CameraEditScreen(
-    cameraId: Long,
     onNavigateUp: () -> Unit,
+    onEditFixedLens: () -> Unit,
     gearViewModel: GearViewModel,
-    cameraViewModel: CameraViewModel = hiltViewModel { factory: CameraViewModel.Factory ->
-        factory.create(cameraId)
-    }
+    cameraViewModel: CameraViewModel
 ) {
     val make = cameraViewModel.make.collectAsState()
     val model = cameraViewModel.model.collectAsState()
@@ -95,7 +92,7 @@ fun CameraEditScreen(
     val modelError = cameraViewModel.modelError.collectAsState()
     val shutterRangeError = cameraViewModel.shutterRangeError.collectAsState()
     CameraEditContent(
-        isNewCamera = cameraId <= 0,
+        isNewCamera = cameraViewModel.camera.id <= 0,
         make = make.value ?: "",
         model = model.value ?: "",
         serialNumber = serialNumber.value ?: "",
@@ -119,7 +116,7 @@ fun CameraEditScreen(
         onSetExposureCompIncrements = cameraViewModel::setExposureCompIncrements,
         onSetFormat = cameraViewModel::setFormat,
         onNavigateUp = onNavigateUp,
-        onEditFixedLens = { /*TODO*/ },
+        onEditFixedLens = onEditFixedLens,
         onClearFixedLens = cameraViewModel::clearLens,
         onSubmit = {
             if (cameraViewModel.validate()) {

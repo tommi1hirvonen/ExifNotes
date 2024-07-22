@@ -33,22 +33,40 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-@HiltViewModel(assistedFactory = LensViewModel.Factory::class)
-class LensViewModel @AssistedInject constructor(
-    private val application: Application,
+@HiltViewModel(assistedFactory = InterchangeableLensViewModel.Factory::class)
+class InterchangeableLensViewModel @AssistedInject constructor(
+    application: Application,
     @Assisted lensId: Long,
-    @Assisted private val fixedLens: Boolean,
     lensRepository: LensRepository
-) : AndroidViewModel(application) {
-
+) : LensViewModel(
+    application,
+    lensRepository.getLens(lensId) ?: Lens(),
+    false
+) {
     @AssistedFactory
     interface Factory {
-        fun create(lensId: Long, fixedLens: Boolean): LensViewModel
+        fun create(lensId: Long): InterchangeableLensViewModel
     }
+}
+
+@HiltViewModel(assistedFactory = FixedLensViewModel.Factory::class)
+class FixedLensViewModel @AssistedInject constructor(
+    application: Application,
+    @Assisted lens: Lens
+) : LensViewModel(application, lens, true) {
+    @AssistedFactory
+    interface Factory {
+        fun create(lens: Lens): FixedLensViewModel
+    }
+}
+
+abstract class LensViewModel(
+    private val application: Application,
+    val lens: Lens,
+    private val fixedLens: Boolean
+) : AndroidViewModel(application) {
 
     val context: Context get() = application.applicationContext
-
-    val lens = lensRepository.getLens(lensId) ?: Lens()
 
     private val _make = MutableStateFlow(lens.make)
     private val _model = MutableStateFlow(lens.model)

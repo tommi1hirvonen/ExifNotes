@@ -74,18 +74,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Increment
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
 @Composable
-fun LensEditScreen(
-    lensId: Long,
-    fixedLens: Boolean,
-    onNavigateUp: () -> Unit,
-    gearViewModel: GearViewModel,
-    lensViewModel: LensViewModel = hiltViewModel { factory: LensViewModel.Factory ->
-        factory.create(lensId, fixedLens)
+fun FixedLensEditScreen(
+    lens: Lens,
+    onCancel: () -> Unit,
+    onSubmit: (Lens) -> Unit,
+    lensViewModel: FixedLensViewModel = hiltViewModel { factory: FixedLensViewModel.Factory ->
+        factory.create(lens.copy())
     }
 ) {
     val make = lensViewModel.make.collectAsState()
@@ -103,9 +103,72 @@ fun LensEditScreen(
     val apertureRangeError = lensViewModel.apertureRangeError.collectAsState()
     val minFocalLengthError = lensViewModel.minFocalLengthError.collectAsState()
     val maxFocalLengthError = lensViewModel.maxFocalLengthError.collectAsState()
+    val title = stringResource(R.string.FixedLens)
     LensEditContent(
-        isNewLens = lensId <= 0,
-        isFixedLens = fixedLens,
+        title = title,
+        isFixedLens = true,
+        make = make.value ?: "",
+        model = model.value ?: "",
+        serialNumber = serialNumber.value ?: "",
+        minFocalLength = minFocalLength.value,
+        maxFocalLength = maxFocalLength.value,
+        apertureIncrements = apertureIncrements.value,
+        minAperture = minAperture.value ?: "",
+        maxAperture = maxAperture.value ?: "",
+        customApertureValues = customApertureValues.value,
+        apertureValues = apertureValues.value,
+        makeError = makeError.value,
+        modelError = modelError.value,
+        apertureRangeError = apertureRangeError.value,
+        minFocalLengthError = minFocalLengthError.value,
+        maxFocalLengthError = maxFocalLengthError.value,
+        onMakeChange = lensViewModel::setMake,
+        onModelChange = lensViewModel::setModel,
+        onSerialNumberChange = lensViewModel::setSerialNumber,
+        onApertureIncrementsChange = lensViewModel::setApertureIncrements,
+        onSetMaxAperture = lensViewModel::setMaxAperture,
+        onSetMinAperture = lensViewModel::setMinAperture,
+        onClearApertureRange = lensViewModel::clearApertureRange,
+        onSetMinFocalLength = lensViewModel::setMinFocalLength,
+        onSetMaxFocalLength = lensViewModel::setMaxFocalLength,
+        onSetCustomApertureValues = lensViewModel::setCustomApertureValues,
+        onNavigateUp = onCancel,
+        onSubmit = {
+            if (lensViewModel.validate()) {
+                onSubmit(lensViewModel.lens)
+            }
+        }
+    )
+}
+
+@Composable
+fun InterchangeableLensEditScreen(
+    lensId: Long,
+    onNavigateUp: () -> Unit,
+    gearViewModel: GearViewModel,
+    lensViewModel: InterchangeableLensViewModel = hiltViewModel { factory: InterchangeableLensViewModel.Factory ->
+        factory.create(lensId)
+    }
+) {
+    val make = lensViewModel.make.collectAsState()
+    val model = lensViewModel.model.collectAsState()
+    val serialNumber = lensViewModel.serialNumber.collectAsState()
+    val minFocalLength = lensViewModel.minFocalLength.collectAsState()
+    val maxFocalLength = lensViewModel.maxFocalLength.collectAsState()
+    val apertureIncrements = lensViewModel.apertureIncrements.collectAsState()
+    val minAperture = lensViewModel.minAperture.collectAsState()
+    val maxAperture = lensViewModel.maxAperture.collectAsState()
+    val customApertureValues = lensViewModel.customApertureValues.collectAsState()
+    val apertureValues = lensViewModel.apertureValues.collectAsState()
+    val makeError = lensViewModel.makeError.collectAsState()
+    val modelError = lensViewModel.modelError.collectAsState()
+    val apertureRangeError = lensViewModel.apertureRangeError.collectAsState()
+    val minFocalLengthError = lensViewModel.minFocalLengthError.collectAsState()
+    val maxFocalLengthError = lensViewModel.maxFocalLengthError.collectAsState()
+    val title = stringResource(if (lensId <= 0) R.string.AddNewLens else R.string.EditLens)
+    LensEditContent(
+        title = title,
+        isFixedLens = false,
         make = make.value ?: "",
         model = model.value ?: "",
         serialNumber = serialNumber.value ?: "",
@@ -145,7 +208,7 @@ fun LensEditScreen(
 @Composable
 private fun LensEditContentPreview() {
     LensEditContent(
-        isNewLens = true,
+        title = "Add new lens",
         isFixedLens = false,
         make = "Canon",
         model = "FD 28mm f/2.8",
@@ -180,7 +243,7 @@ private fun LensEditContentPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LensEditContent(
-    isNewLens: Boolean,
+    title: String,
     isFixedLens: Boolean,
     make: String,
     model: String,
@@ -221,7 +284,6 @@ private fun LensEditContent(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            val title = stringResource(if (isNewLens) R.string.AddNewLens else R.string.EditLens)
             TopAppBar(
                 scrollBehavior = scrollBehavior,
                 title = { Text(title) },

@@ -28,16 +28,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.GpsCheckDialog
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CameraEditScreen
+import com.tommihirvonen.exifnotes.screens.gear.cameras.CameraViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockEditScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filters.FilterEditScreen
-import com.tommihirvonen.exifnotes.screens.gear.lenses.LensEditScreen
+import com.tommihirvonen.exifnotes.screens.gear.lenses.FixedLensEditScreen
+import com.tommihirvonen.exifnotes.screens.gear.lenses.InterchangeableLensEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -123,19 +126,36 @@ fun App(onFinish: () -> Unit) {
                 val gearEntry = remember(backStackEntry) { navController.getBackStackEntry<Gear>() }
                 val gearViewModel = hiltViewModel<GearViewModel>(gearEntry)
                 val camera = backStackEntry.toRoute<CameraEdit>()
+                val cameraViewModel: CameraViewModel = hiltViewModel { factory: CameraViewModel.Factory ->
+                    factory.create(camera.cameraId)
+                }
                 CameraEditScreen(
-                    cameraId =  camera.cameraId,
                     onNavigateUp = { navController.navigateUp() },
-                    gearViewModel = gearViewModel
+                    onEditFixedLens = { navController.navigate(route = FixedLensEdit) },
+                    gearViewModel = gearViewModel,
+                    cameraViewModel = cameraViewModel
+                )
+            }
+            composable<FixedLensEdit> { backStackEntry ->
+                val cameraEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry<CameraEdit>()
+                }
+                val cameraViewModel = hiltViewModel<CameraViewModel>(cameraEntry)
+                FixedLensEditScreen(
+                    lens = cameraViewModel.camera.lens ?: Lens(),
+                    onCancel = { navController.navigateUp() },
+                    onSubmit = { lens ->
+                        cameraViewModel.setLens(lens)
+                        navController.navigateUp()
+                    }
                 )
             }
             composable<LensEdit> { backStackEntry ->
                 val gearEntry = remember(backStackEntry) { navController.getBackStackEntry<Gear>() }
                 val gearViewModel = hiltViewModel<GearViewModel>(gearEntry)
                 val lens = backStackEntry.toRoute<LensEdit>()
-                LensEditScreen(
+                InterchangeableLensEditScreen(
                     lensId =  lens.lensId,
-                    fixedLens = lens.fixedLens,
                     onNavigateUp = { navController.navigateUp() },
                     gearViewModel = gearViewModel
                 )
@@ -214,6 +234,9 @@ private object Gear
 
 @Serializable
 private data class CameraEdit(val cameraId: Long)
+
+@Serializable
+private object FixedLensEdit
 
 @Serializable
 private data class LensEdit(val lensId: Long, val fixedLens: Boolean)
