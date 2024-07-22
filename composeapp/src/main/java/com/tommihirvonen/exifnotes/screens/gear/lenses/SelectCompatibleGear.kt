@@ -22,10 +22,62 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
+import com.tommihirvonen.exifnotes.util.State
+
+@Composable
+fun LensSelectCompatibleCamerasDialog(
+    gearViewModel: GearViewModel,
+    lens: Lens,
+    onDismiss: () -> Unit
+) {
+    val camerasState = gearViewModel.cameras.collectAsState()
+    val cameras = when (val c = camerasState.value) {
+        is State.Success -> c.data
+        else -> emptyList()
+    }
+    SelectCompatibleCamerasDialogContent(
+        cameras = cameras.associateWith { lens.cameraIds.contains(it.id) },
+        onDismiss = onDismiss,
+        onConfirm = { selectedCameras ->
+            val added = selectedCameras.filterNot { lens.cameraIds.contains(it.id) }
+            val removed = lens.cameraIds
+                .filter { id ->
+                    selectedCameras.none { camera -> camera.id == id }
+                }
+                .mapNotNull { id ->
+                    cameras.firstOrNull { camera -> camera.id == id }
+                }
+            added.forEach { camera ->
+                gearViewModel.addCameraLensLink(camera, lens)
+            }
+            removed.forEach { camera ->
+                gearViewModel.deleteCameraLensLink(camera, lens)
+            }
+        }
+    )
+}
+
+@Composable
+private fun SelectCompatibleCamerasDialogContent(
+    cameras: Map<Camera, Boolean>,
+    onDismiss: () -> Unit,
+    onConfirm: (List<Camera>) -> Unit
+) {
+    val title = stringResource(R.string.SelectCompatibleCameras)
+    MultiChoiceDialog(
+        title = title,
+        initialItems = cameras,
+        itemText = { it.name },
+        sortItemsBy = { it.name },
+        onDismiss = onDismiss,
+        onConfirm = onConfirm
+    )
+}
 
 @Composable
 fun LensSelectCompatibleFiltersDialog(
