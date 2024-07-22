@@ -280,8 +280,7 @@ private fun LensEditContent(
                         modifier = Modifier.fillMaxWidth(),
                         value = serialNumber,
                         onValueChange = onSerialNumberChange,
-                        label = { Text(stringResource(R.string.SerialNumber)) },
-                        isError = modelError
+                        label = { Text(stringResource(R.string.SerialNumber)) }
                     )
                 }
             }
