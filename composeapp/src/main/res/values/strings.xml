@@ -250,6 +250,7 @@
     <string name="Lens">Lens</string>
     <string name="LensNoColon">Lens</string>
     <string name="Lenses">LENSES</string>
+    <string name="LensIsInUseConfirmation">Lens is in use. Delete anyway?</string>
     <string name="LensesNoCap">Lenses</string>
     <string name="License">License</string>
     <string name="Light">Light</string>

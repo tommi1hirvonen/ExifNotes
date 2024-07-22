@@ -90,6 +90,7 @@ fun GearScreen(
     val filters = gearViewModel.filters.collectAsState()
     val filmStocks = filmStocksViewModel.filmStocks.collectAsState()
     val filmStockSortMode = filmStocksViewModel.sortMode.collectAsState()
+    var confirmDeleteLens by remember { mutableStateOf<Lens?>(null) }
     var confirmDeleteFilter by remember { mutableStateOf<Filter?>(null) }
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
     var showFilterCompatibleLensesDialog by remember { mutableStateOf<Filter?>(null) }
@@ -134,7 +135,7 @@ fun GearScreen(
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
         onDeleteLens = { lens ->
-            // TODO
+            confirmDeleteLens = lens
         },
         onEditLensCompatibleCameras = { lens ->
             // TODO
@@ -163,12 +164,43 @@ fun GearScreen(
         filmStockFilters = filmStocksViewModel.filterSet,
         onFilmStockFiltersChanged = { filmStocksViewModel.filterSet = it }
     )
+    when (val lens = confirmDeleteLens) {
+        is Lens -> AlertDialog(
+            title = { Text(stringResource(R.string.ConfirmLensDelete)) },
+            text = {
+                Column {
+                    Text(lens.name)
+                    val inUse = gearViewModel.isLensInUse(lens)
+                    if (inUse) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.LensIsInUseConfirmation))
+                    }
+                }
+            },
+            onDismissRequest = { confirmDeleteLens = null },
+            dismissButton = {
+                TextButton(onClick = { confirmDeleteLens = null }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmDeleteLens = null
+                        gearViewModel.deleteLens(lens)
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
+        )
+    }
     when (val filmStock = confirmDeleteFilmStock) {
         is FilmStock -> AlertDialog(
             title = { Text(stringResource(R.string.DeleteFilmStock)) },
             text = {
                 Column {
-                    Text(confirmDeleteFilmStock?.name ?: "")
+                    Text(filmStock.name)
                     val inUse = filmStocksViewModel.isFilmStockInUse(filmStock)
                     if (inUse) {
                         Spacer(modifier = Modifier.height(16.dp))
