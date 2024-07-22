@@ -64,6 +64,7 @@ class LensViewModel @AssistedInject constructor(
     private val _apertureRangeError = MutableStateFlow("")
     private val _minFocalLengthError = MutableStateFlow("")
     private val _maxFocalLengthError = MutableStateFlow("")
+    private val _apertureValues = MutableStateFlow(getApertureValues())
 
     val make = _make.asStateFlow()
     val model = _model.asStateFlow()
@@ -79,6 +80,7 @@ class LensViewModel @AssistedInject constructor(
     val apertureRangeError = _apertureRangeError.asStateFlow()
     val minFocalLengthError = _minFocalLengthError.asStateFlow()
     val maxFocalLengthError = _maxFocalLengthError.asStateFlow()
+    val apertureValues = _apertureValues.asStateFlow()
 
     fun setMake(value: String) {
         lens.make = value
@@ -100,6 +102,15 @@ class LensViewModel @AssistedInject constructor(
     fun setApertureIncrements(value: Increment) {
         lens.apertureIncrements = value
         _apertureIncrements.value = value
+        _apertureValues.value = getApertureValues()
+        val options = getApertureValues()
+        val minFound = options.contains(lens.minAperture)
+        val maxFound = options.contains(lens.maxAperture)
+        // If either one wasn't found in the new values array, null them.
+        if (!minFound || !maxFound) {
+            setMinAperture(null)
+            setMaxAperture(null)
+        }
     }
 
     fun clearApertureRange() {
@@ -116,14 +127,32 @@ class LensViewModel @AssistedInject constructor(
         return lens.customApertureValues.sorted().distinct().joinToString()
     }
 
-    private fun setMinAperture(value: String?) {
-        lens.minAperture = value
-        _minAperture.value = value
+    private fun getApertureValues() = when (lens.apertureIncrements) {
+        Increment.THIRD -> context.resources.getStringArray(R.array.ApertureValuesThird).toList()
+        Increment.HALF -> context.resources.getStringArray(R.array.ApertureValuesHalf).toList()
+        Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull).toList()
     }
 
-    private fun setMaxAperture(value: String?) {
-        lens.maxAperture = value
-        _maxAperture.value = value
+    fun setMinAperture(value: String?) {
+        if (value?.toDoubleOrNull() != null) {
+            lens.minAperture = value
+            _minAperture.value = value
+        } else {
+            lens.minAperture = null
+            _minAperture.value = null
+        }
+        _apertureRangeError.value = ""
+    }
+
+    fun setMaxAperture(value: String?) {
+        if (value?.toDoubleOrNull() != null) {
+            lens.maxAperture = value
+            _maxAperture.value = value
+        } else {
+            lens.maxAperture = null
+            _maxAperture.value = null
+        }
+        _apertureRangeError.value = ""
     }
 
     fun validate(): Boolean {

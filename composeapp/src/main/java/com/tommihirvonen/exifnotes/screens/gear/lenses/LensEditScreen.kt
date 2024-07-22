@@ -88,6 +88,7 @@ fun LensEditScreen(
     val minAperture = lensViewModel.minAperture.collectAsState()
     val maxAperture = lensViewModel.maxAperture.collectAsState()
     val customApertureValues = lensViewModel.customApertureValues.collectAsState()
+    val apertureValues = lensViewModel.apertureValues.collectAsState()
     val makeError = lensViewModel.makeError.collectAsState()
     val modelError = lensViewModel.modelError.collectAsState()
     val apertureRangeError = lensViewModel.apertureRangeError.collectAsState()
@@ -104,6 +105,7 @@ fun LensEditScreen(
         minAperture = minAperture.value ?: "",
         maxAperture = maxAperture.value ?: "",
         customApertureValues = customApertureValues.value,
+        apertureValues = apertureValues.value,
         makeError = makeError.value,
         modelError = modelError.value,
         apertureRangeError = apertureRangeError.value,
@@ -113,6 +115,8 @@ fun LensEditScreen(
         onModelChange = lensViewModel::setModel,
         onSerialNumberChange = lensViewModel::setSerialNumber,
         onApertureIncrementsChange = lensViewModel::setApertureIncrements,
+        onSetMaxAperture = lensViewModel::setMaxAperture,
+        onSetMinAperture = lensViewModel::setMinAperture,
         onClearApertureRange = lensViewModel::clearApertureRange,
         onNavigateUp = onNavigateUp,
         onSubmit = {
@@ -138,6 +142,7 @@ private fun LensEditContentPreview() {
         minAperture = "22",
         maxAperture = "2.8",
         customApertureValues = "3.5, 4.6",
+        apertureValues = emptyList(),
         makeError = false,
         modelError = false,
         apertureRangeError = "Sample error",
@@ -147,6 +152,8 @@ private fun LensEditContentPreview() {
         onModelChange = {},
         onSerialNumberChange = {},
         onApertureIncrementsChange = {},
+        onSetMaxAperture = {},
+        onSetMinAperture = {},
         onClearApertureRange = {},
         onNavigateUp = {},
         onSubmit = {}
@@ -166,6 +173,7 @@ private fun LensEditContent(
     minAperture: String,
     maxAperture: String,
     customApertureValues: String,
+    apertureValues: List<String>,
     makeError: Boolean,
     modelError: Boolean,
     apertureRangeError: String,
@@ -175,6 +183,8 @@ private fun LensEditContent(
     onModelChange: (String) -> Unit,
     onSerialNumberChange: (String) -> Unit,
     onApertureIncrementsChange: (Increment) -> Unit,
+    onSetMaxAperture: (String) -> Unit,
+    onSetMinAperture: (String) -> Unit,
     onClearApertureRange: () -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
@@ -182,6 +192,8 @@ private fun LensEditContent(
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var apertureIncrementsExpanded by remember { mutableStateOf(false) }
+    var maxApertureExpanded by remember { mutableStateOf(false) }
+    var minApertureExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -297,8 +309,8 @@ private fun LensEditContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                     ExposedDropdownMenuBox(
-                        expanded = false,
-                        onExpandedChange = {  }
+                        expanded = maxApertureExpanded,
+                        onExpandedChange = { maxApertureExpanded = it }
                     ) {
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
@@ -307,14 +319,22 @@ private fun LensEditContent(
                             isError = apertureRangeError.isNotEmpty(),
                             onValueChange = {},
                             trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = maxApertureExpanded)
                             }
                         )
                         ExposedDropdownMenu(
-                            expanded = false,
-                            onDismissRequest = {}
+                            expanded = maxApertureExpanded,
+                            onDismissRequest = { maxApertureExpanded = false }
                         ) {
-                            // TODO
+                            apertureValues.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value) },
+                                    onClick = {
+                                        onSetMaxAperture(value)
+                                        maxApertureExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -325,8 +345,8 @@ private fun LensEditContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                     ExposedDropdownMenuBox(
-                        expanded = false,
-                        onExpandedChange = {  }
+                        expanded = minApertureExpanded,
+                        onExpandedChange = { minApertureExpanded = it }
                     ) {
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
@@ -335,14 +355,22 @@ private fun LensEditContent(
                             isError = apertureRangeError.isNotEmpty(),
                             onValueChange = {},
                             trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = minApertureExpanded)
                             }
                         )
                         ExposedDropdownMenu(
-                            expanded = false,
-                            onDismissRequest = {}
+                            expanded = minApertureExpanded,
+                            onDismissRequest = { minApertureExpanded = false }
                         ) {
-                            // TODO
+                            apertureValues.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value) },
+                                    onClick = {
+                                        onSetMinAperture(value)
+                                        minApertureExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
