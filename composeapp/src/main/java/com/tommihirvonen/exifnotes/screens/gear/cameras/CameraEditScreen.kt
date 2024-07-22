@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.gear.cameras
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,11 +31,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,13 +49,20 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
@@ -64,18 +78,32 @@ fun CameraEditScreen(
     val make = cameraViewModel.make.collectAsState()
     val model = cameraViewModel.model.collectAsState()
     val serialNumber = cameraViewModel.serialNumber.collectAsState()
+    val shutterIncrements = cameraViewModel.shutterIncrements.collectAsState()
+    val minShutter = cameraViewModel.minShutter.collectAsState()
+    val maxShutter = cameraViewModel.maxShutter.collectAsState()
+    val shutterValues = cameraViewModel.shutterValues.collectAsState()
     val makeError = cameraViewModel.makeError.collectAsState()
     val modelError = cameraViewModel.modelError.collectAsState()
+    val shutterRangeError = cameraViewModel.shutterRangeError.collectAsState()
     CameraEditContent(
         isNewCamera = cameraId <= 0,
         make = make.value ?: "",
         model = model.value ?: "",
         serialNumber = serialNumber.value ?: "",
+        shutterIncrements = shutterIncrements.value,
+        minShutter = minShutter.value ?: "",
+        maxShutter = maxShutter.value ?: "",
+        shutterValues = shutterValues.value,
         makeError = makeError.value,
         modelError = modelError.value,
+        shutterRangeError = shutterRangeError.value,
         onMakeChange = cameraViewModel::setMake,
         onModelChange = cameraViewModel::setModel,
         onSerialNumberChange = cameraViewModel::setSerialNumber,
+        onShutterIncrementsChange = cameraViewModel::setShutterIncrements,
+        onSetMinShutter = cameraViewModel::setMinShutter,
+        onSetMaxShutter = cameraViewModel::setMaxShutter,
+        onClearShutterRange = cameraViewModel::clearShutterRange,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (cameraViewModel.validate()) {
@@ -94,11 +122,20 @@ private fun CameraEditContentPreview() {
         make = "Canon",
         model = "A-1",
         serialNumber = "123ASD456",
+        shutterIncrements = Increment.THIRD,
+        minShutter = "1/1000",
+        maxShutter = "30\"",
+        shutterValues = emptyList(),
         makeError = false,
         modelError = false,
+        shutterRangeError = "Sample error",
         onMakeChange = {},
         onModelChange = {},
         onSerialNumberChange = {},
+        onShutterIncrementsChange = {},
+        onSetMaxShutter = {},
+        onSetMinShutter = {},
+        onClearShutterRange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -111,15 +148,28 @@ private fun CameraEditContent(
     make: String,
     model: String,
     serialNumber: String,
+    shutterIncrements: Increment,
+    minShutter: String,
+    maxShutter: String,
+    shutterValues: List<String>,
     makeError: Boolean,
     modelError: Boolean,
+    shutterRangeError: String,
     onMakeChange: (String) -> Unit,
     onModelChange: (String) -> Unit,
     onSerialNumberChange: (String) -> Unit,
+    onShutterIncrementsChange: (Increment) -> Unit,
+    onSetMaxShutter: (String) -> Unit,
+    onSetMinShutter: (String) -> Unit,
+    onClearShutterRange: () -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var shutterIncrementsExpanded by remember { mutableStateOf(false) }
+    var maxShutterExpanded by remember { mutableStateOf(false) }
+    var minShutterExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -182,6 +232,129 @@ private fun CameraEditContent(
                     value = serialNumber,
                     onValueChange = onSerialNumberChange,
                     label = { Text(stringResource(R.string.SerialNumber)) }
+                )
+            }
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.ShutterSpeedIncrements),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                ExposedDropdownMenuBox(
+                    expanded = shutterIncrementsExpanded,
+                    onExpandedChange = { shutterIncrementsExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.menuAnchor(),
+                        readOnly = true,
+                        value = shutterIncrements.description(context),
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterIncrementsExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = shutterIncrementsExpanded,
+                        onDismissRequest = { shutterIncrementsExpanded = false }
+                    ) {
+                        Increment.entries.forEach { increment ->
+                            DropdownMenuItem(
+                                text = { Text(increment.description(context)) },
+                                onClick = {
+                                    onShutterIncrementsChange(increment)
+                                    shutterIncrementsExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier.padding(top = 16.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Column(modifier = Modifier.weight(0.5f)) {
+                    Text(
+                        text = stringResource(R.string.From),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = minShutterExpanded,
+                        onExpandedChange = { minShutterExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.menuAnchor(),
+                            readOnly = true,
+                            value = minShutter,
+                            isError = shutterRangeError.isNotEmpty(),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = minShutterExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = minShutterExpanded,
+                            onDismissRequest = { minShutterExpanded = false }
+                        ) {
+                            shutterValues.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value) },
+                                    onClick = {
+                                        onSetMinShutter(value)
+                                        minShutterExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(0.5f)) {
+                    Text(
+                        text = stringResource(R.string.To),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = maxShutterExpanded,
+                        onExpandedChange = { maxShutterExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier.menuAnchor(),
+                            readOnly = true,
+                            value = maxShutter,
+                            isError = shutterRangeError.isNotEmpty(),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = maxShutterExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = maxShutterExpanded,
+                            onDismissRequest = { maxShutterExpanded = false }
+                        ) {
+                            shutterValues.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value) },
+                                    onClick = {
+                                        onSetMaxShutter(value)
+                                        maxShutterExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                    FilledTonalIconButton(onClick = onClearShutterRange) {
+                        Icon(Icons.Outlined.Clear, "")
+                    }
+                }
+            }
+            if (shutterRangeError.isNotEmpty()) {
+                Text(
+                    text = shutterRangeError,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

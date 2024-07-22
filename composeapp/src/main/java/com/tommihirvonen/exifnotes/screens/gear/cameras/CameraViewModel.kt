@@ -52,6 +52,9 @@ class CameraViewModel @AssistedInject constructor(
     private val _make = MutableStateFlow(camera.make)
     private val _model = MutableStateFlow(camera.model)
     private val _serialNumber = MutableStateFlow(camera.serialNumber)
+    private val _shutterIncrements = MutableStateFlow(camera.shutterIncrements)
+    private val _minShutter = MutableStateFlow(camera.minShutter)
+    private val _maxShutter = MutableStateFlow(camera.maxShutter)
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _shutterRangeError = MutableStateFlow("")
@@ -60,6 +63,9 @@ class CameraViewModel @AssistedInject constructor(
     val make = _make.asStateFlow()
     val model = _model.asStateFlow()
     val serialNumber = _serialNumber.asStateFlow()
+    val shutterIncrements = _shutterIncrements.asStateFlow()
+    val minShutter = _minShutter.asStateFlow()
+    val maxShutter = _maxShutter.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
     val shutterRangeError = _shutterRangeError.asStateFlow()
@@ -80,6 +86,39 @@ class CameraViewModel @AssistedInject constructor(
     fun setSerialNumber(value: String) {
         camera.serialNumber = value.ifEmpty { null }
         _serialNumber.value = value
+    }
+
+    fun setShutterIncrements(value: Increment) {
+        camera.shutterIncrements = value
+        _shutterIncrements.value = value
+        _shutterValues.value = getShutterValues()
+        val options = getShutterValues()
+        val minFound = options.contains(camera.minShutter)
+        val maxFound = options.contains(camera.maxShutter)
+        // If either one wasn't found in the new values array, null them.
+        if (!minFound || !maxFound) {
+            setMinShutter(null)
+            setMaxShutter(null)
+        }
+    }
+
+    fun setMinShutter(value: String?) {
+        // TODO regex validation
+        camera.minShutter = value
+        _minShutter.value = value
+        _shutterRangeError.value = ""
+    }
+
+    fun setMaxShutter(value: String?) {
+        // TODO regex validation
+        camera.maxShutter = value
+        _maxShutter.value = value
+        _shutterRangeError.value = ""
+    }
+
+    fun clearShutterRange() {
+        setMinShutter(null)
+        setMaxShutter(null)
     }
 
     fun validate(): Boolean = camera.validate(
