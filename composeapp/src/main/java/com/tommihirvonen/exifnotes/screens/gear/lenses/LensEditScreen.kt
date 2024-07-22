@@ -304,7 +304,7 @@ private fun LensEditContent(
                     )
                     ExposedDropdownMenu(
                         expanded = apertureIncrementsExpanded,
-                        onDismissRequest = {}
+                        onDismissRequest = { apertureIncrementsExpanded = false }
                     ) {
                         Increment.entries.forEach { increment ->
                             DropdownMenuItem(
