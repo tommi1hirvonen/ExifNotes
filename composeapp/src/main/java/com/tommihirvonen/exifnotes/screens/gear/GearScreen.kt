@@ -71,6 +71,7 @@ import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filters.FilterSelectCompatibleCamerasDialog
 import com.tommihirvonen.exifnotes.screens.gear.filters.FilterSelectCompatibleLensesDialog
 import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
+import com.tommihirvonen.exifnotes.screens.gear.lenses.LensSelectCompatibleFiltersDialog
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensesScreen
 import com.tommihirvonen.exifnotes.util.State
 import kotlinx.coroutines.launch
@@ -93,6 +94,7 @@ fun GearScreen(
     var confirmDeleteLens by remember { mutableStateOf<Lens?>(null) }
     var confirmDeleteFilter by remember { mutableStateOf<Filter?>(null) }
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
+    var showLensCompatibleFiltersDialog by remember { mutableStateOf<Lens?>(null) }
     var showFilterCompatibleLensesDialog by remember { mutableStateOf<Filter?>(null) }
     var showFilterCompatibleCamerasDialog by remember { mutableStateOf<Filter?>(null) }
     GearContent(
@@ -141,7 +143,7 @@ fun GearScreen(
             // TODO
         },
         onEditLensCompatibleFilters = { lens ->
-            // TODO
+            showLensCompatibleFiltersDialog = lens
         },
         onEditFilter = onEditFilter,
         onDeleteFilter = { filter ->
@@ -255,6 +257,13 @@ fun GearScreen(
                     Text(stringResource(R.string.OK))
                 }
             }
+        )
+    }
+    when (val lens = showLensCompatibleFiltersDialog) {
+        is Lens -> LensSelectCompatibleFiltersDialog(
+            gearViewModel = gearViewModel,
+            lens = lens,
+            onDismiss = { showLensCompatibleFiltersDialog = null }
         )
     }
     when (val filter = showFilterCompatibleLensesDialog) {
