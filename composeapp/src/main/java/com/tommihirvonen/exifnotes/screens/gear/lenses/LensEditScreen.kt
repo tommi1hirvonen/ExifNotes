@@ -98,6 +98,7 @@ fun LensEditScreen(
     val maxFocalLengthError = lensViewModel.maxFocalLengthError.collectAsState()
     LensEditContent(
         isNewLens = lensId <= 0,
+        isFixedLens = fixedLens,
         make = make.value ?: "",
         model = model.value ?: "",
         serialNumber = serialNumber.value ?: "",
@@ -137,6 +138,7 @@ fun LensEditScreen(
 private fun LensEditContentPreview() {
     LensEditContent(
         isNewLens = true,
+        isFixedLens = false,
         make = "Canon",
         model = "FD 28mm f/2.8",
         serialNumber = "123ASD456",
@@ -170,6 +172,7 @@ private fun LensEditContentPreview() {
 @Composable
 private fun LensEditContent(
     isNewLens: Boolean,
+    isFixedLens: Boolean,
     make: String,
     model: String,
     serialNumber: String,
@@ -238,34 +241,36 @@ private fun LensEditContent(
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Row(modifier = Modifier.padding(top = 8.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = make,
-                    onValueChange = onMakeChange,
-                    label = { Text(stringResource(R.string.Make)) },
-                    supportingText = { Text(stringResource(R.string.Required)) },
-                    isError = makeError
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = model,
-                    onValueChange = onModelChange,
-                    label = { Text(stringResource(R.string.Model)) },
-                    supportingText = { Text(stringResource(R.string.Required)) },
-                    isError = modelError
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = serialNumber,
-                    onValueChange = onSerialNumberChange,
-                    label = { Text(stringResource(R.string.SerialNumber)) },
-                    isError = modelError
-                )
+            if (!isFixedLens) {
+                Row(modifier = Modifier.padding(top = 8.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = make,
+                        onValueChange = onMakeChange,
+                        label = { Text(stringResource(R.string.Make)) },
+                        supportingText = { Text(stringResource(R.string.Required)) },
+                        isError = makeError
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = model,
+                        onValueChange = onModelChange,
+                        label = { Text(stringResource(R.string.Model)) },
+                        supportingText = { Text(stringResource(R.string.Required)) },
+                        isError = modelError
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = serialNumber,
+                        onValueChange = onSerialNumberChange,
+                        label = { Text(stringResource(R.string.SerialNumber)) },
+                        isError = modelError
+                    )
+                }
             }
             Column(modifier = Modifier.padding(top = 16.dp)) {
                 Text(
