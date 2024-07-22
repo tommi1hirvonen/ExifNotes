@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -50,6 +51,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -125,6 +127,7 @@ fun LensEditScreen(
         onClearApertureRange = lensViewModel::clearApertureRange,
         onSetMinFocalLength = lensViewModel::setMinFocalLength,
         onSetMaxFocalLength = lensViewModel::setMaxFocalLength,
+        onSetCustomApertureValues = lensViewModel::setCustomApertureValues,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (lensViewModel.validate()) {
@@ -149,7 +152,7 @@ private fun LensEditContentPreview() {
         apertureIncrements = Increment.THIRD,
         minAperture = "22",
         maxAperture = "2.8",
-        customApertureValues = "3.5, 4.6",
+        customApertureValues = listOf(2.8f, 5.6f),
         apertureValues = emptyList(),
         makeError = false,
         modelError = false,
@@ -165,6 +168,7 @@ private fun LensEditContentPreview() {
         onClearApertureRange = {},
         onSetMinFocalLength = {},
         onSetMaxFocalLength = {},
+        onSetCustomApertureValues = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -183,7 +187,7 @@ private fun LensEditContent(
     apertureIncrements: Increment,
     minAperture: String,
     maxAperture: String,
-    customApertureValues: String,
+    customApertureValues: List<Float>,
     apertureValues: List<String>,
     makeError: Boolean,
     modelError: Boolean,
@@ -199,6 +203,7 @@ private fun LensEditContent(
     onClearApertureRange: () -> Unit,
     onSetMinFocalLength: (String) -> Unit,
     onSetMaxFocalLength: (String) -> Unit,
+    onSetCustomApertureValues: (List<Float>) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -208,6 +213,7 @@ private fun LensEditContent(
     var maxApertureExpanded by remember { mutableStateOf(false) }
     var minApertureExpanded by remember { mutableStateOf(false) }
     var showCustomApertureValuesInfo by remember { mutableStateOf(false) }
+    var showAddCustomApertureValueDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -416,13 +422,13 @@ private fun LensEditContent(
             ) {
                 DropdownButton(
                     modifier = Modifier.weight(1f),
-                    text = customApertureValues,
+                    text = customApertureValues.sorted().distinct().joinToString(),
                     onClick = { /*TODO*/ }
                 )
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                 ) {
-                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                    FilledTonalIconButton(onClick = { showAddCustomApertureValueDialog = true }) {
                         Icon(Icons.Outlined.Add, "")
                     }
                 }
@@ -494,6 +500,60 @@ private fun LensEditContent(
             confirmButton = {
                 TextButton(onClick = { showCustomApertureValuesInfo = false }) {
                     Text(stringResource(R.string.Close))
+                }
+            }
+        )
+    }
+    if (showAddCustomApertureValueDialog) {
+        var value by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showAddCustomApertureValueDialog = false },
+            dismissButton = {
+                TextButton(onClick = { showAddCustomApertureValueDialog = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = value.toFloatOrNull() != null,
+                    onClick = {
+                        showAddCustomApertureValueDialog = false
+                        when (val v = value.toFloatOrNull()) {
+                            is Float -> {
+                                onSetCustomApertureValues(
+                                    customApertureValues.plus(v)
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.Add))
+                }
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(stringResource(R.string.EnterCustomerApertureValue))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TextField(
+                        modifier = Modifier.width(100.dp),
+                        value = value,
+                        onValueChange = {
+                            value = if (it.isEmpty()) {
+                                it
+                            } else {
+                                when (it.toFloatOrNull()) {
+                                    null -> value
+                                    else -> it
+                                }
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
                 }
             }
         )

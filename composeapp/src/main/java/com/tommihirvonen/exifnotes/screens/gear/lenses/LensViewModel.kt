@@ -58,7 +58,7 @@ class LensViewModel @AssistedInject constructor(
     private val _apertureIncrements = MutableStateFlow(lens.apertureIncrements)
     private val _minAperture = MutableStateFlow(lens.minAperture)
     private val _maxAperture = MutableStateFlow(lens.maxAperture)
-    private val _customApertureValues = MutableStateFlow(getCustomApertureValues())
+    private val _customApertureValues = MutableStateFlow(lens.customApertureValues)
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _apertureRangeError = MutableStateFlow("")
@@ -120,11 +120,7 @@ class LensViewModel @AssistedInject constructor(
 
     fun setCustomApertureValues(values: List<Float>) {
         lens.customApertureValues = values.filter { it >= 0f }.sorted().distinct()
-        _customApertureValues.value = getCustomApertureValues()
-    }
-
-    private fun getCustomApertureValues(): String {
-        return lens.customApertureValues.sorted().distinct().joinToString()
+        _customApertureValues.value = lens.customApertureValues
     }
 
     private fun getApertureValues() = when (lens.apertureIncrements) {
