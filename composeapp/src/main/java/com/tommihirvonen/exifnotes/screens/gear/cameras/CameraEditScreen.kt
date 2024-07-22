@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Increment
+import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
@@ -82,6 +83,7 @@ fun CameraEditScreen(
     val minShutter = cameraViewModel.minShutter.collectAsState()
     val maxShutter = cameraViewModel.maxShutter.collectAsState()
     val shutterValues = cameraViewModel.shutterValues.collectAsState()
+    val exposureCompIncrements = cameraViewModel.exposureCompIncrements.collectAsState()
     val makeError = cameraViewModel.makeError.collectAsState()
     val modelError = cameraViewModel.modelError.collectAsState()
     val shutterRangeError = cameraViewModel.shutterRangeError.collectAsState()
@@ -94,6 +96,7 @@ fun CameraEditScreen(
         minShutter = minShutter.value ?: "",
         maxShutter = maxShutter.value ?: "",
         shutterValues = shutterValues.value,
+        exposureCompIncrements = exposureCompIncrements.value,
         makeError = makeError.value,
         modelError = modelError.value,
         shutterRangeError = shutterRangeError.value,
@@ -104,6 +107,7 @@ fun CameraEditScreen(
         onSetMinShutter = cameraViewModel::setMinShutter,
         onSetMaxShutter = cameraViewModel::setMaxShutter,
         onClearShutterRange = cameraViewModel::clearShutterRange,
+        onSetExposureCompIncrements = cameraViewModel::setExposureCompIncrements,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (cameraViewModel.validate()) {
@@ -126,6 +130,7 @@ private fun CameraEditContentPreview() {
         minShutter = "1/1000",
         maxShutter = "30\"",
         shutterValues = emptyList(),
+        exposureCompIncrements = PartialIncrement.THIRD,
         makeError = false,
         modelError = false,
         shutterRangeError = "Sample error",
@@ -136,6 +141,7 @@ private fun CameraEditContentPreview() {
         onSetMaxShutter = {},
         onSetMinShutter = {},
         onClearShutterRange = {},
+        onSetExposureCompIncrements = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -152,6 +158,7 @@ private fun CameraEditContent(
     minShutter: String,
     maxShutter: String,
     shutterValues: List<String>,
+    exposureCompIncrements: PartialIncrement,
     makeError: Boolean,
     modelError: Boolean,
     shutterRangeError: String,
@@ -162,6 +169,7 @@ private fun CameraEditContent(
     onSetMaxShutter: (String) -> Unit,
     onSetMinShutter: (String) -> Unit,
     onClearShutterRange: () -> Unit,
+    onSetExposureCompIncrements: (PartialIncrement) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -170,6 +178,7 @@ private fun CameraEditContent(
     var shutterIncrementsExpanded by remember { mutableStateOf(false) }
     var maxShutterExpanded by remember { mutableStateOf(false) }
     var minShutterExpanded by remember { mutableStateOf(false) }
+    var exposureCompIncrementsExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -356,6 +365,40 @@ private fun CameraEditContent(
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )
+            }
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.ExposureCompensationIncrements),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                ExposedDropdownMenuBox(
+                    expanded = exposureCompIncrementsExpanded,
+                    onExpandedChange = { exposureCompIncrementsExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.menuAnchor(),
+                        readOnly = true,
+                        value = exposureCompIncrements.description(context),
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompIncrementsExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = exposureCompIncrementsExpanded,
+                        onDismissRequest = { exposureCompIncrementsExpanded = false }
+                    ) {
+                        PartialIncrement.entries.forEach { increment ->
+                            DropdownMenuItem(
+                                text = { Text(increment.description(context)) },
+                                onClick = {
+                                    onSetExposureCompIncrements(increment)
+                                    exposureCompIncrementsExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }

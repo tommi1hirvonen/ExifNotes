@@ -24,6 +24,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Increment
+import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
@@ -55,6 +56,7 @@ class CameraViewModel @AssistedInject constructor(
     private val _shutterIncrements = MutableStateFlow(camera.shutterIncrements)
     private val _minShutter = MutableStateFlow(camera.minShutter)
     private val _maxShutter = MutableStateFlow(camera.maxShutter)
+    private val _exposureCompIncrements = MutableStateFlow(camera.exposureCompIncrements)
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _shutterRangeError = MutableStateFlow("")
@@ -66,6 +68,7 @@ class CameraViewModel @AssistedInject constructor(
     val shutterIncrements = _shutterIncrements.asStateFlow()
     val minShutter = _minShutter.asStateFlow()
     val maxShutter = _maxShutter.asStateFlow()
+    val exposureCompIncrements = _exposureCompIncrements.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
     val shutterRangeError = _shutterRangeError.asStateFlow()
@@ -119,6 +122,11 @@ class CameraViewModel @AssistedInject constructor(
     fun clearShutterRange() {
         setMinShutter(null)
         setMaxShutter(null)
+    }
+
+    fun setExposureCompIncrements(value: PartialIncrement) {
+        camera.exposureCompIncrements = value
+        _exposureCompIncrements.value = value
     }
 
     fun validate(): Boolean = camera.validate(
