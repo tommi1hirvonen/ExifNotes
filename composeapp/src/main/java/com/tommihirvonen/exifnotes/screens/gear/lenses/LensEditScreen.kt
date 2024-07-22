@@ -35,6 +35,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -48,6 +49,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -205,6 +207,7 @@ private fun LensEditContent(
     var apertureIncrementsExpanded by remember { mutableStateOf(false) }
     var maxApertureExpanded by remember { mutableStateOf(false) }
     var minApertureExpanded by remember { mutableStateOf(false) }
+    var showCustomApertureValuesInfo by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -426,7 +429,7 @@ private fun LensEditContent(
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp)
                 ) {
-                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                    FilledTonalIconButton(onClick = { showCustomApertureValuesInfo = true }) {
                         Icon(Icons.Outlined.Info, "")
                     }
                 }
@@ -483,5 +486,16 @@ private fun LensEditContent(
                 }
             }
         }
+    }
+    if (showCustomApertureValuesInfo) {
+        AlertDialog(
+            text = { Text(stringResource(R.string.CustomApertureValuesHelp)) },
+            onDismissRequest = { showCustomApertureValuesInfo = false },
+            confirmButton = {
+                TextButton(onClick = { showCustomApertureValuesInfo = false }) {
+                    Text(stringResource(R.string.Close))
+                }
+            }
+        )
     }
 }
