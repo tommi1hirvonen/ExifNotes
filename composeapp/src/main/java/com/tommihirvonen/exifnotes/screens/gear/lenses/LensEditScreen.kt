@@ -51,19 +51,23 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.core.entities.FilmProcess
+import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
-import com.tommihirvonen.exifnotes.util.description
 
 @Composable
 fun LensEditScreen(
@@ -80,6 +84,7 @@ fun LensEditScreen(
     val serialNumber = lensViewModel.serialNumber.collectAsState()
     val minFocalLength = lensViewModel.minFocalLength.collectAsState()
     val maxFocalLength = lensViewModel.maxFocalLength.collectAsState()
+    val apertureIncrements = lensViewModel.apertureIncrements.collectAsState()
     val minAperture = lensViewModel.minAperture.collectAsState()
     val maxAperture = lensViewModel.maxAperture.collectAsState()
     val customApertureValues = lensViewModel.customApertureValues.collectAsState()
@@ -95,6 +100,7 @@ fun LensEditScreen(
         serialNumber = serialNumber.value ?: "",
         minFocalLength = minFocalLength.value,
         maxFocalLength = maxFocalLength.value,
+        apertureIncrements = apertureIncrements.value,
         minAperture = minAperture.value ?: "",
         maxAperture = maxAperture.value ?: "",
         customApertureValues = customApertureValues.value,
@@ -106,6 +112,8 @@ fun LensEditScreen(
         onMakeChange = lensViewModel::setMake,
         onModelChange = lensViewModel::setModel,
         onSerialNumberChange = lensViewModel::setSerialNumber,
+        onApertureIncrementsChange = lensViewModel::setApertureIncrements,
+        onClearApertureRange = lensViewModel::clearApertureRange,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (lensViewModel.validate()) {
@@ -126,6 +134,7 @@ private fun LensEditContentPreview() {
         serialNumber = "123ASD456",
         minFocalLength = 28,
         maxFocalLength = 28,
+        apertureIncrements = Increment.THIRD,
         minAperture = "22",
         maxAperture = "2.8",
         customApertureValues = "3.5, 4.6",
@@ -137,6 +146,8 @@ private fun LensEditContentPreview() {
         onMakeChange = {},
         onModelChange = {},
         onSerialNumberChange = {},
+        onApertureIncrementsChange = {},
+        onClearApertureRange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -151,6 +162,7 @@ private fun LensEditContent(
     serialNumber: String,
     minFocalLength: Int,
     maxFocalLength: Int,
+    apertureIncrements: Increment,
     minAperture: String,
     maxAperture: String,
     customApertureValues: String,
@@ -162,10 +174,14 @@ private fun LensEditContent(
     onMakeChange: (String) -> Unit,
     onModelChange: (String) -> Unit,
     onSerialNumberChange: (String) -> Unit,
+    onApertureIncrementsChange: (Increment) -> Unit,
+    onClearApertureRange: () -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var apertureIncrementsExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -231,6 +247,40 @@ private fun LensEditContent(
                     isError = modelError
                 )
             }
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.ApertureIncrements),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                ExposedDropdownMenuBox(
+                    expanded = apertureIncrementsExpanded,
+                    onExpandedChange = { apertureIncrementsExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.menuAnchor(),
+                        readOnly = true,
+                        value = apertureIncrements.description(context),
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureIncrementsExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = apertureIncrementsExpanded,
+                        onDismissRequest = {}
+                    ) {
+                        Increment.entries.forEach { increment ->
+                            DropdownMenuItem(
+                                text = { Text(increment.description(context)) },
+                                onClick = {
+                                    onApertureIncrementsChange(increment)
+                                    apertureIncrementsExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 Text(
                     text = stringResource(R.string.ApertureRange),
@@ -255,7 +305,7 @@ private fun LensEditContent(
                             readOnly = true,
                             value = maxAperture,
                             isError = apertureRangeError.isNotEmpty(),
-                            onValueChange = { /*TODO*/ },
+                            onValueChange = {},
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
                             }
@@ -264,14 +314,7 @@ private fun LensEditContent(
                             expanded = false,
                             onDismissRequest = {}
                         ) {
-                            FilmProcess.entries.forEach { p ->
-                                DropdownMenuItem(
-                                    text = { Text(p.description ?: "") },
-                                    onClick = {
-
-                                    }
-                                )
-                            }
+                            // TODO
                         }
                     }
                 }
@@ -290,7 +333,7 @@ private fun LensEditContent(
                             readOnly = true,
                             value = minAperture,
                             isError = apertureRangeError.isNotEmpty(),
-                            onValueChange = { /*TODO*/ },
+                            onValueChange = {},
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
                             }
@@ -299,20 +342,13 @@ private fun LensEditContent(
                             expanded = false,
                             onDismissRequest = {}
                         ) {
-                            FilmProcess.entries.forEach { p ->
-                                DropdownMenuItem(
-                                    text = { Text(p.description ?: "") },
-                                    onClick = {
-
-                                    }
-                                )
-                            }
+                            // TODO
                         }
                     }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                    FilledTonalIconButton(onClick = onClearApertureRange) {
                         Icon(Icons.Outlined.Clear, "")
                     }
                 }
