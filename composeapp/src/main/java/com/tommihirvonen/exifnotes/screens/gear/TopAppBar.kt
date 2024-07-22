@@ -56,7 +56,7 @@ import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 @Preview
 @Composable
 private fun TopAppBarPreview() {
-    AppBar(
+    GearTopAppBar(
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
         currentPagerPage = 3,
         onNavigateUp = {},
@@ -71,7 +71,7 @@ private fun TopAppBarPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(
+fun GearTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     currentPagerPage: Int,
     onNavigateUp: () -> Unit,

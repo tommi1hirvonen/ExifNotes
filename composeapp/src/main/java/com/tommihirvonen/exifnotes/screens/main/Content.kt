@@ -21,7 +21,6 @@ package com.tommihirvonen.exifnotes.screens.main
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -188,7 +187,7 @@ fun MainContent(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            AppBar(
+            MainTopAppBar(
                 scrollBehavior = scrollBehavior,
                 navigationIcon = navigationIcon,
                 subtitle = subtitle,

@@ -72,7 +72,7 @@ import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 @Preview
 @Composable
 private fun AppBarPreview() {
-    AppBar(
+    MainTopAppBar(
         subtitle = "Active rolls",
         rollSortMode = RollSortMode.DATE,
         onRollSortModeSet = {},
@@ -85,7 +85,7 @@ private fun AppBarPreview() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(
+fun MainTopAppBar(
     subtitle: String,
     rollSortMode: RollSortMode,
     onRollSortModeSet: (RollSortMode) -> Unit,

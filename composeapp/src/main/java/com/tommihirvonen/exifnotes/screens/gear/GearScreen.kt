@@ -373,7 +373,7 @@ private fun GearContent(
             Scaffold(
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
-                    AppBar(
+                    GearTopAppBar(
                         scrollBehavior = scrollBehavior,
                         currentPagerPage = pagerState.currentPage,
                         onNavigateUp = onNavigateUp,
