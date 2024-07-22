@@ -36,6 +36,7 @@ import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockEditScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filters.FilterEditScreen
+import com.tommihirvonen.exifnotes.screens.gear.lenses.LensEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
@@ -103,13 +104,27 @@ fun App(onFinish: () -> Unit) {
                     filmStocksViewModel = filmStocksViewModel,
                     onNavigateUp = { navController.navigateUp() },
                     onEditCamera = { /*TODO*/ },
-                    onEditLens = { /*TODO*/ },
+                    onEditLens = { lens ->
+                        val route = LensEdit(lensId = lens?.id ?: -1, fixedLens = false)
+                        navController.navigate(route = route)
+                    },
                     onEditFilter = { filter ->
                         navController.navigate(route = FilterEdit(filter?.id ?: -1))
                     },
                     onEditFilmStock = { filmStock ->
                         navController.navigate(route = FilmStockEdit(filmStock?.id ?: -1))
                     }
+                )
+            }
+            composable<LensEdit> { backStackEntry ->
+                val gearEntry = remember(backStackEntry) { navController.getBackStackEntry<Gear>() }
+                val gearViewModel = hiltViewModel<GearViewModel>(gearEntry)
+                val lens = backStackEntry.toRoute<LensEdit>()
+                LensEditScreen(
+                    lensId =  lens.lensId,
+                    fixedLens = lens.fixedLens,
+                    onNavigateUp = { navController.navigateUp() },
+                    gearViewModel = gearViewModel
                 )
             }
             dialog<FilterEdit> { backStackEntry ->
@@ -183,6 +198,9 @@ private object RollsMap
 
 @Serializable
 private object Gear
+
+@Serializable
+private data class LensEdit(val lensId: Long, val fixedLens: Boolean)
 
 @Serializable
 private data class FilterEdit(val filterId: Long)
