@@ -133,6 +133,15 @@ fun GearScreen(
         onNavigateUp = onNavigateUp,
         onEditCamera = onEditCamera,
         onEditLens = onEditLens,
+        onDeleteLens = { lens ->
+            // TODO
+        },
+        onEditLensCompatibleCameras = { lens ->
+            // TODO
+        },
+        onEditLensCompatibleFilters = { lens ->
+            // TODO
+        },
         onEditFilter = onEditFilter,
         onDeleteFilter = { filter ->
             confirmDeleteFilter = filter
@@ -249,6 +258,9 @@ private fun GearScreenLargePreview() {
         onNavigateUp = {},
         onEditCamera = {},
         onEditLens = {},
+        onDeleteLens = {},
+        onEditLensCompatibleCameras = {},
+        onEditLensCompatibleFilters = {},
         onEditFilter = {},
         onDeleteFilter = {},
         onEditFilterCompatibleLenses = {},
@@ -281,6 +293,9 @@ private fun GearScreenPreview() {
         onNavigateUp = {},
         onEditCamera = {},
         onEditLens = {},
+        onDeleteLens = {},
+        onEditLensCompatibleCameras = {},
+        onEditLensCompatibleFilters = {},
         onEditFilter = {},
         onDeleteFilter = {},
         onEditFilterCompatibleLenses = {},
@@ -312,6 +327,9 @@ private fun GearContent(
     onNavigateUp: () -> Unit,
     onEditCamera: (Camera?) -> Unit,
     onEditLens: (Lens?) -> Unit,
+    onDeleteLens: (Lens) -> Unit,
+    onEditLensCompatibleCameras: (Lens) -> Unit,
+    onEditLensCompatibleFilters: (Lens) -> Unit,
     onEditFilter: (Filter?) -> Unit,
     onDeleteFilter: (Filter) -> Unit,
     onEditFilterCompatibleLenses: (Filter) -> Unit,
@@ -431,7 +449,10 @@ private fun GearContent(
                                 lenses = lenses,
                                 compatibleCamerasProvider = lensCompatibleCamerasProvider,
                                 compatibleFiltersProvider = lensCompatibleFiltersProvider,
-                                onLensClick = onEditLens
+                                onEdit = onEditLens,
+                                onDelete = onDeleteLens,
+                                onEditCompatibleCameras = onEditLensCompatibleCameras,
+                                onEditCompatibleFilters = onEditLensCompatibleFilters
                             )
                             2 -> FiltersScreen(
                                 filters = filters,
