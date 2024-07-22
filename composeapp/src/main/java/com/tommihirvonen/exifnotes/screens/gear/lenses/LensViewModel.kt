@@ -155,6 +155,24 @@ class LensViewModel @AssistedInject constructor(
         _apertureRangeError.value = ""
     }
 
+    fun setMinFocalLength(value: String) {
+        val v = value.toIntOrNull() ?: return
+        if (v in 0..1_000_000) {
+            lens.minFocalLength = v
+            _minFocalLength.value = v
+            _minFocalLengthError.value = ""
+        }
+    }
+
+    fun setMaxFocalLength(value: String) {
+        val v = value.toIntOrNull() ?: return
+        if (v in 0..1_000_000) {
+            lens.maxFocalLength = v
+            _maxFocalLength.value = v
+            _maxFocalLengthError.value = ""
+        }
+    }
+
     fun validate(): Boolean {
         val makeValidation = { l: Lens ->
             if (l.make?.isNotEmpty() == true || fixedLens) {

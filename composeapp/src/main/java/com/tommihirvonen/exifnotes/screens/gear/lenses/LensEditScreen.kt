@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -60,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -118,6 +120,8 @@ fun LensEditScreen(
         onSetMaxAperture = lensViewModel::setMaxAperture,
         onSetMinAperture = lensViewModel::setMinAperture,
         onClearApertureRange = lensViewModel::clearApertureRange,
+        onSetMinFocalLength = lensViewModel::setMinFocalLength,
+        onSetMaxFocalLength = lensViewModel::setMaxFocalLength,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (lensViewModel.validate()) {
@@ -155,6 +159,8 @@ private fun LensEditContentPreview() {
         onSetMaxAperture = {},
         onSetMinAperture = {},
         onClearApertureRange = {},
+        onSetMinFocalLength = {},
+        onSetMaxFocalLength = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -186,6 +192,8 @@ private fun LensEditContent(
     onSetMaxAperture: (String) -> Unit,
     onSetMinAperture: (String) -> Unit,
     onClearApertureRange: () -> Unit,
+    onSetMinFocalLength: (String) -> Unit,
+    onSetMaxFocalLength: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -433,7 +441,10 @@ private fun LensEditContent(
                     OutlinedTextField(
                         value = minFocalLength.toString(),
                         isError = minFocalLengthError.isNotEmpty(),
-                        onValueChange = { /*TODO*/ }
+                        onValueChange = onSetMinFocalLength,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                     if (minFocalLengthError.isNotEmpty()) {
                         Text(
@@ -452,7 +463,10 @@ private fun LensEditContent(
                     OutlinedTextField(
                         value = maxFocalLength.toString(),
                         isError = maxFocalLengthError.isNotEmpty(),
-                        onValueChange = { /*TODO*/ }
+                        onValueChange = onSetMaxFocalLength,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
+                        )
                     )
                     if (maxFocalLengthError.isNotEmpty()) {
                         Text(
