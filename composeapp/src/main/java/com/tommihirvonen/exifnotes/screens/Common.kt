@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.screens
 
 import android.widget.TextView
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,8 +30,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,7 +51,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -278,6 +288,74 @@ fun <TValue, TSort : Comparable<TSort>> SingleChoiceDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+private fun DropdownButtonPreview() {
+    Row {
+        DropdownButton(
+            modifier = Modifier.weight(0.5f),
+            hint = "Dropdown button",
+            onClick = {}
+        )
+        ExposedDropdownMenuBox(
+            modifier = Modifier.weight(0.5f),
+            expanded = false,
+            onExpandedChange = {  }
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.menuAnchor(),
+                readOnly = true,
+                value = "Default dropdown",
+                onValueChange = {},
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun DropdownButton(
+    modifier: Modifier = Modifier,
+    hint: String = "",
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(4.dp)
+    Box(
+        modifier = Modifier
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                shape = shape
+            )
+            .clip(shape)
+            .clickable { onClick() }
+            .then(modifier)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = hint,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
