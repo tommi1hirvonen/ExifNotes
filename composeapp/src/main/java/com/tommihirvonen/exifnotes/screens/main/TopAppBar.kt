@@ -274,32 +274,50 @@ private fun TopAppBarActionMenu(
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Archive)) },
             leadingIcon = { Icon(Icons.Outlined.Archive, "") },
-            onClick = onArchive
+            onClick = {
+                showMenu = false
+                onArchive()
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Unarchive)) },
             leadingIcon = { Icon(Icons.Outlined.Unarchive, "") },
-            onClick = onUnarchive
+            onClick = {
+                showMenu = false
+                onUnarchive()
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.AddToFavorites)) },
             leadingIcon = { Icon(Icons.Filled.Favorite, "") },
-            onClick = onFavorite
+            onClick = {
+                showMenu = false
+                onFavorite()
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.RemoveFromFavorites)) },
             leadingIcon = { Icon(Icons.Outlined.FavoriteBorder, "") },
-            onClick = onUnfavorite
+            onClick = {
+                showMenu = false
+                onUnfavorite()
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.AddLabels)) },
             leadingIcon = { Icon(Icons.Outlined.NewLabel, "") },
-            onClick = onAddLabels
+            onClick = {
+                showMenu = false
+                onAddLabels()
+            }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.RemoveLabels)) },
             leadingIcon = { Icon(Icons.AutoMirrored.Outlined.LabelOff, "") },
-            onClick = onRemoveLabels
+            onClick = {
+                showMenu = false
+                onRemoveLabels()
+            }
         )
     }
     if (showDeleteConfirmDialog) {

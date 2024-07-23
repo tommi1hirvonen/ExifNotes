@@ -29,9 +29,15 @@ import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Label
@@ -39,6 +45,7 @@ import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
+import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.util.State
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -59,6 +66,9 @@ fun MainScreen(
     val rollFilterMode = mainViewModel.rollFilterMode.collectAsState()
     val rollCounts = mainViewModel.rollCounts.collectAsState()
     val labels = mainViewModel.labels.collectAsState()
+
+    var showAddLabelsDialog by remember { mutableStateOf(false) }
+    var showRemoveLabelsDialog by remember { mutableStateOf(false) }
 
     MainContent(
         rollCounts = rollCounts.value,
@@ -112,9 +122,52 @@ fun MainScreen(
             }
             mainViewModel.toggleRollSelectionNone()
         },
-        onAddLabels = { /*TODO*/ },
-        onRemoveLabels = { /*TODO*/ }
+        onAddLabels = { showAddLabelsDialog = true },
+        onRemoveLabels = { showRemoveLabelsDialog = true }
     )
+    if (showAddLabelsDialog) {
+        MultiChoiceDialog(
+            title = stringResource(R.string.AddLabels),
+            initialItems = labels.value.associateWith { false },
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showAddLabelsDialog = false },
+            onConfirm = { selectedLabels ->
+                showAddLabelsDialog = false
+                for (roll in mainViewModel.selectedRolls.value) {
+                    val labelsToAdd = selectedLabels
+                        .filter { label ->
+                            roll.labels.none { it.id == label.id }
+                        }
+                    roll.labels = roll.labels.plus(labelsToAdd).sortedBy { it.name }
+                    mainViewModel.submitRoll(roll)
+                }
+            }
+        )
+    }
+    if (showRemoveLabelsDialog) {
+        val filteredLabels = labels.value.filter { label ->
+            mainViewModel.selectedRolls.value.any { roll ->
+                roll.labels.any { it.id == label.id }
+            }
+        }
+        MultiChoiceDialog(
+            title = stringResource(R.string.RemoveLabels),
+            initialItems = filteredLabels.associateWith { false },
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showRemoveLabelsDialog = false },
+            onConfirm = { selectedLabels ->
+                showRemoveLabelsDialog = false
+                for (roll in mainViewModel.selectedRolls.value) {
+                    roll.labels = roll.labels.filterNot { label ->
+                        selectedLabels.any { it.id == label.id }
+                    }
+                    mainViewModel.submitRoll(roll)
+                }
+            }
+        )
+    }
 }
 
 @Preview
