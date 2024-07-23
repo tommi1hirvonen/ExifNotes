@@ -284,7 +284,7 @@ fun MainContent(
                 ) { roll ->
                     RollCard(
                         roll = roll,
-                        selected = selectedRolls.contains(roll),
+                        selected = selectedRolls.any { it.id == roll.id },
                         onClick = {
                             if (actionModeEnabled) {
                                 toggleRollSelection(roll)
