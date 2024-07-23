@@ -27,6 +27,7 @@ import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
+import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
@@ -112,16 +113,16 @@ class CameraViewModel @AssistedInject constructor(
     }
 
     fun setMinShutter(value: String?) {
-        // TODO regex validation
-        camera.minShutter = value
-        _minShutter.value = value
+        val actualValue = value?.toShutterSpeedOrNull()
+        camera.minShutter = actualValue
+        _minShutter.value = actualValue
         _shutterRangeError.value = ""
     }
 
     fun setMaxShutter(value: String?) {
-        // TODO regex validation
-        camera.maxShutter = value
-        _maxShutter.value = value
+        val actualValue = value?.toShutterSpeedOrNull()
+        camera.maxShutter = actualValue
+        _maxShutter.value = actualValue
         _shutterRangeError.value = ""
     }
 
