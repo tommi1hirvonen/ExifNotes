@@ -68,6 +68,7 @@ import java.time.LocalDateTime
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
+    onEditRoll: (Roll?) -> Unit,
     onNavigateToRoll: (Roll) -> Unit,
     onNavigateToMap: () -> Unit,
     onNavigateToGear: () -> Unit,
@@ -101,7 +102,7 @@ fun MainScreen(
         selectedRolls = selectedRolls.value,
         rollSortMode = rollSortMode.value,
         onRollSortModeSet = mainViewModel::setRollSortMode,
-        onFabClick = { /*TODO*/ },
+        onFabClick = { onEditRoll(null) },
         onRollClick = onNavigateToRoll,
         toggleRollSelection = mainViewModel::toggleRollSelection,
         toggleRollSelectionAll = mainViewModel::toggleRollSelectionAll,
@@ -110,7 +111,8 @@ fun MainScreen(
             if (selectedRolls.value.size > 1) {
                 showBatchEditDialog = true
             } else {
-                // TODO
+                val roll = selectedRolls.value.firstOrNull()
+                if (roll != null) onEditRoll(roll)
             }
         },
         onDelete = {

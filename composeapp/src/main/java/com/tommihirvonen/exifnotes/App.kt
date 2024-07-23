@@ -45,6 +45,7 @@ import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
+import com.tommihirvonen.exifnotes.screens.rolls.RollEditScreen
 import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapScreen
 import com.tommihirvonen.exifnotes.screens.settings.LicenseScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsScreen
@@ -79,6 +80,9 @@ fun App(onFinish: () -> Unit) {
             composable<Main> {
                 MainScreen(
                     mainViewModel = mainViewModel,
+                    onEditRoll = { roll ->
+                        navController.navigate(route = RollEdit(rollId = roll?.id ?: -1))
+                    },
                     onNavigateToRoll = { roll ->
                         navController.navigate(route = Frames(roll.id))
                     },
@@ -86,6 +90,14 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToGear = { navController.navigate(route = Gear) },
                     onNavigateToLabels = { navController.navigate(route = Labels) },
                     onNavigateToSettings = { navController.navigate(route = Settings) }
+                )
+            }
+            composable<RollEdit> { backStackEntry ->
+                val rollEdit = backStackEntry.toRoute<RollEdit>()
+                RollEditScreen(
+                    rollId = rollEdit.rollId,
+                    onNavigateUp = { navController.navigateUp() },
+                    mainViewModel = mainViewModel
                 )
             }
             composable<Frames> { backStackEntry ->
@@ -225,6 +237,9 @@ fun App(onFinish: () -> Unit) {
 
 @Serializable
 private object Main
+
+@Serializable
+private data class RollEdit(val rollId: Long)
 
 @Serializable
 private object RollsMap
