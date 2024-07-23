@@ -37,7 +37,7 @@ fun LensSelectCompatibleCamerasDialog(
 ) {
     val camerasState = gearViewModel.cameras.collectAsState()
     val cameras = when (val c = camerasState.value) {
-        is State.Success -> c.data
+        is State.Success -> c.data.filter(Camera::isNotFixedLens)
         else -> emptyList()
     }
     SelectCompatibleCamerasDialogContent(
