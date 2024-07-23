@@ -48,8 +48,14 @@
     <string name="ArchivedRolls">Archived rolls</string>
     <string name="ArtistName">Artist name</string>
     <string name="ArtistNameSummary">Artist name information to be stored under the artist tag in the file\'s exif</string>
-    <string name="BatchEditFramesTitle">Batch edit %1$d frames</string>
-    <string name="BatchEditRollsTitle">Batch edit %1$d rolls</string>
+    <plurals name="BatchEditFramesTitle">
+        <item quantity="one">Batch edit %d frame</item>
+        <item quantity="other">Batch edit %d frames</item>
+    </plurals>
+    <plurals name="BatchEditRollsTitle">
+        <item quantity="one">Batch edit %d roll</item>
+        <item quantity="other">Batch edit %d rolls</item>
+    </plurals>
     <string name="BatchEditRollsFilmStockISOConfirmation">Do you want to set the ISO of edited rolls to the default ISO of the selected film stock?</string>
     <string name="BatchEditRollsCLearFilmStockISOConfirmation">Do you want to clear the ISO of edited rolls as well?</string>
     <string name="Blue">Blue</string>
