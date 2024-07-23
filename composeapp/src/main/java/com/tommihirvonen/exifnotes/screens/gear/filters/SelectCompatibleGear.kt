@@ -21,11 +21,8 @@ package com.tommihirvonen.exifnotes.screens.gear.filters
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
-import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.State
@@ -37,18 +34,27 @@ fun FilterSelectCompatibleLensesDialog(
     onDismiss: () -> Unit
 ) {
     val lenses = gearViewModel.lenses.collectAsState()
-    SelectCompatibleLensesDialogContent(
+    MultiChoiceDialog(
         title = stringResource(R.string.SelectCompatibleLenses),
-        lenses = lenses.value.associateWith { filter.lensIds.contains(it.id) },
+        initialItems = lenses.value.associateWith { filter.lensIds.contains(it.id) },
+        itemText = { it.name },
+        sortItemsBy = { it.name },
         onDismiss = onDismiss,
-        onConfirm = { values ->
-            onConfirm(
-                gearViewModel = gearViewModel,
-                filter = filter,
-                lenses = lenses.value,
-                selectedLenses = values,
-                fixedLensCameras = false
-            )
+        onConfirm = { selectedLenses ->
+            val added = selectedLenses.filterNot { filter.lensIds.contains(it.id) }
+            val removed = filter.lensIds
+                .filter { id ->
+                    selectedLenses.none { lens -> lens.id == id }
+                }
+                .mapNotNull { id ->
+                    lenses.value.firstOrNull { lens -> lens.id == id }
+                }
+            added.forEach { lens ->
+                gearViewModel.addLensFilterLink(filter, lens, fixedLensCamera = null)
+            }
+            removed.forEach { lens ->
+                gearViewModel.deleteLensFilterLink(filter, lens, fixedLensCamera = null)
+            }
         }
     )
 }
@@ -59,82 +65,52 @@ fun FilterSelectCompatibleCamerasDialog(
     filter: Filter,
     onDismiss: () -> Unit
 ) {
-    val cameras = gearViewModel.cameras.collectAsState()
+    val camerasState = gearViewModel.cameras.collectAsState()
+
     // Handle fixed lens cameras.
     // In truth, we are mapping the filter to the lenses of the cameras.
-    val lenses = when (val c = cameras.value) {
+    val cameraLenses = when (val cameras = camerasState.value) {
         is State.Success -> {
-            c.data.mapNotNull(Camera::lens)
+            cameras.data.mapNotNull { camera ->
+                val lens = camera.lens
+                if (lens != null) {
+                    camera to lens
+                } else {
+                    null
+                }
+            }
         }
         else -> emptyList()
     }
-    SelectCompatibleLensesDialogContent(
-        title = stringResource(R.string.SelectCompatibleCameras),
-        lenses = lenses.associateWith { filter.lensIds.contains(it.id) },
-        onDismiss = onDismiss,
-        onConfirm = { values ->
-            onConfirm(
-                gearViewModel = gearViewModel,
-                filter = filter,
-                lenses = lenses,
-                selectedLenses = values,
-                fixedLensCameras = true
-            )
-        }
-    )
-}
-
-private fun onConfirm(
-    gearViewModel: GearViewModel,
-    filter: Filter,
-    lenses: List<Lens>,
-    selectedLenses: List<Lens>,
-    fixedLensCameras: Boolean
-) {
-    val added = selectedLenses.filterNot { filter.lensIds.contains(it.id) }
-    val removed = filter.lensIds
-        .filter { id ->
-            selectedLenses.none { lens -> lens.id == id }
-        }
-        .mapNotNull { id ->
-            lenses.firstOrNull { lens -> lens.id == id }
-        }
-    added.forEach { lens ->
-        gearViewModel.addLensFilterLink(filter, lens, isFixedLens = fixedLensCameras)
-    }
-    removed.forEach { lens ->
-        gearViewModel.deleteLensFilterLink(filter, lens, isFixedLens = fixedLensCameras)
-    }
-}
-
-@Preview
-@Composable
-private fun FilterSelectCompatibleLensesDialogPreview() {
-    val lenses = mapOf(
-        Lens(make = "Canon", model = "FD 28mm f/2.8") to false,
-        Lens(make = "Canon", model = "FD 50mm f/1.8") to true
-    )
-    SelectCompatibleLensesDialogContent(
-        title = "Select compatible lenses",
-        lenses = lenses,
-        onDismiss = {},
-        onConfirm = {}
-    )
-}
-
-@Composable
-private fun SelectCompatibleLensesDialogContent(
-    title: String,
-    lenses: Map<Lens, Boolean>,
-    onDismiss: () -> Unit,
-    onConfirm: (List<Lens>) -> Unit
-) {
     MultiChoiceDialog(
-        title = title,
-        initialItems = lenses,
-        itemText = { it.name },
-        sortItemsBy = { it.name },
+        title = stringResource(R.string.SelectCompatibleCameras),
+        initialItems = cameraLenses.associateWith { filter.lensIds.contains(it.second.id) },
+        itemText = { it.first.name },
+        sortItemsBy = { it.first.name },
         onDismiss = onDismiss,
-        onConfirm = onConfirm
+        onConfirm = { selectedCameras ->
+            val added = selectedCameras.filterNot { filter.lensIds.contains(it.second.id) }
+            val removed = filter.lensIds
+                .filter { id ->
+                    selectedCameras.none { pair -> pair.second.id == id }
+                }
+                .mapNotNull { id ->
+                    cameraLenses.firstOrNull { pair -> pair.second.id == id }
+                }
+            added.forEach { cameraLens ->
+                gearViewModel.addLensFilterLink(
+                    filter,
+                    cameraLens.second,
+                    fixedLensCamera = cameraLens.first
+                )
+            }
+            removed.forEach { cameraLens ->
+                gearViewModel.deleteLensFilterLink(
+                    filter,
+                    cameraLens.second,
+                    fixedLensCamera = cameraLens.first
+                )
+            }
+        }
     )
 }

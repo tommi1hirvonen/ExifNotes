@@ -313,9 +313,12 @@ fun GearScreen(
             onDismiss = { showCameraCompatibleLenses = null }
         )
     }
-    when (val cameraLens = showCameraCompatibleFilters?.lens) {
-        is Lens -> CameraSelectCompatibleFiltersDialog(
+    val camera = showCameraCompatibleFilters
+    val cameraLens = camera?.lens
+    if (camera != null && cameraLens != null) {
+        CameraSelectCompatibleFiltersDialog(
             gearViewModel = gearViewModel,
+            camera = camera,
             cameraLens = cameraLens,
             onDismiss = { showCameraCompatibleFilters = null }
         )

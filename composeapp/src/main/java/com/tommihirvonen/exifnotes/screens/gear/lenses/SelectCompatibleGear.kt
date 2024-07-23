@@ -99,10 +99,10 @@ fun LensSelectCompatibleFiltersDialog(
                     filters.value.firstOrNull { filter -> filter.id == id }
                 }
             added.forEach { filter ->
-                gearViewModel.addLensFilterLink(filter, lens, isFixedLens = false)
+                gearViewModel.addLensFilterLink(filter, lens, fixedLensCamera = null)
             }
             removed.forEach { filter ->
-                gearViewModel.deleteLensFilterLink(filter, lens, isFixedLens = false)
+                gearViewModel.deleteLensFilterLink(filter, lens, fixedLensCamera = null)
             }
         }
     )

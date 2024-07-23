@@ -147,22 +147,26 @@ class GearViewModel @Inject constructor(
         replaceLens(lens)
     }
 
-    fun addLensFilterLink(filter: Filter, lens: Lens, isFixedLens: Boolean) {
+    fun addLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {
         lensFilterRepository.addLensFilterLink(filter, lens)
         filter.lensIds = filter.lensIds.plus(lens.id).toHashSet()
         lens.filterIds = lens.filterIds.plus(filter.id).toHashSet()
         replaceFilter(filter)
-        if (!isFixedLens) {
+        if (fixedLensCamera != null) {
+            replaceCamera(fixedLensCamera)
+        } else {
             replaceLens(lens)
         }
     }
 
-    fun deleteLensFilterLink(filter: Filter, lens: Lens, isFixedLens: Boolean) {
+    fun deleteLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {
         lensFilterRepository.deleteLensFilterLink(filter, lens)
         filter.lensIds = filter.lensIds.minus(lens.id).toHashSet()
         lens.filterIds = lens.filterIds.minus(filter.id).toHashSet()
         replaceFilter(filter)
-        if (!isFixedLens) {
+        if (fixedLensCamera != null) {
+            replaceCamera(fixedLensCamera)
+        } else {
             replaceLens(lens)
         }
     }

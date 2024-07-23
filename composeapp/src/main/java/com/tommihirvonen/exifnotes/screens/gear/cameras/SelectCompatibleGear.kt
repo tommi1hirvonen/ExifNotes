@@ -62,6 +62,7 @@ fun CameraSelectCompatibleLensesDialog(
 @Composable
 fun CameraSelectCompatibleFiltersDialog(
     gearViewModel: GearViewModel,
+    camera: Camera,
     cameraLens: Lens,
     onDismiss: () -> Unit
 ) {
@@ -82,10 +83,10 @@ fun CameraSelectCompatibleFiltersDialog(
                     filters.value.firstOrNull { filter -> filter.id == id }
                 }
             added.forEach { filter ->
-                gearViewModel.addLensFilterLink(filter, cameraLens, isFixedLens = true)
+                gearViewModel.addLensFilterLink(filter, cameraLens, camera)
             }
             removed.forEach { filter ->
-                gearViewModel.deleteLensFilterLink(filter, cameraLens, isFixedLens = true)
+                gearViewModel.deleteLensFilterLink(filter, cameraLens, camera)
             }
         }
     )
