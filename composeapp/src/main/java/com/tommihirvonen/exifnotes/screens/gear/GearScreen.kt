@@ -64,6 +64,8 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmStockSortMode
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.screens.gear.cameras.CameraSelectCompatibleFiltersDialog
+import com.tommihirvonen.exifnotes.screens.gear.cameras.CameraSelectCompatibleLensesDialog
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CamerasScreen
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStockFilterSet
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.FilmStocksScreen
@@ -96,6 +98,8 @@ fun GearScreen(
     var confirmDeleteLens by remember { mutableStateOf<Lens?>(null) }
     var confirmDeleteFilter by remember { mutableStateOf<Filter?>(null) }
     var confirmDeleteFilmStock by remember { mutableStateOf<FilmStock?>(null) }
+    var showCameraCompatibleLenses by remember { mutableStateOf<Camera?>(null) }
+    var showCameraCompatibleFilters by remember { mutableStateOf<Camera?>(null) }
     var showLensCompatibleCamerasDialog by remember { mutableStateOf<Lens?>(null) }
     var showLensCompatibleFiltersDialog by remember { mutableStateOf<Lens?>(null) }
     var showFilterCompatibleLensesDialog by remember { mutableStateOf<Filter?>(null) }
@@ -142,10 +146,10 @@ fun GearScreen(
             confirmDeleteCamera = camera
         },
         onEditCameraCompatibleLenses = { camera ->
-            // TODO
+            showCameraCompatibleLenses = camera
         },
         onEditCameraCompatibleFilters = { camera ->
-            // TODO
+            showCameraCompatibleFilters = camera
         },
         onEditLens = onEditLens,
         onDeleteLens = { lens ->
@@ -300,6 +304,20 @@ fun GearScreen(
                     Text(stringResource(R.string.OK))
                 }
             }
+        )
+    }
+    when (val camera = showCameraCompatibleLenses) {
+        is Camera -> CameraSelectCompatibleLensesDialog(
+            gearViewModel = gearViewModel,
+            camera = camera,
+            onDismiss = { showCameraCompatibleLenses = null }
+        )
+    }
+    when (val cameraLens = showCameraCompatibleFilters?.lens) {
+        is Lens -> CameraSelectCompatibleFiltersDialog(
+            gearViewModel = gearViewModel,
+            cameraLens = cameraLens,
+            onDismiss = { showCameraCompatibleFilters = null }
         )
     }
     when (val lens = showLensCompatibleCamerasDialog) {
