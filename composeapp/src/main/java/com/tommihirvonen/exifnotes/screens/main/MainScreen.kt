@@ -60,6 +60,7 @@ import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.util.State
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -84,6 +85,7 @@ fun MainScreen(
     var showAddLabelsDialog by remember { mutableStateOf(false) }
     var showRemoveLabelsDialog by remember { mutableStateOf(false) }
     var showBatchEditDialog by remember { mutableStateOf(false) }
+    var showBatchEditFilmStock by remember { mutableStateOf(false) }
 
     MainContent(
         rollCounts = rollCounts.value,
@@ -192,6 +194,10 @@ fun MainScreen(
     if (showBatchEditDialog) {
         BatchEditDialog(
             selectedRolls = selectedRolls.value,
+            onEditFilmStock = {
+                showBatchEditDialog = false
+                showBatchEditFilmStock = true
+            },
             onClearFilmStock = {
                 selectedRolls.value.forEach { roll ->
                     roll.filmStock = null
@@ -202,12 +208,25 @@ fun MainScreen(
             onDismiss = { showBatchEditDialog = false }
         )
     }
+    if (showBatchEditFilmStock) {
+        SelectFilmStockDialog(
+            onDismiss = { showBatchEditFilmStock = false },
+            onSelect = { filmStock ->
+                showBatchEditFilmStock = false
+                selectedRolls.value.forEach { roll ->
+                    roll.filmStock = filmStock
+                    mainViewModel.submitRoll(roll)
+                }
+            }
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun BatchEditDialog(
     selectedRolls: HashSet<Roll> = hashSetOf(),
+    onEditFilmStock: () -> Unit = {},
     onClearFilmStock: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
@@ -227,6 +246,20 @@ private fun BatchEditDialog(
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onEditFilmStock() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.EditFilmStock))
+                    }
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
