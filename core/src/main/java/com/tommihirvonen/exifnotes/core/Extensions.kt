@@ -67,6 +67,20 @@ fun localDateTimeOrNull(value: String): LocalDateTime? =
         }
     }
 
-
-
 val LocalDateTime.sortableDateTime: String get() = format(dateTimeFormatter1)
+
+fun String.toShutterSpeedOrNull(): String? {
+    return when {
+        regexInteger.matches(this) && this.endsWith('"') -> this
+        regexInteger.matches(this) -> "$this\""
+        regexDecimal.matches(this) && this.endsWith('"') -> this
+        regexDecimal.matches(this) -> "$this\""
+        regexFraction.matches(this) -> this
+        this == "B" -> this
+        else -> null
+    }
+}
+
+private val regexInteger = "[1-9]+[0-9]*\"?".toRegex()
+private val regexDecimal = "(?:[1-9]+[0-9]*|[0-9])\\.[0-9]?[1-9]\"?".toRegex()
+private val regexFraction = "1/[1-9]+[0-9]*".toRegex()
