@@ -106,6 +106,12 @@ class FramesViewModel @AssistedInject constructor(
         _selectedFrames.value = hashSetOf()
     }
 
+    fun deleteFrame(frame: Frame) {
+        frameRepository.deleteFrame(frame)
+        framesList = framesList.filterNot { it.id == frame.id }
+        _frames.value = LoadState.Success(framesList)
+    }
+
     private fun loadFrames() {
         val sortMode = _frameSortMode.value
         viewModelScope.launch {

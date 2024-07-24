@@ -18,6 +18,9 @@
 
 package com.tommihirvonen.exifnotes.screens.frames
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,12 +29,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.automirrored.outlined.Sort
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
@@ -44,7 +43,6 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -63,29 +60,44 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.LoadState
 
 @Composable
 fun FramesScreen(
     rollId: Long,
     onEditRoll: (Roll) -> Unit,
+    mainViewModel: MainViewModel,
     framesViewModel: FramesViewModel = hiltViewModel { factory: FramesViewModel.Factory ->
         factory.create(rollId)
     },
     onNavigateUp: () -> Unit
 ) {
-    val rollFromModel = framesViewModel.roll.collectAsState()
+    val roll = framesViewModel.roll.collectAsState()
     val frames = framesViewModel.frames.collectAsState()
     val selectedFrames = framesViewModel.selectedFrames.collectAsState()
     FramesContent(
-        roll = rollFromModel.value,
+        roll = roll.value,
         frames = frames.value,
         selectedFrames = selectedFrames.value,
         onFrameClick = { /*TODO*/ },
+        onFabClick = { /*TODO*/ },
         toggleFrameSelection = framesViewModel::toggleFrameSelection,
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,
-        onEditRoll = { onEditRoll(rollFromModel.value) },
+        onEditRoll = { onEditRoll(roll.value) },
+        onToggleFavorite = {
+            val favorite = roll.value.favorite
+            val updated = roll.value.copy(favorite = !favorite)
+            mainViewModel.submitRoll(updated)
+            framesViewModel.setRoll(updated)
+        },
+        onEditLabels = { /*TODO*/ },
+        onDelete = {
+            selectedFrames.value.forEach(framesViewModel::deleteFrame)
+        },
+        onEdit = { /*TODO*/ },
+        onCopy = { /*TODO*/ },
         onNavigateUp = onNavigateUp
     )
 }
@@ -113,11 +125,17 @@ private fun FramesContentPreview() {
         frames = LoadState.Success(listOf(frame1, frame2)),
         selectedFrames = hashSetOf(),
         onFrameClick = {},
+        onFabClick = {},
         toggleFrameSelection = {},
         toggleFrameSelectionAll = {},
         toggleFrameSelectionNone = {},
         onEditRoll = {},
-        onNavigateUp = {}
+        onNavigateUp = {},
+        onToggleFavorite = {},
+        onEditLabels = {},
+        onDelete = {},
+        onEdit = {},
+        onCopy = {}
     )
 }
 
@@ -128,43 +146,50 @@ private fun FramesContent(
     frames: LoadState<List<Frame>>,
     selectedFrames: HashSet<Frame>,
     onFrameClick: (Frame) -> Unit,
+    onFabClick: () -> Unit,
     toggleFrameSelection: (Frame) -> Unit,
     toggleFrameSelectionAll: () -> Unit,
     toggleFrameSelectionNone: () -> Unit,
     onEditRoll: () -> Unit,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onEditLabels: () -> Unit,
+    onDelete: () -> Unit,
+    onEdit: () -> Unit,
+    onCopy: () -> Unit
 ) {
     val actionModeEnabled = selectedFrames.isNotEmpty()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val allFramesCount = when (frames) {
+        is LoadState.Success -> frames.data.size
+        else -> 0
+    }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            MediumTopAppBar(
+            FramesTopAppBar(
                 scrollBehavior = scrollBehavior,
-                title = {
-                    Text(
-                        text = roll.name ?: "",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onEditRoll) {
-                        Icon(Icons.Outlined.Edit, "")
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.AutoMirrored.Outlined.Label, "")
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Outlined.FavoriteBorder, "")
-                    }
-                }
+                title = roll.name ?: "",
+                isFavorite = roll.favorite,
+                onNavigateUp = onNavigateUp,
+                onEditRoll = onEditRoll,
+                onEditLabels = onEditLabels,
+                onToggleFavorite = onToggleFavorite
             )
+            AnimatedVisibility(
+                visible = actionModeEnabled,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                FramesActionModeAppBar(
+                    selectedFramesCount = selectedFrames.size,
+                    allFramesCount = allFramesCount,
+                    onDeselectAll = toggleFrameSelectionNone,
+                    onSelectAll = toggleFrameSelectionAll,
+                    onDelete = onDelete,
+                    onEdit = onEdit,
+                    onCopy = onCopy)
+            }
         },
         bottomBar = {
             BottomAppBar(
@@ -184,7 +209,7 @@ private fun FramesContent(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { /*TODO*/ },
+                        onClick = onFabClick,
                         containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
                     ) {

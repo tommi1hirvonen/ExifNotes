@@ -114,6 +114,7 @@ fun App(onFinish: () -> Unit) {
                 val frames = backStackEntry.toRoute<Frames>()
                 FramesScreen(
                     rollId = frames.rollId,
+                    mainViewModel = mainViewModel,
                     onEditRoll = {
                         navController.navigate(route = FramesRollEdit(rollId = frames.rollId))
                     },
