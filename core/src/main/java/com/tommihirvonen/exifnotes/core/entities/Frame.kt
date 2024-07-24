@@ -39,7 +39,7 @@ import java.util.ArrayList
 data class Frame(
     var id: Long = 0,
     @Transient
-    val roll: Roll = Roll(),
+    var roll: Roll = Roll(),
     @EncodeDefault
     var count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
