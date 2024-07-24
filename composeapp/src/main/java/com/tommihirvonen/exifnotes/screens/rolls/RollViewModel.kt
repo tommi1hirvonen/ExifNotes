@@ -52,50 +52,31 @@ class RollViewModel @AssistedInject constructor (
     val pushPullValues = application.applicationContext.resources
         .getStringArray(R.array.CompValues)
         .toList()
-    val roll = rollRepository.getRoll(rollId) ?: Roll()
 
+    private val _roll = MutableStateFlow(
+        rollRepository.getRoll(rollId) ?: Roll()
+    )
     private val _cameras = MutableStateFlow(cameraRepository.cameras)
-    private val _name = MutableStateFlow(roll.name)
-    private val _filmStock = MutableStateFlow(roll.filmStock)
-    private val _camera = MutableStateFlow(roll.camera)
-    private val _date = MutableStateFlow(roll.date)
-    private val _unloaded = MutableStateFlow(roll.unloaded)
-    private val _developed = MutableStateFlow(roll.developed)
-    private val _iso = MutableStateFlow(roll.iso)
-    private val _pushPull = MutableStateFlow(roll.pushPull)
-    private val _format = MutableStateFlow(roll.format)
-    private val _note = MutableStateFlow(roll.note)
     private val _nameError = MutableStateFlow(false)
 
+    val roll = _roll.asStateFlow()
     val cameras = _cameras.asStateFlow()
-    val name = _name.asStateFlow()
-    val filmStock = _filmStock.asStateFlow()
-    val camera = _camera.asStateFlow()
-    val date = _date.asStateFlow()
-    val unloaded = _unloaded.asStateFlow()
-    val developed = _developed.asStateFlow()
-    val iso = _iso.asStateFlow()
-    val format = _format.asStateFlow()
-    val pushPull = _pushPull.asStateFlow()
-    val note = _note.asStateFlow()
     val nameError = _nameError.asStateFlow()
 
     fun setName(value: String) {
-        roll.name = value
-        _name.value = value
+        _roll.value = _roll.value.copy(name = value)
         _nameError.value = false
     }
 
     fun setFilmStock(filmStock: FilmStock?) {
-        roll.filmStock = filmStock
-        _filmStock.value = filmStock
-        if (filmStock != null && filmStock.iso != 0) {
-            setIso(filmStock.iso.toString())
-            if (roll.name.isNullOrEmpty()) {
-                roll.name = filmStock.name
-                _name.value = filmStock.name
-            }
-        }
+        val roll = _roll.value
+        val iso = filmStock?.iso ?: roll.iso
+        val name = if (roll.name.isNullOrEmpty()) filmStock?.name else roll.name
+        _roll.value = roll.copy(
+            filmStock = filmStock,
+            iso = iso,
+            name = name
+        )
     }
 
     fun setCamera(camera: Camera?) {
@@ -103,52 +84,47 @@ class RollViewModel @AssistedInject constructor (
         if (camera != null && cameras.none { it.id == camera.id }) {
             _cameras.value = cameras.plus(camera).sorted()
         }
-        roll.camera = camera
-        _camera.value = camera
-        roll.format = camera?.format ?: roll.format
-        _format.value = roll.format
+        val roll = _roll.value
+        _roll.value = roll.copy(
+            camera = camera,
+            format = camera?.format ?: roll.format
+        )
     }
 
     fun setDate(value: LocalDateTime) {
-        roll.date = value
-        _date.value = value
+        _roll.value = _roll.value.copy(date = value)
     }
 
     fun setUnloaded(value: LocalDateTime?) {
-        roll.unloaded = value
-        _unloaded.value = value
+        _roll.value = _roll.value.copy(unloaded = value)
     }
 
     fun setDeveloped(value: LocalDateTime?) {
-        roll.developed = value
-        _developed.value = value
+        _roll.value = _roll.value.copy(developed = value)
     }
 
     fun setIso(value: String) {
         val iso = value.toIntOrNull() ?: 0
         if (iso >= 0) {
-            roll.iso = iso
-            _iso.value = iso
+            _roll.value = _roll.value.copy(iso = iso)
         }
     }
 
     fun setPushPull(value: String) {
         val actualValue = if (value == "0") null else value
-        roll.pushPull = actualValue
-        _pushPull.value = actualValue
+        _roll.value = _roll.value.copy(pushPull = actualValue)
     }
 
     fun setFormat(value: Format) {
-        roll.format = value
-        _format.value = value
+        _roll.value = _roll.value.copy(format = value)
     }
 
     fun setNote(value: String) {
-        roll.note = value.ifEmpty { null }
-        _note.value = value.ifEmpty { null }
+        val actualValue = value.ifEmpty { null }
+        _roll.value = _roll.value.copy(note = actualValue)
     }
 
-    fun validate(): Boolean = roll.validate(nameValidation)
+    fun validate(): Boolean = _roll.value.validate(nameValidation)
 
     private val nameValidation = { roll: Roll ->
         if (roll.name.isNullOrEmpty()) {

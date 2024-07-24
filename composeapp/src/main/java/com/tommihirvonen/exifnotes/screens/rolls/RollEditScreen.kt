@@ -69,6 +69,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
@@ -98,7 +99,7 @@ fun RollEditScreen(
         mainViewModel = mainViewModel,
         rollViewModel = rollViewModel,
         afterSubmit = {
-            framesViewModel.setRoll(rollViewModel.roll)
+            framesViewModel.setRoll(rollViewModel.roll.value)
         }
     )
 }
@@ -116,31 +117,13 @@ fun RollEditScreen(
     afterSubmit: () -> Unit = {}
 ) {
     val cameras = rollViewModel.cameras.collectAsState()
-    val name = rollViewModel.name.collectAsState()
-    val date = rollViewModel.date.collectAsState()
-    val unloaded = rollViewModel.unloaded.collectAsState()
-    val developed = rollViewModel.developed.collectAsState()
-    val filmStock = rollViewModel.filmStock.collectAsState()
-    val camera = rollViewModel.camera.collectAsState()
-    val iso = rollViewModel.iso.collectAsState()
-    val pushPull = rollViewModel.pushPull.collectAsState()
-    val format = rollViewModel.format.collectAsState()
-    val note = rollViewModel.note.collectAsState()
+    val roll = rollViewModel.roll.collectAsState()
     val nameError = rollViewModel.nameError.collectAsState()
     RollEditContent(
         isNewRoll = rollId <= 0,
-        name = name.value ?: "",
-        date = date.value,
-        unloaded = unloaded.value,
-        developed = developed.value,
-        filmStock = filmStock.value,
-        camera = camera.value,
+        roll = roll.value,
         cameras = cameras.value,
-        iso = iso.value,
-        pushPull = pushPull.value,
         pushPullValues = rollViewModel.pushPullValues,
-        format = format.value,
-        note = note.value,
         nameError = nameError.value,
         onNameChange = rollViewModel::setName,
         onDateChange = rollViewModel::setDate,
@@ -157,7 +140,7 @@ fun RollEditScreen(
         onEditCamera = onEditCamera,
         onSubmit = {
             if (rollViewModel.validate()) {
-                mainViewModel.submitRoll(rollViewModel.roll)
+                mainViewModel.submitRoll(rollViewModel.roll.value)
                 afterSubmit()
                 onNavigateUp()
             }
@@ -168,20 +151,17 @@ fun RollEditScreen(
 @Preview
 @Composable
 private fun RollEditContentPreview() {
-    RollEditContent(
-        isNewRoll = true,
+    val roll = Roll(
         name = "Test roll",
         date = LocalDateTime.now(),
-        unloaded = null,
-        developed = null,
-        filmStock = null,
-        camera = null,
-        cameras = emptyList(),
         iso = 400,
-        pushPull = "0",
+        format = Format.MM35
+    )
+    RollEditContent(
+        isNewRoll = true,
+        roll = roll,
+        cameras = emptyList(),
         pushPullValues = emptyList(),
-        format = Format.MM35,
-        note = null,
         nameError = false,
         onNameChange = {},
         onDateChange = {},
@@ -204,18 +184,9 @@ private fun RollEditContentPreview() {
 @Composable
 private fun RollEditContent(
     isNewRoll: Boolean,
-    name: String,
-    date: LocalDateTime,
-    unloaded: LocalDateTime?,
-    developed: LocalDateTime?,
-    filmStock: FilmStock?,
-    camera: Camera?,
+    roll: Roll,
     cameras: List<Camera>,
-    iso: Int,
-    pushPull: String?,
     pushPullValues: List<String>,
-    format: Format,
-    note: String?,
     nameError: Boolean,
     onNameChange: (String) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
@@ -237,9 +208,9 @@ private fun RollEditContent(
     val camerasWithUniqueNames = remember(cameras) {
         cameras.mapNonUniqueToNameWithSerial()
     }
-    val cameraName = remember(camera) {
-        camerasWithUniqueNames.firstOrNull { it.first.id == camera?.id }?.second
-            ?: camera?.name
+    val cameraName = remember(roll.camera) {
+        camerasWithUniqueNames.firstOrNull { it.first.id == roll.camera?.id }?.second
+            ?: roll.camera?.name
             ?: ""
     }
     var showFilmStockDialog by remember { mutableStateOf(false) }
@@ -285,7 +256,7 @@ private fun RollEditContent(
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = name,
+                    value = roll.name ?: "",
                     onValueChange = onNameChange,
                     label = { Text(stringResource(R.string.Name)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -301,7 +272,7 @@ private fun RollEditContent(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val filmStockText = filmStock?.name ?: stringResource(R.string.ClickToSet)
+                val filmStockText = roll.filmStock?.name ?: stringResource(R.string.ClickToSet)
                 DropdownButton(
                     modifier = Modifier.weight(1f),
                     text = filmStockText,
@@ -310,7 +281,7 @@ private fun RollEditContent(
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
                 ) {
-                    if (filmStock != null) {
+                    if (roll.filmStock != null) {
                         FilledTonalIconButton(onClick = { onFilmStockChange(null) }) {
                             Icon(Icons.Outlined.Clear, "")
                         }
@@ -332,7 +303,7 @@ private fun RollEditContent(
             ) {
                 DateTimeButtonCombo(
                     modifier = Modifier.weight(1f, fill = false),
-                    dateTime = date,
+                    dateTime = roll.date,
                     onDateTimeSet = onDateChange
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -353,7 +324,7 @@ private fun RollEditContent(
             ) {
                 DateTimeButtonCombo(
                     modifier = Modifier.weight(1f, fill = false),
-                    dateTime = unloaded,
+                    dateTime = roll.unloaded,
                     onDateTimeSet = onUnloadedChange
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -374,7 +345,7 @@ private fun RollEditContent(
             ) {
                 DateTimeButtonCombo(
                     modifier = Modifier.weight(1f, fill = false),
-                    dateTime = developed,
+                    dateTime = roll.developed,
                     onDateTimeSet = onDevelopedChange
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -429,7 +400,7 @@ private fun RollEditContent(
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp)
                 ) {
-                    if (camera != null) {
+                    if (roll.camera != null) {
                         FilledTonalIconButton(onClick = { onCameraChange(null) }) {
                             Icon(Icons.Outlined.Clear, "")
                         }
@@ -452,7 +423,7 @@ private fun RollEditContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                     OutlinedTextField(
-                        value = iso.toString(),
+                        value = roll.iso.toString(),
                         onValueChange = onIsoChange,
                         supportingText = { Text(stringResource(R.string.Required)) },
                         keyboardOptions = KeyboardOptions(
@@ -475,7 +446,7 @@ private fun RollEditContent(
                                 .menuAnchor()
                                 .fillMaxWidth(),
                             readOnly = true,
-                            value = pushPull ?: "",
+                            value = roll.pushPull ?: "",
                             onValueChange = {},
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = pushPullExpanded)
@@ -512,7 +483,7 @@ private fun RollEditContent(
                             .menuAnchor()
                             .fillMaxWidth(),
                         readOnly = true,
-                        value = format.description(context),
+                        value = roll.format.description(context),
                         onValueChange = {},
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
@@ -537,7 +508,7 @@ private fun RollEditContent(
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = note ?: "",
+                    value = roll.note ?: "",
                     onValueChange = onNoteChange,
                     label = { Text(stringResource(R.string.DescriptionOrNote)) }
                 )
