@@ -114,7 +114,7 @@ fun RollEditScreen(
     },
     afterSubmit: () -> Unit = {}
 ) {
-    val cameras = mainViewModel.cameras.collectAsState()
+    val cameras = rollViewModel.cameras.collectAsState()
     val name = rollViewModel.name.collectAsState()
     val date = rollViewModel.date.collectAsState()
     val unloaded = rollViewModel.unloaded.collectAsState()

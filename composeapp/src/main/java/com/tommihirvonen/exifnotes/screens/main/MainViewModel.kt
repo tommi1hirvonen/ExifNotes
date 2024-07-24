@@ -22,13 +22,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tommihirvonen.exifnotes.R
-import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.core.entities.sorted
-import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
@@ -45,13 +43,11 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     application: Application,
     private val rollRepository: RollRepository,
-    private val cameraRepository: CameraRepository,
     private val labelRepository: LabelRepository
 ) : AndroidViewModel(application) {
 
     val rolls: StateFlow<State<List<Roll>>> get() = mRolls
     val selectedRolls: StateFlow<HashSet<Roll>> get() = mSelectedRolls
-    val cameras: StateFlow<List<Camera>> get() = mCameras
     val labels: StateFlow<List<Label>> get() = mLabels
     val rollCounts: StateFlow<RollCounts> get() = mRollCounts
     val toolbarSubtitle: StateFlow<String> get() = mToolbarSubtitle
@@ -60,7 +56,6 @@ class MainViewModel @Inject constructor(
 
     private val mRolls = MutableStateFlow<State<List<Roll>>>(State.InProgress())
     private val mSelectedRolls = MutableStateFlow(hashSetOf<Roll>())
-    private val mCameras = MutableStateFlow(emptyList<Camera>())
     private val mLabels = MutableStateFlow(emptyList<Label>())
     private val mRollCounts = MutableStateFlow(RollCounts(0, 0, 0))
     private val mToolbarSubtitle = MutableStateFlow(context.resources.getString(R.string.ActiveRolls))
@@ -113,21 +108,10 @@ class MainViewModel @Inject constructor(
 
     fun loadAll() {
         viewModelScope.launch {
-            loadCameras()
             loadRolls()
             loadRollCounts()
             loadLabels()
         }
-    }
-
-    fun submitCamera(camera: Camera) {
-        if (cameraRepository.updateCamera(camera) == 0) {
-            cameraRepository.addCamera(camera)
-        }
-        mCameras.value = mCameras.value
-            .filterNot { it.id == camera.id }
-            .plus(camera)
-            .sorted()
     }
 
     fun submitRoll(roll: Roll) {
@@ -186,12 +170,6 @@ class MainViewModel @Inject constructor(
         val sortMode = mRollSortMode.value
         rollList = rollList.filterNot { it.id == roll.id }.plus(roll).sorted(sortMode)
         mRolls.value = State.Success(rollList)
-    }
-
-    private suspend fun loadCameras() {
-        withContext(Dispatchers.IO) {
-            mCameras.value = cameraRepository.cameras
-        }
     }
 
     private suspend fun loadRolls() {

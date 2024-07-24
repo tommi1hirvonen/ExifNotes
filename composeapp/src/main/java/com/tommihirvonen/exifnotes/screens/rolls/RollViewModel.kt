@@ -25,6 +25,7 @@ import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
@@ -39,19 +40,21 @@ import java.time.LocalDateTime
 class RollViewModel @AssistedInject constructor (
     @Assisted rollId: Long,
     application: Application,
-    rollRepository: RollRepository
+    rollRepository: RollRepository,
+    cameraRepository: CameraRepository
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
     interface Factory {
         fun create(rollId: Long): RollViewModel
     }
-
+    
     val pushPullValues = application.applicationContext.resources
         .getStringArray(R.array.CompValues)
         .toList()
     val roll = rollRepository.getRoll(rollId) ?: Roll()
 
+    private val _cameras = MutableStateFlow(cameraRepository.cameras)
     private val _name = MutableStateFlow(roll.name)
     private val _filmStock = MutableStateFlow(roll.filmStock)
     private val _camera = MutableStateFlow(roll.camera)
@@ -64,6 +67,7 @@ class RollViewModel @AssistedInject constructor (
     private val _note = MutableStateFlow(roll.note)
     private val _nameError = MutableStateFlow(false)
 
+    val cameras = _cameras.asStateFlow()
     val name = _name.asStateFlow()
     val filmStock = _filmStock.asStateFlow()
     val camera = _camera.asStateFlow()
@@ -95,6 +99,10 @@ class RollViewModel @AssistedInject constructor (
     }
 
     fun setCamera(camera: Camera?) {
+        val cameras = _cameras.value
+        if (camera != null && cameras.none { it.id == camera.id }) {
+            _cameras.value = cameras.plus(camera).sorted()
+        }
         roll.camera = camera
         _camera.value = camera
         roll.format = camera?.format ?: roll.format
