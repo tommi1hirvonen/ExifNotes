@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens
 
+import android.text.format.DateFormat
 import android.widget.TextView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,9 +40,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.EditCalendar
+import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -56,7 +59,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,6 +69,7 @@ import androidx.compose.runtime.toMutableStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -400,13 +403,21 @@ fun DateTimeButtonCombo(
     val dateText = dateTime?.sortableDate ?: stringResource(R.string.Date)
     val timeText = dateTime?.sortableTime ?: stringResource(R.string.Time)
     val currentDateTime = LocalDateTime.now()
-    val dateState = rememberDatePickerState(
-        initialSelectedDateMillis = dateTime?.epochMilliseconds ?: currentDateTime.epochMilliseconds
-    )
-    val timeState = rememberTimePickerState(
-        initialHour = dateTime?.hour ?: currentDateTime.hour,
-        initialMinute = dateTime?.minute ?: currentDateTime.minute
-    )
+    val dateState = remember(dateTime) {
+        DatePickerState(
+            locale = CalendarLocale.getDefault(),
+            initialSelectedDateMillis = dateTime?.epochMilliseconds
+                ?: currentDateTime.epochMilliseconds
+        )
+    }
+    val is24HourFormat = DateFormat.is24HourFormat(LocalContext.current)
+    val timeState = remember(dateTime) {
+        TimePickerState(
+            initialHour = dateTime?.hour ?: currentDateTime.hour,
+            initialMinute = dateTime?.minute ?: currentDateTime.minute,
+            is24Hour = is24HourFormat
+        )
+    }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     Row(modifier = modifier) {
