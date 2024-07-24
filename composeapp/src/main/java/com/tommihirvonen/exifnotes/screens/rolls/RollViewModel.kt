@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.screens.rolls
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
@@ -49,7 +50,9 @@ class RollViewModel @AssistedInject constructor (
     }
 
     val cameras = cameraRepository.cameras
-
+    val pushPullValues = application.applicationContext.resources
+        .getStringArray(R.array.CompValues)
+        .toList()
     val roll = rollRepository.getRoll(rollId) ?: Roll()
 
     private val _name = MutableStateFlow(roll.name)
@@ -59,6 +62,7 @@ class RollViewModel @AssistedInject constructor (
     private val _unloaded = MutableStateFlow(roll.unloaded)
     private val _developed = MutableStateFlow(roll.developed)
     private val _iso = MutableStateFlow(roll.iso)
+    private val _pushPull = MutableStateFlow(roll.pushPull)
     private val _format = MutableStateFlow(roll.format)
     private val _nameError = MutableStateFlow(false)
 
@@ -70,6 +74,7 @@ class RollViewModel @AssistedInject constructor (
     val developed = _developed.asStateFlow()
     val iso = _iso.asStateFlow()
     val format = _format.asStateFlow()
+    val pushPull = _pushPull.asStateFlow()
     val nameError = _nameError.asStateFlow()
 
     fun setName(value: String) {
@@ -114,8 +119,16 @@ class RollViewModel @AssistedInject constructor (
 
     fun setIso(value: String) {
         val iso = value.toIntOrNull() ?: 0
-        roll.iso = iso
-        _iso.value = iso
+        if (iso >= 0) {
+            roll.iso = iso
+            _iso.value = iso
+        }
+    }
+
+    fun setPushPull(value: String) {
+        val actualValue = if (value == "0") null else value
+        roll.pushPull = actualValue
+        _pushPull.value = actualValue
     }
 
     fun setFormat(value: Format) {
