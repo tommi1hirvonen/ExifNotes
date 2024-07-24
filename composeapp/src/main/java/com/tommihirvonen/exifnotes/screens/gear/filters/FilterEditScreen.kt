@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.screens.DialogContent
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 
@@ -47,14 +48,12 @@ fun FilterEditScreen(
         factory.create(filterId)
     }
 ) {
-    val make = filterViewModel.make.collectAsState()
-    val model = filterViewModel.model.collectAsState()
+    val filter = filterViewModel.filter.collectAsState()
     val makeError = filterViewModel.makeError.collectAsState()
     val modelError = filterViewModel.modelError.collectAsState()
     FilterEditForm(
-        isNewFilter = filterViewModel.filter.id <= 0,
-        make = make.value ?: "",
-        model = model.value ?: "",
+        isNewFilter = filter.value.id <= 0,
+        filter = filter.value,
         makeError = makeError.value,
         modelError = modelError.value,
         onMakeChange = filterViewModel::setMake,
@@ -63,7 +62,7 @@ fun FilterEditScreen(
         onSubmit = {
             val result = filterViewModel.validate()
             if (result) {
-                gearViewModel.submitFilter(filterViewModel.filter)
+                gearViewModel.submitFilter(filterViewModel.filter.value)
                 onDismiss()
             }
         }
@@ -73,10 +72,10 @@ fun FilterEditScreen(
 @Preview
 @Composable
 private fun FilterEditFormPreview() {
+    val filter = Filter(make = "Exif Notes Labs", model = "ND x64")
     FilterEditForm(
         isNewFilter = false,
-        make = "Exif Notes Labs",
-        model = "ND x64",
+        filter = filter,
         makeError = false,
         modelError = false,
         onMakeChange = {},
@@ -89,8 +88,7 @@ private fun FilterEditFormPreview() {
 @Composable
 private fun FilterEditForm(
     isNewFilter: Boolean,
-    make: String,
-    model: String,
+    filter: Filter,
     makeError: Boolean,
     modelError: Boolean,
     onMakeChange: (String) -> Unit,
@@ -109,7 +107,7 @@ private fun FilterEditForm(
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = make,
+                    value = filter.make ?: "",
                     onValueChange = onMakeChange,
                     label = { Text(stringResource(R.string.Make)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -119,7 +117,7 @@ private fun FilterEditForm(
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = model,
+                    value = filter.model ?: "",
                     onValueChange = onModelChange,
                     label = { Text(stringResource(R.string.Model)) },
                     supportingText = { Text(stringResource(R.string.Required)) },

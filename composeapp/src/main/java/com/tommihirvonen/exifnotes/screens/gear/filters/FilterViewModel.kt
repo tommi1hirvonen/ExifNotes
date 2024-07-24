@@ -40,27 +40,23 @@ class FilterViewModel @AssistedInject constructor (
         fun create(filterId: Long): FilterViewModel
     }
 
-    val filter = filterRepository.getFilter(filterId) ?: Filter()
-
-    private val _make = MutableStateFlow(filter.make)
-    private val _model = MutableStateFlow(filter.model)
+    private val _filter = MutableStateFlow(
+        filterRepository.getFilter(filterId) ?: Filter()
+    )
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
 
-    val make = _make.asStateFlow()
-    val model = _model.asStateFlow()
+    val filter = _filter.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
 
     fun setMake(value: String) {
-        filter.make = value
-        _make.value = value
+        _filter.value = _filter.value.copy(make = value)
         _makeError.value = false
     }
 
     fun setModel(value: String) {
-        filter.model = value
-        _model.value = value
+        _filter.value = _filter.value.copy(model = value)
         _modelError.value = false
     }
 
@@ -81,6 +77,6 @@ class FilterViewModel @AssistedInject constructor (
                 false
             }
         }
-        return filter.validate(makeValidation, modelValidation)
+        return _filter.value.validate(makeValidation, modelValidation)
     }
 }
