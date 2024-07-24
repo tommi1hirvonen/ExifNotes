@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
@@ -46,6 +47,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,8 +60,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
+import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
+import com.tommihirvonen.exifnotes.screens.gear.filmstocks.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import java.time.LocalDateTime
@@ -96,6 +104,7 @@ fun RollEditScreen(
     val date = rollViewModel.date.collectAsState()
     val unloaded = rollViewModel.unloaded.collectAsState()
     val developed = rollViewModel.developed.collectAsState()
+    val filmStock = rollViewModel.filmStock.collectAsState()
     val nameError = rollViewModel.nameError.collectAsState()
     RollEditContent(
         isNewRoll = rollId <= 0,
@@ -103,11 +112,13 @@ fun RollEditScreen(
         date = date.value,
         unloaded = unloaded.value,
         developed = developed.value,
+        filmStock = filmStock.value,
         nameError = nameError.value,
         onNameChange = rollViewModel::setName,
         onDateChange = rollViewModel::setDate,
         onUnloadedChange = rollViewModel::setUnloaded,
         onDevelopedChange = rollViewModel::setDeveloped,
+        onFilmStockChange = rollViewModel::setFilmStock,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (rollViewModel.validate()) {
@@ -128,11 +139,13 @@ private fun RollEditContentPreview() {
         date = LocalDateTime.now(),
         unloaded = null,
         developed = null,
+        filmStock = null,
         nameError = false,
         onNameChange = {},
         onDateChange = {},
         onUnloadedChange = {},
         onDevelopedChange = {},
+        onFilmStockChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -146,15 +159,18 @@ private fun RollEditContent(
     date: LocalDateTime,
     unloaded: LocalDateTime?,
     developed: LocalDateTime?,
+    filmStock: FilmStock?,
     nameError: Boolean,
     onNameChange: (String) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onUnloadedChange: (LocalDateTime?) -> Unit,
     onDevelopedChange: (LocalDateTime?) -> Unit,
+    onFilmStockChange: (FilmStock?) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var showFilmStockDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -203,6 +219,35 @@ private fun RollEditContent(
             }
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 Text(
+                    text = stringResource(R.string.FilmStock),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val filmStockText = filmStock?.name ?: stringResource(R.string.ClickToSet)
+                DropdownButton(
+                    modifier = Modifier.weight(1f),
+                    text = filmStockText,
+                    onClick = { showFilmStockDialog = true }
+                )
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+                ) {
+                    if (filmStock != null) {
+                        FilledTonalIconButton(onClick = { onFilmStockChange(null) }) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    } else {
+                        FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                            Icon(Icons.Outlined.Add, "")
+                        }
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
                     text = stringResource(R.string.LoadedOn),
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -216,7 +261,9 @@ private fun RollEditContent(
                     onDateTimeSet = onDateChange
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.padding(vertical = 4.dp).alpha(0f)) {
+                Box(modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .alpha(0f)) {
                     IconButton(onClick = { }) { }
                 }
             }
@@ -263,5 +310,14 @@ private fun RollEditContent(
                 }
             }
         }
+    }
+    if (showFilmStockDialog) {
+        SelectFilmStockDialog(
+            onDismiss = { showFilmStockDialog = false },
+            onSelect = { selected ->
+                showFilmStockDialog = false
+                onFilmStockChange(selected)
+            }
+        )
     }
 }

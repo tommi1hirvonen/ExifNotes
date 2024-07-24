@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.screens.rolls
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.util.validate
@@ -46,21 +47,37 @@ class RollViewModel @AssistedInject constructor (
     val roll = rollRepository.getRoll(rollId) ?: Roll()
 
     private val _name = MutableStateFlow(roll.name)
+    private val _filmStock = MutableStateFlow(roll.filmStock)
     private val _date = MutableStateFlow(roll.date)
     private val _unloaded = MutableStateFlow(roll.unloaded)
     private val _developed = MutableStateFlow(roll.developed)
+    private val _iso = MutableStateFlow(roll.iso)
     private val _nameError = MutableStateFlow(false)
 
     val name = _name.asStateFlow()
+    val filmStock = _filmStock.asStateFlow()
     val date = _date.asStateFlow()
     val unloaded = _unloaded.asStateFlow()
     val developed = _developed.asStateFlow()
+    val iso = _iso.asStateFlow()
     val nameError = _nameError.asStateFlow()
 
     fun setName(value: String) {
         roll.name = value
         _name.value = value
         _nameError.value = false
+    }
+
+    fun setFilmStock(filmStock: FilmStock?) {
+        roll.filmStock = filmStock
+        _filmStock.value = filmStock
+        if (filmStock != null && filmStock.iso != 0) {
+            setIso(filmStock.iso.toString())
+            if (roll.name.isNullOrEmpty()) {
+                roll.name = filmStock.name
+                _name.value = filmStock.name
+            }
+        }
     }
 
     fun setDate(value: LocalDateTime) {
@@ -76,6 +93,12 @@ class RollViewModel @AssistedInject constructor (
     fun setDeveloped(value: LocalDateTime?) {
         roll.developed = value
         _developed.value = value
+    }
+
+    fun setIso(value: String) {
+        val iso = value.toIntOrNull() ?: 0
+        roll.iso = iso
+        _iso.value = iso
     }
 
     fun validate(): Boolean = roll.validate(nameValidation)
