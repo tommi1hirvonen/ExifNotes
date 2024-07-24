@@ -18,6 +18,8 @@
 
 package com.tommihirvonen.exifnotes.screens.gear.filmstocks
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +30,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -122,13 +124,14 @@ private fun SelectFilmStockDialog(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(manufacturer, style = MaterialTheme.typography.titleSmall)
-                            val icon = if (selectedManufacturer == manufacturer) {
-                                Icons.Filled.ArrowDropUp
-                            } else {
-                                Icons.Filled.ArrowDropDown
-                            }
+                            val targetRotation by animateFloatAsState(
+                                targetValue = if (selectedManufacturer == manufacturer) -180f else 0f,
+                                animationSpec = tween(300),
+                                label = "rotation",
+                            )
                             Icon(
-                                imageVector = icon,
+                                modifier = Modifier.rotate(targetRotation),
+                                imageVector = Icons.Filled.ArrowDropDown,
                                 contentDescription = "",
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
