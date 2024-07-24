@@ -76,7 +76,7 @@ import com.tommihirvonen.exifnotes.screens.gear.filters.FiltersScreen
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensSelectCompatibleCamerasDialog
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensSelectCompatibleFiltersDialog
 import com.tommihirvonen.exifnotes.screens.gear.lenses.LensesScreen
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -121,7 +121,7 @@ fun GearScreen(
         },
         lensCompatibleCamerasProvider = { lens ->
             when (val c = cameras.value) {
-                is State.Success -> c.data.filter { camera -> lens.cameraIds.contains(camera.id) }
+                is LoadState.Success -> c.data.filter { camera -> lens.cameraIds.contains(camera.id) }
                 else -> emptyList()
             }
         },
@@ -130,7 +130,7 @@ fun GearScreen(
         },
         filterCompatibleCamerasProvider = { filter ->
             when (val c = cameras.value) {
-                is State.Success -> c.data.filter { camera ->
+                is LoadState.Success -> c.data.filter { camera ->
                     val lens = camera.lens
                     lens != null && filter.lensIds.contains(lens.id)
                 }
@@ -357,7 +357,7 @@ fun GearScreen(
 @Composable
 private fun GearScreenLargePreview() {
     GearContent(
-        cameras = State.Success(emptyList()),
+        cameras = LoadState.Success(emptyList()),
         lenses = emptyList(),
         filters = emptyList(),
         filmStocks = emptyList(),
@@ -395,7 +395,7 @@ private fun GearScreenLargePreview() {
 @Composable
 private fun GearScreenPreview() {
     GearContent(
-        cameras = State.Success(emptyList()),
+        cameras = LoadState.Success(emptyList()),
         lenses = emptyList(),
         filters = emptyList(),
         filmStocks = emptyList(),
@@ -432,7 +432,7 @@ private fun GearScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun GearContent(
-    cameras: State<List<Camera>>,
+    cameras: LoadState<List<Camera>>,
     lenses: List<Lens>,
     filters: List<Filter>,
     filmStocks: List<FilmStock>,

@@ -58,7 +58,7 @@ import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollSortMode
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import com.tommihirvonen.exifnotes.util.isScrollingUp
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -78,7 +78,7 @@ private fun MainContentPreview() {
         note = "Test note ".repeat(10),
         frameCount = 2
     )
-    val rolls = State.Success(listOf(roll))
+    val rolls = LoadState.Success(listOf(roll))
     MainContent(
         subtitle = "Active rolls",
         rolls = rolls,
@@ -121,7 +121,7 @@ private fun MainContentActionModePreview() {
         note = "Test note ".repeat(10),
         frameCount = 2
     )
-    val rolls = State.Success(listOf(roll))
+    val rolls = LoadState.Success(listOf(roll))
     val selectedRolls = hashSetOf(roll)
     MainContent(
         subtitle = "Active rolls",
@@ -149,7 +149,7 @@ private fun MainContentActionModePreview() {
 @Composable
 fun MainContent(
     subtitle: String,
-    rolls: State<List<Roll>>,
+    rolls: LoadState<List<Roll>>,
     selectedRolls: HashSet<Roll>,
     rollSortMode: RollSortMode,
     onRollSortModeSet: (RollSortMode) -> Unit,
@@ -175,7 +175,7 @@ fun MainContent(
     val actionModeEnabled = selectedRolls.isNotEmpty()
 
     val allRollsCount = when (rolls) {
-        is State.Success -> rolls.data.size
+        is LoadState.Success -> rolls.data.size
         else -> 0
     }
 
@@ -246,7 +246,7 @@ fun MainContent(
         floatingActionButtonPosition = FabPosition.End,
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { innerPadding ->
-        if (rolls is State.InProgress) {
+        if (rolls is LoadState.InProgress) {
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
@@ -256,7 +256,7 @@ fun MainContent(
             ) {
                 CircularProgressIndicator()
             }
-        } else if (rolls is State.Success) {
+        } else if (rolls is LoadState.Success) {
             LazyColumn(
                 modifier = Modifier.padding(innerPadding),
                 contentPadding = PaddingValues(bottom = 80.dp),

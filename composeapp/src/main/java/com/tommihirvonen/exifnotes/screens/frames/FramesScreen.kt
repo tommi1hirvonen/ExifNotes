@@ -63,7 +63,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 
 @Composable
 fun FramesScreen(
@@ -110,7 +110,7 @@ private fun FramesContentPreview() {
     )
     FramesContent(
         roll = roll,
-        frames = State.Success(listOf(frame1, frame2)),
+        frames = LoadState.Success(listOf(frame1, frame2)),
         selectedFrames = hashSetOf(),
         onFrameClick = {},
         toggleFrameSelection = {},
@@ -125,7 +125,7 @@ private fun FramesContentPreview() {
 @Composable
 private fun FramesContent(
     roll: Roll,
-    frames: State<List<Frame>>,
+    frames: LoadState<List<Frame>>,
     selectedFrames: HashSet<Frame>,
     onFrameClick: (Frame) -> Unit,
     toggleFrameSelection: (Frame) -> Unit,
@@ -194,7 +194,7 @@ private fun FramesContent(
             )
         }
     ) { innerPadding ->
-        if (frames is State.InProgress) {
+        if (frames is LoadState.InProgress) {
             Column(
                 modifier = Modifier
                     .padding(vertical = 48.dp)
@@ -203,7 +203,7 @@ private fun FramesContent(
             ) {
                 CircularProgressIndicator()
             }
-        } else if (frames is State.Success) {
+        } else if (frames is LoadState.Success) {
             LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)

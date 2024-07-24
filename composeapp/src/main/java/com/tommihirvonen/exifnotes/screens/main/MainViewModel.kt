@@ -30,7 +30,7 @@ import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +46,7 @@ class MainViewModel @Inject constructor(
     private val labelRepository: LabelRepository
 ) : AndroidViewModel(application) {
 
-    val rolls: StateFlow<State<List<Roll>>> get() = mRolls
+    val rolls: StateFlow<LoadState<List<Roll>>> get() = mRolls
     val selectedRolls: StateFlow<HashSet<Roll>> get() = mSelectedRolls
     val labels: StateFlow<List<Label>> get() = mLabels
     val rollCounts: StateFlow<RollCounts> get() = mRollCounts
@@ -54,7 +54,7 @@ class MainViewModel @Inject constructor(
     val rollFilterMode: StateFlow<RollFilterMode> get() = mRollFilterMode
     val rollSortMode: StateFlow<RollSortMode> get() = mRollSortMode
 
-    private val mRolls = MutableStateFlow<State<List<Roll>>>(State.InProgress())
+    private val mRolls = MutableStateFlow<LoadState<List<Roll>>>(LoadState.InProgress())
     private val mSelectedRolls = MutableStateFlow(hashSetOf<Roll>())
     private val mLabels = MutableStateFlow(emptyList<Label>())
     private val mRollCounts = MutableStateFlow(RollCounts(0, 0, 0))
@@ -103,7 +103,7 @@ class MainViewModel @Inject constructor(
     fun setRollSortMode(rollSortMode: RollSortMode) {
         mRollSortMode.value = rollSortMode
         rollList = rollList.sorted(rollSortMode)
-        mRolls.value = State.Success(rollList)
+        mRolls.value = LoadState.Success(rollList)
     }
 
     fun loadAll() {
@@ -130,7 +130,7 @@ class MainViewModel @Inject constructor(
         }
         if (removeRollFromList) {
             rollList = rollList.filterNot { it.id == roll.id }
-            mRolls.value = State.Success(rollList)
+            mRolls.value = LoadState.Success(rollList)
         } else {
             replaceRoll(roll)
         }
@@ -143,7 +143,7 @@ class MainViewModel @Inject constructor(
     fun deleteRoll(roll: Roll) {
         rollRepository.deleteRoll(roll)
         rollList = rollList.filterNot { it.id == roll.id }
-        mRolls.value = State.Success(rollList)
+        mRolls.value = LoadState.Success(rollList)
         viewModelScope.launch {
             loadRollCounts()
             loadLabels()
@@ -169,16 +169,16 @@ class MainViewModel @Inject constructor(
     private fun replaceRoll(roll: Roll) {
         val sortMode = mRollSortMode.value
         rollList = rollList.filterNot { it.id == roll.id }.plus(roll).sorted(sortMode)
-        mRolls.value = State.Success(rollList)
+        mRolls.value = LoadState.Success(rollList)
     }
 
     private suspend fun loadRolls() {
         withContext(Dispatchers.IO) {
-            mRolls.value = State.InProgress()
+            mRolls.value = LoadState.InProgress()
             val filterMode = rollFilterMode.value
             val sortMode = rollSortMode.value
             rollList = rollRepository.getRolls(filterMode).sorted(sortMode)
-            mRolls.value = State.Success(rollList)
+            mRolls.value = LoadState.Success(rollList)
         }
     }
 

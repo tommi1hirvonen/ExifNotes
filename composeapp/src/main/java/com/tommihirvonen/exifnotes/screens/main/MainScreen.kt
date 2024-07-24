@@ -61,7 +61,7 @@ import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.SelectFilmStockDialog
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -303,7 +303,7 @@ private fun MainContentPreview() {
         note = "Test note ".repeat(10),
         frameCount = 2
     )
-    val rolls = State.Success(listOf(roll, roll.copy(id = 2)))
+    val rolls = LoadState.Success(listOf(roll, roll.copy(id = 2)))
     MainContent(
         rollCounts = RollCounts(active = 2, archived = 2, favorites = 1),
         labels = emptyList(),
@@ -345,7 +345,7 @@ private fun MainContent(
     onNavigateToLabels: () -> Unit,
     onNavigateToSettings: () -> Unit,
     subtitle: String,
-    rolls: State<List<Roll>>,
+    rolls: LoadState<List<Roll>>,
     selectedRolls: HashSet<Roll>,
     rollSortMode: RollSortMode,
     onRollSortModeSet: (RollSortMode) -> Unit,

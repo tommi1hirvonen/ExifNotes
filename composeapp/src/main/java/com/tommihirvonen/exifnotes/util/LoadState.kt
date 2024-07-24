@@ -18,7 +18,7 @@
 
 package com.tommihirvonen.exifnotes.util
 
-sealed class State<T> {
-    class InProgress<T> : State<T>()
-    class Success<T>(val data: T) : State<T>()
+sealed class LoadState<T> {
+    class InProgress<T> : LoadState<T>()
+    class Success<T>(val data: T) : LoadState<T>()
 }

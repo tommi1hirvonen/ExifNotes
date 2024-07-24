@@ -57,13 +57,13 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 
 @Preview
 @Composable
 fun CamerasScreen(
-    cameras: State<List<Camera>> = State.InProgress(),
+    cameras: LoadState<List<Camera>> = LoadState.InProgress(),
     compatibleLensesProvider: (Camera) -> (List<Lens>) = { _ -> emptyList() },
     compatibleFiltersProvider: (Camera) -> (List<Filter>) = { _ -> emptyList() },
     onEdit: (Camera) -> Unit = {},
@@ -71,7 +71,7 @@ fun CamerasScreen(
     onEditCompatibleLenses: (Camera) -> Unit = {},
     onEditCompatibleFilters: (Camera) -> Unit = {}
 ) {
-    if (cameras is State.InProgress) {
+    if (cameras is LoadState.InProgress) {
         Column(
             modifier = Modifier
                 .padding(vertical = 48.dp)
@@ -80,7 +80,7 @@ fun CamerasScreen(
         ) {
             CircularProgressIndicator()
         }
-    } else if (cameras is State.Success) {
+    } else if (cameras is LoadState.Success) {
         val camerasWithUniqueNames = remember(cameras) {
             cameras.data.mapNonUniqueToNameWithSerial()
         }

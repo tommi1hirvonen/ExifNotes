@@ -28,7 +28,7 @@ import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensFilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,11 +46,11 @@ class GearViewModel @Inject constructor(
     private val lensFilterRepository: LensFilterRepository
 ) : ViewModel() {
 
-    val cameras: StateFlow<State<List<Camera>>> get() = mCameras
+    val cameras: StateFlow<LoadState<List<Camera>>> get() = mCameras
     val lenses: StateFlow<List<Lens>> get() = mLenses
     val filters: StateFlow<List<Filter>> get() = mFilters
 
-    private val mCameras = MutableStateFlow<State<List<Camera>>>(State.InProgress())
+    private val mCameras = MutableStateFlow<LoadState<List<Camera>>>(LoadState.InProgress())
     private val mLenses = MutableStateFlow(emptyList<Lens>())
     private val mFilters = MutableStateFlow(emptyList<Filter>())
     private var cameraList = emptyList<Camera>()
@@ -59,7 +59,7 @@ class GearViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 cameraList = cameraRepository.cameras.sorted()
-                mCameras.value = State.Success(cameraList)
+                mCameras.value = LoadState.Success(cameraList)
                 mLenses.value = lensRepository.lenses.sorted()
                 mFilters.value = filterRepository.filters.sorted()
             }
@@ -84,13 +84,13 @@ class GearViewModel @Inject constructor(
             .filterNot { it.id == camera.id }
             .plus(camera)
             .sorted()
-        mCameras.value = State.Success(cameraList)
+        mCameras.value = LoadState.Success(cameraList)
     }
 
     fun deleteCamera(camera: Camera) {
         cameraRepository.deleteCamera(camera)
         cameraList = cameraList.filterNot { it.id == camera.id }
-        mCameras.value = State.Success(cameraList)
+        mCameras.value = LoadState.Success(cameraList)
     }
 
     fun submitLens(lens: Lens) {

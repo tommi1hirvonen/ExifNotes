@@ -27,7 +27,7 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 
 @Composable
 fun LensSelectCompatibleCamerasDialog(
@@ -37,7 +37,7 @@ fun LensSelectCompatibleCamerasDialog(
 ) {
     val camerasState = gearViewModel.cameras.collectAsState()
     val cameras = when (val c = camerasState.value) {
-        is State.Success -> c.data.filter(Camera::isNotFixedLens)
+        is LoadState.Success -> c.data.filter(Camera::isNotFixedLens)
         else -> emptyList()
     }
     SelectCompatibleCamerasDialogContent(

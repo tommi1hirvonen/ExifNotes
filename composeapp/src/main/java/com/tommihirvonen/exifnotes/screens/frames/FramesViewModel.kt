@@ -29,7 +29,7 @@ import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -67,7 +67,7 @@ class FramesViewModel @AssistedInject constructor(
     val frameSortMode get() = _frameSortMode.asStateFlow()
 
     private val _roll = MutableStateFlow(Roll())
-    private val _frames = MutableStateFlow<State<List<Frame>>>(State.InProgress())
+    private val _frames = MutableStateFlow<LoadState<List<Frame>>>(LoadState.InProgress())
     private val _selectedFrames = MutableStateFlow(hashSetOf<Frame>())
     private val _frameSortMode = MutableStateFlow(
         FrameSortMode.fromValue(
@@ -123,7 +123,7 @@ class FramesViewModel @AssistedInject constructor(
                         .getPictureFile(pictureFilename)
                         .exists()
                 }
-                _frames.value = State.Success(framesList)
+                _frames.value = LoadState.Success(framesList)
             }
         }
     }

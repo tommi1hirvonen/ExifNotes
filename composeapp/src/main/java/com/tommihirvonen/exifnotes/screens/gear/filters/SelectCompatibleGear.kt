@@ -25,7 +25,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
-import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.LoadState
 
 @Composable
 fun FilterSelectCompatibleLensesDialog(
@@ -70,7 +70,7 @@ fun FilterSelectCompatibleCamerasDialog(
     // Handle fixed lens cameras.
     // In truth, we are mapping the filter to the lenses of the cameras.
     val cameraLenses = when (val cameras = camerasState.value) {
-        is State.Success -> {
+        is LoadState.Success -> {
             cameras.data.mapNotNull { camera ->
                 val lens = camera.lens
                 if (lens != null) {
