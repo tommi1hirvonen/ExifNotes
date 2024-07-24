@@ -51,30 +51,20 @@ class CameraViewModel @AssistedInject constructor(
 
     val context: Context get() = application.applicationContext
 
-    val camera = cameraRepository.getCamera(cameraId) ?: Camera()
-
-    private val _make = MutableStateFlow(camera.make)
-    private val _model = MutableStateFlow(camera.model)
-    private val _serialNumber = MutableStateFlow(camera.serialNumber)
-    private val _shutterIncrements = MutableStateFlow(camera.shutterIncrements)
-    private val _minShutter = MutableStateFlow(camera.minShutter)
-    private val _maxShutter = MutableStateFlow(camera.maxShutter)
-    private val _exposureCompIncrements = MutableStateFlow(camera.exposureCompIncrements)
-    private val _format = MutableStateFlow(camera.format)
-    private val _fixedLensSummary = MutableStateFlow(getFixedLensSummary())
+    private val _camera = MutableStateFlow(
+        cameraRepository.getCamera(cameraId) ?: Camera()
+    )
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _shutterRangeError = MutableStateFlow("")
-    private val _shutterValues = MutableStateFlow(getShutterValues())
+    private val _fixedLensSummary by lazy {
+        MutableStateFlow(getFixedLensSummary())
+    }
+    private val _shutterValues by lazy {
+        MutableStateFlow(getShutterValues(_camera.value.shutterIncrements))
+    }
 
-    val make = _make.asStateFlow()
-    val model = _model.asStateFlow()
-    val serialNumber = _serialNumber.asStateFlow()
-    val shutterIncrements = _shutterIncrements.asStateFlow()
-    val minShutter = _minShutter.asStateFlow()
-    val maxShutter = _maxShutter.asStateFlow()
-    val exposureCompIncrements = _exposureCompIncrements.asStateFlow()
-    val format = _format.asStateFlow()
+    val camera = _camera.asStateFlow()
     val fixedLensSummary = _fixedLensSummary.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
@@ -82,29 +72,26 @@ class CameraViewModel @AssistedInject constructor(
     val shutterValues = _shutterValues.asStateFlow()
 
     fun setMake(value: String) {
-        camera.make = value
-        _make.value = value
+        _camera.value = _camera.value.copy(make = value)
         _makeError.value = false
     }
 
     fun setModel(value: String) {
-        camera.model = value
-        _model.value = value
+        _camera.value = _camera.value.copy(model = value)
         _modelError.value = false
     }
 
     fun setSerialNumber(value: String) {
-        camera.serialNumber = value.ifEmpty { null }
-        _serialNumber.value = value
+        val serialNumber = value.ifEmpty { null }
+        _camera.value = _camera.value.copy(serialNumber = serialNumber)
     }
 
     fun setShutterIncrements(value: Increment) {
-        camera.shutterIncrements = value
-        _shutterIncrements.value = value
-        _shutterValues.value = getShutterValues()
-        val options = getShutterValues()
-        val minFound = options.contains(camera.minShutter)
-        val maxFound = options.contains(camera.maxShutter)
+        _camera.value = _camera.value.copy(shutterIncrements = value)
+        val values = getShutterValues(value)
+        _shutterValues.value = values
+        val minFound = values.contains(camera.value.minShutter)
+        val maxFound = values.contains(camera.value.maxShutter)
         // If either one wasn't found in the new values array, null them.
         if (!minFound || !maxFound) {
             setMinShutter(null)
@@ -114,15 +101,13 @@ class CameraViewModel @AssistedInject constructor(
 
     fun setMinShutter(value: String?) {
         val actualValue = value?.toShutterSpeedOrNull()
-        camera.minShutter = actualValue
-        _minShutter.value = actualValue
+        _camera.value = _camera.value.copy(minShutter = actualValue)
         _shutterRangeError.value = ""
     }
 
     fun setMaxShutter(value: String?) {
         val actualValue = value?.toShutterSpeedOrNull()
-        camera.maxShutter = actualValue
-        _maxShutter.value = actualValue
+        _camera.value = _camera.value.copy(maxShutter = actualValue)
         _shutterRangeError.value = ""
     }
 
@@ -132,26 +117,19 @@ class CameraViewModel @AssistedInject constructor(
     }
 
     fun setExposureCompIncrements(value: PartialIncrement) {
-        camera.exposureCompIncrements = value
-        _exposureCompIncrements.value = value
+        _camera.value = _camera.value.copy(exposureCompIncrements = value)
     }
 
     fun setFormat(value: Format) {
-        camera.format = value
-        _format.value = value
+        _camera.value = _camera.value.copy(format = value)
     }
 
-    fun setLens(lens: Lens) {
-        camera.lens = lens
+    fun setLens(lens: Lens?) {
+        _camera.value = _camera.value.copy(lens = lens)
         _fixedLensSummary.value = getFixedLensSummary()
     }
 
-    fun clearLens() {
-        camera.lens = null
-        _fixedLensSummary.value = getFixedLensSummary()
-    }
-
-    fun validate(): Boolean = camera.validate(
+    fun validate(): Boolean = camera.value.validate(
         makeValidation,
         modelValidation,
         ::shutterRangeValidation
@@ -176,7 +154,7 @@ class CameraViewModel @AssistedInject constructor(
     }
 
     private fun getFixedLensSummary(): String {
-        val lens = camera.lens
+        val lens = camera.value.lens
         return if (lens == null) {
             context.resources.getString(R.string.ClickToSet)
         } else {
@@ -199,7 +177,7 @@ class CameraViewModel @AssistedInject constructor(
         }
     }
 
-    private fun getShutterValues() = when (camera.shutterIncrements) {
+    private fun getShutterValues(increment: Increment) = when (increment) {
         Increment.THIRD -> context.resources.getStringArray(R.array.ShutterValuesThird)
         Increment.HALF -> context.resources.getStringArray(R.array.ShutterValuesHalf)
         Increment.FULL -> context.resources.getStringArray(R.array.ShutterValuesFull)

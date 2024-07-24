@@ -204,7 +204,7 @@ fun App(onFinish: () -> Unit) {
                 }
                 val cameraViewModel = hiltViewModel<CameraViewModel>(cameraEntry)
                 FixedLensEditScreen(
-                    initialLens = cameraViewModel.camera.lens ?: Lens(),
+                    initialLens = cameraViewModel.camera.value.lens ?: Lens(),
                     onCancel = { navController.navigateUp() },
                     onSubmit = { lens ->
                         cameraViewModel.setLens(lens)

@@ -100,30 +100,16 @@ fun CameraEditScreen(
     },
     afterSubmit: (Camera) -> Unit = {}
 ) {
-    val make = cameraViewModel.make.collectAsState()
-    val model = cameraViewModel.model.collectAsState()
-    val serialNumber = cameraViewModel.serialNumber.collectAsState()
-    val shutterIncrements = cameraViewModel.shutterIncrements.collectAsState()
-    val minShutter = cameraViewModel.minShutter.collectAsState()
-    val maxShutter = cameraViewModel.maxShutter.collectAsState()
+    val camera = cameraViewModel.camera.collectAsState()
     val shutterValues = cameraViewModel.shutterValues.collectAsState()
-    val exposureCompIncrements = cameraViewModel.exposureCompIncrements.collectAsState()
-    val format = cameraViewModel.format.collectAsState()
     val fixedLensSummary = cameraViewModel.fixedLensSummary.collectAsState()
     val makeError = cameraViewModel.makeError.collectAsState()
     val modelError = cameraViewModel.modelError.collectAsState()
     val shutterRangeError = cameraViewModel.shutterRangeError.collectAsState()
     CameraEditContent(
-        isNewCamera = cameraViewModel.camera.id <= 0,
-        make = make.value ?: "",
-        model = model.value ?: "",
-        serialNumber = serialNumber.value ?: "",
-        shutterIncrements = shutterIncrements.value,
-        minShutter = minShutter.value ?: "",
-        maxShutter = maxShutter.value ?: "",
+        isNewCamera = camera.value.id <= 0,
+        camera = camera.value,
         shutterValues = shutterValues.value,
-        exposureCompIncrements = exposureCompIncrements.value,
-        format = format.value,
         fixedLensSummary = fixedLensSummary.value,
         makeError = makeError.value,
         modelError = modelError.value,
@@ -139,11 +125,11 @@ fun CameraEditScreen(
         onSetFormat = cameraViewModel::setFormat,
         onNavigateUp = onNavigateUp,
         onEditFixedLens = onEditFixedLens,
-        onClearFixedLens = cameraViewModel::clearLens,
+        onClearFixedLens = { cameraViewModel.setLens(null) },
         onSubmit = {
             if (cameraViewModel.validate()) {
-                gearViewModel.submitCamera(cameraViewModel.camera)
-                afterSubmit(cameraViewModel.camera)
+                gearViewModel.submitCamera(cameraViewModel.camera.value)
+                afterSubmit(cameraViewModel.camera.value)
                 onNavigateUp()
             }
         }
@@ -153,17 +139,20 @@ fun CameraEditScreen(
 @Preview
 @Composable
 private fun CameraEditContentPreview() {
-    CameraEditContent(
-        isNewCamera = true,
+    val camera = Camera(
         make = "Canon",
         model = "A-1",
         serialNumber = "123ASD456",
         shutterIncrements = Increment.THIRD,
         minShutter = "1/1000",
         maxShutter = "30\"",
-        shutterValues = emptyList(),
         exposureCompIncrements = PartialIncrement.THIRD,
-        format = Format.MM35,
+        format = Format.MM35
+    )
+    CameraEditContent(
+        isNewCamera = true,
+        camera = camera,
+        shutterValues = emptyList(),
         fixedLensSummary = "Click to set",
         makeError = false,
         modelError = false,
@@ -188,15 +177,8 @@ private fun CameraEditContentPreview() {
 @Composable
 private fun CameraEditContent(
     isNewCamera: Boolean,
-    make: String,
-    model: String,
-    serialNumber: String,
-    shutterIncrements: Increment,
-    minShutter: String,
-    maxShutter: String,
+    camera: Camera,
     shutterValues: List<String>,
-    exposureCompIncrements: PartialIncrement,
-    format: Format,
     fixedLensSummary: String,
     makeError: Boolean,
     modelError: Boolean,
@@ -262,7 +244,7 @@ private fun CameraEditContent(
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = make,
+                    value = camera.make ?: "",
                     onValueChange = onMakeChange,
                     label = { Text(stringResource(R.string.Make)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -272,7 +254,7 @@ private fun CameraEditContent(
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = model,
+                    value = camera.model ?: "",
                     onValueChange = onModelChange,
                     label = { Text(stringResource(R.string.Model)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -282,7 +264,7 @@ private fun CameraEditContent(
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = serialNumber,
+                    value = camera.serialNumber ?: "",
                     onValueChange = onSerialNumberChange,
                     label = { Text(stringResource(R.string.SerialNumber)) }
                 )
@@ -299,7 +281,7 @@ private fun CameraEditContent(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = shutterIncrements.description(context),
+                        value = camera.shutterIncrements.description(context),
                         onValueChange = {},
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterIncrementsExpanded)
@@ -337,7 +319,7 @@ private fun CameraEditContent(
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = minShutter,
+                            value = camera.minShutter ?: "",
                             isError = shutterRangeError.isNotEmpty(),
                             onValueChange = {},
                             trailingIcon = {
@@ -373,7 +355,7 @@ private fun CameraEditContent(
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = maxShutter,
+                            value = camera.maxShutter ?: "",
                             isError = shutterRangeError.isNotEmpty(),
                             onValueChange = {},
                             trailingIcon = {
@@ -422,7 +404,7 @@ private fun CameraEditContent(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = exposureCompIncrements.description(context),
+                        value = camera.exposureCompIncrements.description(context),
                         onValueChange = {},
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompIncrementsExpanded)
@@ -485,7 +467,7 @@ private fun CameraEditContent(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = format.description(context),
+                        value = camera.format.description(context),
                         onValueChange = {},
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
