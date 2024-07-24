@@ -29,6 +29,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.LocalDateTime
 
 @HiltViewModel(assistedFactory = RollViewModel.Factory::class)
 class RollViewModel @AssistedInject constructor (
@@ -45,15 +46,36 @@ class RollViewModel @AssistedInject constructor (
     val roll = rollRepository.getRoll(rollId) ?: Roll()
 
     private val _name = MutableStateFlow(roll.name)
+    private val _date = MutableStateFlow(roll.date)
+    private val _unloaded = MutableStateFlow(roll.unloaded)
+    private val _developed = MutableStateFlow(roll.developed)
     private val _nameError = MutableStateFlow(false)
 
     val name = _name.asStateFlow()
+    val date = _date.asStateFlow()
+    val unloaded = _unloaded.asStateFlow()
+    val developed = _developed.asStateFlow()
     val nameError = _nameError.asStateFlow()
 
     fun setName(value: String) {
         roll.name = value
         _name.value = value
         _nameError.value = false
+    }
+
+    fun setDate(value: LocalDateTime) {
+        roll.date = value
+        _date.value = value
+    }
+
+    fun setUnloaded(value: LocalDateTime?) {
+        roll.unloaded = value
+        _unloaded.value = value
+    }
+
+    fun setDeveloped(value: LocalDateTime?) {
+        roll.developed = value
+        _developed.value = value
     }
 
     fun validate(): Boolean = roll.validate(nameValidation)
