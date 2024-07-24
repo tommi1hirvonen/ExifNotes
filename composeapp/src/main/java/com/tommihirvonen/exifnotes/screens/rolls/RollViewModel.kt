@@ -64,6 +64,7 @@ class RollViewModel @AssistedInject constructor (
     private val _iso = MutableStateFlow(roll.iso)
     private val _pushPull = MutableStateFlow(roll.pushPull)
     private val _format = MutableStateFlow(roll.format)
+    private val _note = MutableStateFlow(roll.note)
     private val _nameError = MutableStateFlow(false)
 
     val name = _name.asStateFlow()
@@ -75,6 +76,7 @@ class RollViewModel @AssistedInject constructor (
     val iso = _iso.asStateFlow()
     val format = _format.asStateFlow()
     val pushPull = _pushPull.asStateFlow()
+    val note = _note.asStateFlow()
     val nameError = _nameError.asStateFlow()
 
     fun setName(value: String) {
@@ -134,6 +136,11 @@ class RollViewModel @AssistedInject constructor (
     fun setFormat(value: Format) {
         roll.format = value
         _format.value = value
+    }
+
+    fun setNote(value: String) {
+        roll.note = value.ifEmpty { null }
+        _note.value = value.ifEmpty { null }
     }
 
     fun validate(): Boolean = roll.validate(nameValidation)

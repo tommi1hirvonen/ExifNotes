@@ -59,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -67,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
@@ -114,6 +116,8 @@ fun RollEditScreen(
     val camera = rollViewModel.camera.collectAsState()
     val iso = rollViewModel.iso.collectAsState()
     val pushPull = rollViewModel.pushPull.collectAsState()
+    val format = rollViewModel.format.collectAsState()
+    val note = rollViewModel.note.collectAsState()
     val nameError = rollViewModel.nameError.collectAsState()
     RollEditContent(
         isNewRoll = rollId <= 0,
@@ -127,6 +131,8 @@ fun RollEditScreen(
         iso = iso.value,
         pushPull = pushPull.value,
         pushPullValues = rollViewModel.pushPullValues,
+        format = format.value,
+        note = note.value,
         nameError = nameError.value,
         onNameChange = rollViewModel::setName,
         onDateChange = rollViewModel::setDate,
@@ -136,6 +142,8 @@ fun RollEditScreen(
         onCameraChange = rollViewModel::setCamera,
         onIsoChange = rollViewModel::setIso,
         onPushPullChange = rollViewModel::setPushPull,
+        onFormatChange = rollViewModel::setFormat,
+        onNoteChange = rollViewModel::setNote,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (rollViewModel.validate()) {
@@ -162,6 +170,8 @@ private fun RollEditContentPreview() {
         iso = 400,
         pushPull = "0",
         pushPullValues = emptyList(),
+        format = Format.MM35,
+        note = null,
         nameError = false,
         onNameChange = {},
         onDateChange = {},
@@ -171,6 +181,8 @@ private fun RollEditContentPreview() {
         onCameraChange = {},
         onIsoChange = {},
         onPushPullChange = {},
+        onFormatChange = {},
+        onNoteChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -190,6 +202,8 @@ private fun RollEditContent(
     iso: Int,
     pushPull: String?,
     pushPullValues: List<String>,
+    format: Format,
+    note: String?,
     nameError: Boolean,
     onNameChange: (String) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
@@ -199,13 +213,17 @@ private fun RollEditContent(
     onCameraChange: (Camera?) -> Unit,
     onIsoChange: (String) -> Unit,
     onPushPullChange: (String) -> Unit,
+    onFormatChange: (Format) -> Unit,
+    onNoteChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var showFilmStockDialog by remember { mutableStateOf(false) }
     var camerasExpanded by remember { mutableStateOf(false) }
     var pushPullExpanded by remember { mutableStateOf(false) }
+    var formatExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -464,6 +482,48 @@ private fun RollEditContent(
                         }
                     }
                 }
+            }
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.Format),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                ExposedDropdownMenuBox(
+                    expanded = formatExpanded,
+                    onExpandedChange = { formatExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        readOnly = true,
+                        value = format.description(context),
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = formatExpanded,
+                        onDismissRequest = { formatExpanded = false }
+                    ) {
+                        Format.entries.forEach { format ->
+                            DropdownMenuItem(
+                                text = { Text(format.description(context)) },
+                                onClick = {
+                                    onFormatChange(format)
+                                    formatExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = note ?: "",
+                    onValueChange = onNoteChange,
+                    label = { Text(stringResource(R.string.DescriptionOrNote)) }
+                )
             }
         }
     }
