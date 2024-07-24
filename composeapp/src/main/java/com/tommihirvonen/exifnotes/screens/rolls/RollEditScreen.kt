@@ -35,7 +35,10 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
@@ -105,6 +109,7 @@ fun RollEditScreen(
     val unloaded = rollViewModel.unloaded.collectAsState()
     val developed = rollViewModel.developed.collectAsState()
     val filmStock = rollViewModel.filmStock.collectAsState()
+    val camera = rollViewModel.camera.collectAsState()
     val nameError = rollViewModel.nameError.collectAsState()
     RollEditContent(
         isNewRoll = rollId <= 0,
@@ -113,12 +118,15 @@ fun RollEditScreen(
         unloaded = unloaded.value,
         developed = developed.value,
         filmStock = filmStock.value,
+        camera = camera.value,
+        cameras = rollViewModel.cameras,
         nameError = nameError.value,
         onNameChange = rollViewModel::setName,
         onDateChange = rollViewModel::setDate,
         onUnloadedChange = rollViewModel::setUnloaded,
         onDevelopedChange = rollViewModel::setDeveloped,
         onFilmStockChange = rollViewModel::setFilmStock,
+        onCameraChange = rollViewModel::setCamera,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (rollViewModel.validate()) {
@@ -140,12 +148,15 @@ private fun RollEditContentPreview() {
         unloaded = null,
         developed = null,
         filmStock = null,
+        camera = null,
+        cameras = emptyList(),
         nameError = false,
         onNameChange = {},
         onDateChange = {},
         onUnloadedChange = {},
         onDevelopedChange = {},
         onFilmStockChange = {},
+        onCameraChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -160,17 +171,21 @@ private fun RollEditContent(
     unloaded: LocalDateTime?,
     developed: LocalDateTime?,
     filmStock: FilmStock?,
+    camera: Camera?,
+    cameras: List<Camera>,
     nameError: Boolean,
     onNameChange: (String) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onUnloadedChange: (LocalDateTime?) -> Unit,
     onDevelopedChange: (LocalDateTime?) -> Unit,
     onFilmStockChange: (FilmStock?) -> Unit,
+    onCameraChange: (Camera?) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var showFilmStockDialog by remember { mutableStateOf(false) }
+    var camerasExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -306,6 +321,60 @@ private fun RollEditContent(
                 Box(modifier = Modifier.padding(vertical = 4.dp)) {
                     FilledTonalIconButton(onClick = { onDevelopedChange(null) }) {
                         Icon(Icons.Outlined.Clear, "")
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.Camera),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ExposedDropdownMenuBox(
+                    modifier = Modifier.weight(1f),
+                    expanded = camerasExpanded,
+                    onExpandedChange = { camerasExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        readOnly = true,
+                        value = camera?.name ?: "",
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = camerasExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = camerasExpanded,
+                        onDismissRequest = { camerasExpanded = false }
+                    ) {
+                        cameras.forEach { c ->
+                            DropdownMenuItem(
+                                text = { Text(c.name) },
+                                onClick = {
+                                    onCameraChange(c)
+                                    camerasExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    if (camera != null) {
+                        FilledTonalIconButton(onClick = { onCameraChange(null) }) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    } else {
+                        FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                            Icon(Icons.Outlined.Add, "")
+                        }
                     }
                 }
             }

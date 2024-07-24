@@ -20,8 +20,11 @@ package com.tommihirvonen.exifnotes.screens.rolls
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
+import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
@@ -36,7 +39,8 @@ import java.time.LocalDateTime
 class RollViewModel @AssistedInject constructor (
     @Assisted rollId: Long,
     application: Application,
-    rollRepository: RollRepository
+    rollRepository: RollRepository,
+    cameraRepository: CameraRepository
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -44,22 +48,28 @@ class RollViewModel @AssistedInject constructor (
         fun create(rollId: Long): RollViewModel
     }
 
+    val cameras = cameraRepository.cameras
+
     val roll = rollRepository.getRoll(rollId) ?: Roll()
 
     private val _name = MutableStateFlow(roll.name)
     private val _filmStock = MutableStateFlow(roll.filmStock)
+    private val _camera = MutableStateFlow(roll.camera)
     private val _date = MutableStateFlow(roll.date)
     private val _unloaded = MutableStateFlow(roll.unloaded)
     private val _developed = MutableStateFlow(roll.developed)
     private val _iso = MutableStateFlow(roll.iso)
+    private val _format = MutableStateFlow(roll.format)
     private val _nameError = MutableStateFlow(false)
 
     val name = _name.asStateFlow()
     val filmStock = _filmStock.asStateFlow()
+    val camera = _camera.asStateFlow()
     val date = _date.asStateFlow()
     val unloaded = _unloaded.asStateFlow()
     val developed = _developed.asStateFlow()
     val iso = _iso.asStateFlow()
+    val format = _format.asStateFlow()
     val nameError = _nameError.asStateFlow()
 
     fun setName(value: String) {
@@ -78,6 +88,13 @@ class RollViewModel @AssistedInject constructor (
                 _name.value = filmStock.name
             }
         }
+    }
+
+    fun setCamera(camera: Camera?) {
+        roll.camera = camera
+        _camera.value = camera
+        roll.format = camera?.format ?: roll.format
+        _format.value = roll.format
     }
 
     fun setDate(value: LocalDateTime) {
@@ -99,6 +116,11 @@ class RollViewModel @AssistedInject constructor (
         val iso = value.toIntOrNull() ?: 0
         roll.iso = iso
         _iso.value = iso
+    }
+
+    fun setFormat(value: Format) {
+        roll.format = value
+        _format.value = value
     }
 
     fun validate(): Boolean = roll.validate(nameValidation)
