@@ -28,6 +28,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @HiltViewModel(assistedFactory = LabelViewModel.Factory::class)
 class LabelViewModel @AssistedInject constructor (
@@ -40,17 +41,16 @@ class LabelViewModel @AssistedInject constructor (
         fun create(labelId: Long): LabelViewModel
     }
 
-    val label: Label = labelRepository.getLabel(labelId) ?: Label()
-
-    val labelName get() = _labelName as StateFlow<String>
-    private val _labelName = MutableStateFlow(label.name)
-
-    val labelNameError get() = _labelNameError as StateFlow<Boolean>
+    private val _label = MutableStateFlow(
+        labelRepository.getLabel(labelId) ?: Label()
+    )
     private val _labelNameError = MutableStateFlow(false)
 
+    val label = _label.asStateFlow()
+    val labelNameError get() = _labelNameError as StateFlow<Boolean>
+
     fun setLabelName(value: String) {
-        label.name = value
-        _labelName.value = value
+        _label.value = _label.value.copy(name = value)
         _labelNameError.value = false
     }
 
@@ -63,6 +63,6 @@ class LabelViewModel @AssistedInject constructor (
                 false
             }
         }
-        return label.validate(nameValidation)
+        return label.value.validate(nameValidation)
     }
 }

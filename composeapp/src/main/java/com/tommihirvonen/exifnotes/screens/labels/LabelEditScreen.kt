@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.screens.DialogContent
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Label
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 
 @Composable
@@ -47,18 +48,18 @@ fun LabelEditScreen(
         factory.create(labelId)
     }
 ) {
-    val name = model.labelName.collectAsState()
+    val label = model.label.collectAsState()
     val error = model.labelNameError.collectAsState()
     LabelEditForm(
-        isNewLabel = model.label.id <= 0,
-        labelName = name.value,
+        isNewLabel = label.value.id <= 0,
+        label = label.value,
         labelNameError = error.value,
         onLabelNameChange = model::setLabelName,
         onDismiss = onDismiss,
         onSubmit = {
             val result = model.validate()
             if (result) {
-                mainViewModel.submitLabel(model.label)
+                mainViewModel.submitLabel(model.label.value)
                 onDismiss()
             }
         }
@@ -70,7 +71,7 @@ fun LabelEditScreen(
 private fun LabelEditFormPreview() {
     LabelEditForm(
         isNewLabel = false,
-        labelName = "Test label",
+        label = Label(name = "Test label"),
         labelNameError = false,
         onLabelNameChange = {},
         onDismiss = {},
@@ -81,7 +82,7 @@ private fun LabelEditFormPreview() {
 @Composable
 private fun LabelEditForm(
     isNewLabel: Boolean,
-    labelName: String,
+    label: Label,
     labelNameError: Boolean,
     onLabelNameChange: (String) -> Unit,
     onDismiss: () -> Unit,
@@ -98,7 +99,7 @@ private fun LabelEditForm(
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = labelName,
+                    value = label.name,
                     onValueChange = onLabelNameChange,
                     label = { Text(stringResource(R.string.Name)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
