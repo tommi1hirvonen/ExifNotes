@@ -56,14 +56,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
@@ -100,6 +100,7 @@ fun RollCard(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {}
 ) {
+    val haptic = LocalHapticFeedback.current
     val filmStock = roll.filmStock
     val camera = roll.camera
     val note = roll.note ?: ""
@@ -124,7 +125,10 @@ fun RollCard(
                 .clip(cardShape)
                 .combinedClickable(
                     onClick = onClick,
-                    onLongClick = onLongClick
+                    onLongClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onLongClick()
+                    }
                 ),
             shape = cardShape,
             colors = CardDefaults.cardColors(containerColor = cardColor)
