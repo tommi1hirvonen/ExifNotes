@@ -51,6 +51,9 @@ import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmType
 import java.io.File
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 fun <T> T.validate(vararg validations: (T) -> (Boolean)): Boolean =
@@ -80,6 +83,16 @@ val Context.packageInfo: PackageInfo? get() {
 
 val LocalDateTime.sortableDate: String get() =
     format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+val LocalDateTime.sortableTime: String get() =
+    format(DateTimeFormatter.ofPattern("HH:mm"))
+
+val LocalDateTime.epochMilliseconds: Long get() {
+    val zone = ZoneId.of(ZoneOffset.UTC.id)
+    val zdt = ZonedDateTime.of(this, zone)
+    val instant = zdt.toInstant()
+    return instant.toEpochMilli()
+}
 
 fun File.makeDirsIfNotExists() { if (!isDirectory) mkdirs() }
 

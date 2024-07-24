@@ -19,30 +19,45 @@
 package com.tommihirvonen.exifnotes.screens
 
 import android.widget.TextView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.EditCalendar
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimeInput
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,8 +73,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
+import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
+import com.tommihirvonen.exifnotes.util.epochMilliseconds
+import com.tommihirvonen.exifnotes.util.sortableDate
+import com.tommihirvonen.exifnotes.util.sortableTime
+import java.time.LocalDateTime
 
 @Composable
 fun DialogContent(content: @Composable () -> Unit) {
@@ -356,6 +377,189 @@ fun DropdownButton(
                 contentDescription = "",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DateTimeButtonComboPreview() {
+    DateTimeButtonCombo(
+        dateTime = LocalDateTime.now(),
+        onDateTimeSet = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateTimeButtonCombo(
+    modifier: Modifier = Modifier,
+    dateTime: LocalDateTime?,
+    onDateTimeSet: (LocalDateTime) -> Unit
+) {
+    val dateText = dateTime?.sortableDate ?: stringResource(R.string.Date)
+    val timeText = dateTime?.sortableTime ?: stringResource(R.string.Time)
+    val currentDateTime = LocalDateTime.now()
+    val dateState = rememberDatePickerState(
+        initialSelectedDateMillis = dateTime?.epochMilliseconds ?: currentDateTime.epochMilliseconds
+    )
+    val timeState = rememberTimePickerState(
+        initialHour = dateTime?.hour ?: currentDateTime.hour,
+        initialMinute = dateTime?.minute ?: currentDateTime.minute
+    )
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    Row(modifier = modifier) {
+        DropdownButton(
+            modifier = Modifier.weight(0.55f),
+            text = dateText,
+            onClick = { showDatePicker = true }
+        )
+        Spacer(modifier = Modifier.width(14.dp))
+        DropdownButton(
+            modifier = Modifier.weight(0.45f),
+            text = timeText,
+            onClick = { showTimePicker = true }
+        )
+    }
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(stringResource(R.string.Cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDatePicker = false
+                        val date = dateState.selectedDateMillis?.let(::localDateTimeOrNull)
+                        if (date != null) {
+                            val time = dateTime ?: LocalDateTime.now()
+                            val newDate = LocalDateTime.of(
+                                date.year,
+                                date.monthValue,
+                                date.dayOfMonth,
+                                time.hour,
+                                time.minute
+                            )
+                            onDateTimeSet(newDate)
+                        }
+
+                    }
+                ) {
+                    Text(stringResource(R.string.OK))
+                }
+            }
+        ) {
+            DatePicker(state = dateState)
+        }
+    }
+    if (showTimePicker) {
+        TimePickerDialog(
+            timePickerState = timeState,
+            onDismiss = { showTimePicker = false },
+            onConfirm = {
+                showTimePicker = false
+                val date = dateTime ?: LocalDateTime.now()
+                val newTime = LocalDateTime.of(
+                    date.year,
+                    date.monthValue,
+                    date.dayOfMonth,
+                    timeState.hour,
+                    timeState.minute
+                )
+                onDateTimeSet(newTime)
+            }
+        )
+    }
+}
+
+@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(
+    title: String = "Select time",
+    timePickerState: TimePickerState? = null,
+    onConfirm: (TimePickerState) -> Unit = {},
+    onDismiss: () -> Unit = {},
+) {
+    val actualTimePickerState = if (timePickerState != null) {
+        timePickerState
+    } else {
+        val currentTime = LocalDateTime.now()
+        rememberTimePickerState(
+            initialHour = currentTime.hour,
+            initialMinute = currentTime.minute,
+            is24Hour = true
+        )
+    }
+    var showDial by remember { mutableStateOf(true) }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface
+                ),
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                if (showDial) {
+                    TimePicker(
+                        state = actualTimePickerState,
+                    )
+                } else {
+                    TimeInput(
+                        state = actualTimePickerState,
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    val toggleIcon = if (showDial) {
+                        Icons.Outlined.EditCalendar
+                    } else {
+                        Icons.Outlined.AccessTime
+                    }
+                    IconButton(onClick = { showDial = !showDial }) {
+                        Icon(
+                            imageVector = toggleIcon,
+                            contentDescription = "Time picker type toggle",
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.Cancel))
+                    }
+                    TextButton(
+                        onClick = {
+                            onConfirm(actualTimePickerState)
+                        }
+                    ) {
+                        Text(stringResource(R.string.OK))
+                    }
+                }
+            }
         }
     }
 }
