@@ -55,6 +55,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 
 @Preview
 @Composable
@@ -68,6 +69,9 @@ fun LensesScreen(
     onEditCompatibleFilters: (Lens) -> Unit = {}
 ) {
     val state = rememberLazyListState()
+    val lensesWithUniqueNames = remember(lenses) {
+        lenses.mapNonUniqueToNameWithSerial()
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = state
@@ -89,11 +93,11 @@ fun LensesScreen(
             }
         }
         items(
-            items = lenses,
-            key = { it.id }
-        ) { lens ->
+            items = lensesWithUniqueNames,
+            key = { it.first.id }
+        ) { (lens, uniqueName) ->
             LensCard(
-                lens = lens,
+                uniqueName = uniqueName,
                 compatibleCameras = compatibleCamerasProvider(lens),
                 compatibleFilters = compatibleFiltersProvider(lens),
                 onEdit = { onEdit(lens) },
@@ -114,7 +118,7 @@ private fun LensCardPreview() {
     val filter1 = Filter(make = "Haida", model = "C-POL PRO II")
     val filter2 = Filter(make = "Hoya", model = "ND x64")
     LensCard(
-        lens = lens,
+        uniqueName = lens.name,
         compatibleCameras = listOf(camera1, camera2),
         compatibleFilters = listOf(filter1, filter2),
         onEdit = {},
@@ -126,7 +130,7 @@ private fun LensCardPreview() {
 
 @Composable
 private fun LensCard(
-    lens: Lens,
+    uniqueName: String,
     compatibleCameras: List<Camera>,
     compatibleFilters: List<Filter>,
     onEdit: () -> Unit,
@@ -146,7 +150,7 @@ private fun LensCard(
             Column(
                 modifier = Modifier.padding(6.dp)
             ) {
-                Text(lens.name, style = MaterialTheme.typography.titleMedium)
+                Text(uniqueName, style = MaterialTheme.typography.titleMedium)
                 if (compatibleCameras.isNotEmpty()) {
                     Row {
                         Text(

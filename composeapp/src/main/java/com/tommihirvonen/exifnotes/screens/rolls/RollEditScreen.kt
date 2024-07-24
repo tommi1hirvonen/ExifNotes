@@ -75,6 +75,7 @@ import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.SelectFilmStockDialog
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.copy
+import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import java.time.LocalDateTime
 
 @Composable
@@ -233,6 +234,14 @@ private fun RollEditContent(
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val camerasWithUniqueNames = remember(cameras) {
+        cameras.mapNonUniqueToNameWithSerial()
+    }
+    val cameraName = remember(camera) {
+        camerasWithUniqueNames.firstOrNull { it.first.id == camera?.id }?.second
+            ?: camera?.name
+            ?: ""
+    }
     var showFilmStockDialog by remember { mutableStateOf(false) }
     var camerasExpanded by remember { mutableStateOf(false) }
     var pushPullExpanded by remember { mutableStateOf(false) }
@@ -395,7 +404,7 @@ private fun RollEditContent(
                             .menuAnchor()
                             .fillMaxWidth(),
                         readOnly = true,
-                        value = camera?.name ?: "",
+                        value = cameraName,
                         onValueChange = {},
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = camerasExpanded)
@@ -405,18 +414,11 @@ private fun RollEditContent(
                         expanded = camerasExpanded,
                         onDismissRequest = { camerasExpanded = false }
                     ) {
-                        cameras.forEach { c ->
-                            val nameIsNotDistinct = cameras.any {
-                                it.id != c.id && it.name == c.name
-                            }
-                            val cameraName = if (nameIsNotDistinct && !c.serialNumber.isNullOrEmpty())
-                                "${c.name} (${c.serialNumber})"
-                            else
-                                c.name
+                        camerasWithUniqueNames.forEach { (cam, cameraName) ->
                             DropdownMenuItem(
                                 text = { Text(cameraName) },
                                 onClick = {
-                                    onCameraChange(c)
+                                    onCameraChange(cam)
                                     camerasExpanded = false
                                 }
                             )

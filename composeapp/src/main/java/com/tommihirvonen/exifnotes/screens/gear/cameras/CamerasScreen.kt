@@ -58,6 +58,7 @@ import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.util.State
+import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 
 @Preview
 @Composable
@@ -80,6 +81,9 @@ fun CamerasScreen(
             CircularProgressIndicator()
         }
     } else if (cameras is State.Success) {
+        val camerasWithUniqueNames = remember(cameras) {
+            cameras.data.mapNonUniqueToNameWithSerial()
+        }
         val state = rememberLazyListState()
         LazyColumn(
             modifier = Modifier
@@ -103,11 +107,12 @@ fun CamerasScreen(
                 }
             }
             items(
-                items = cameras.data,
-                key = { it.id }
-            ) { camera ->
+                items = camerasWithUniqueNames,
+                key = { it.first.id }
+            ) { (camera, uniqueName) ->
                 CameraCard(
                     camera = camera,
+                    uniqueName = uniqueName,
                     compatibleLenses = compatibleLensesProvider(camera),
                     compatibleFilters = compatibleFiltersProvider(camera),
                     onEdit = { onEdit(camera) },
@@ -129,6 +134,7 @@ private fun CameraCardInterchangeablePreview() {
     val lens3 = Lens(make = "Canon", model = "FD 100mm f/2.8")
     CameraCard(
         camera = camera,
+        uniqueName = camera.name,
         compatibleLenses = listOf(lens1, lens2, lens3),
         compatibleFilters = emptyList(),
         onEdit = {},
@@ -151,6 +157,7 @@ private fun CameraCardFixedLensPreview() {
     val filter2 = Filter(make = "Hoya", model = "ND x64")
     CameraCard(
         camera = camera,
+        uniqueName = camera.name,
         compatibleLenses = emptyList(),
         compatibleFilters = listOf(filter1, filter2),
         onEdit = {},
@@ -163,6 +170,7 @@ private fun CameraCardFixedLensPreview() {
 @Composable
 private fun CameraCard(
     camera: Camera,
+    uniqueName: String,
     compatibleLenses: List<Lens>,
     compatibleFilters: List<Filter>,
     onEdit: () -> Unit,
@@ -182,7 +190,7 @@ private fun CameraCard(
             Column(
                 modifier = Modifier.padding(6.dp)
             ) {
-                Text(camera.name, style = MaterialTheme.typography.titleMedium)
+                Text(uniqueName, style = MaterialTheme.typography.titleMedium)
                 if (camera.lens != null) {
                     Row {
                         Text(

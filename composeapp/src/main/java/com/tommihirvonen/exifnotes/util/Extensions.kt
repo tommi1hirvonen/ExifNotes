@@ -47,8 +47,10 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmType
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -144,6 +146,28 @@ fun String.linkify(
             end = end
         )
     }
+}
+
+@JvmName("mapNonUniqueCamerasToNameWithSerial")
+fun Iterable<Camera>.mapNonUniqueToNameWithSerial() = map { camera ->
+    val nameIsNotDistinct = any { it.id != camera.id && it.name == camera.name }
+    val name = if (nameIsNotDistinct && !camera.serialNumber.isNullOrEmpty()) {
+        "${camera.name} (${camera.serialNumber})"
+    } else {
+        camera.name
+    }
+    camera to name
+}
+
+@JvmName("mapNonUniqueLensesToNameWithSerial")
+fun Iterable<Lens>.mapNonUniqueToNameWithSerial() = map { lens ->
+    val nameIsNotDistinct = any { it.id != lens.id && it.name == lens.name }
+    val name = if (nameIsNotDistinct && !lens.serialNumber.isNullOrEmpty()) {
+        "${lens.name} (${lens.serialNumber})"
+    } else {
+        lens.name
+    }
+    lens to name
 }
 
 @Composable
