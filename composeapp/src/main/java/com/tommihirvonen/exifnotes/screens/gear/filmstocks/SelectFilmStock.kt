@@ -19,8 +19,11 @@
 package com.tommihirvonen.exifnotes.screens.gear.filmstocks
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -143,7 +146,19 @@ private fun SelectFilmStockDialog(
                         }
                     }
                     AnimatedVisibility(
-                        visible = isSelected
+                        visible = isSelected,
+                        enter = expandVertically(
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        ),
+                        exit = shrinkVertically(
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
                     ) {
                         if (index == manufacturers.size - 1) {
                             HorizontalDivider(modifier = Modifier.fillMaxWidth())
