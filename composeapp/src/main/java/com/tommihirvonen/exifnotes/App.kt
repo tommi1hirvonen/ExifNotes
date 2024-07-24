@@ -190,6 +190,7 @@ fun App(onFinish: () -> Unit) {
                     onEditFixedLens = { navController.navigate(route = FixedLensEdit) },
                     afterSubmit = { c ->
                         rollViewModel.setCamera(c)
+                        mainViewModel.loadAll()
                     }
                 )
             }
@@ -250,6 +251,7 @@ fun App(onFinish: () -> Unit) {
                     onNavigateUp = { navController.navigateUp() },
                     afterSubmit = { stock ->
                         rollViewModel.setFilmStock(stock)
+                        mainViewModel.loadAll()
                     }
                 )
             }
