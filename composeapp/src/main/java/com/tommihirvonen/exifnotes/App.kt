@@ -47,6 +47,7 @@ import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.rolls.RollEditScreen
+import com.tommihirvonen.exifnotes.screens.rolls.RollViewModel
 import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapScreen
 import com.tommihirvonen.exifnotes.screens.settings.LicenseScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsScreen
@@ -98,6 +99,9 @@ fun App(onFinish: () -> Unit) {
                 RollEditScreen(
                     rollId = rollEdit.rollId,
                     onNavigateUp = { navController.navigateUp() },
+                    onEditFilmStock = { _ ->
+                        navController.navigate(route = RollFilmStockEdit(filmStockId = -1))
+                    },
                     mainViewModel = mainViewModel
                 )
             }
@@ -118,6 +122,9 @@ fun App(onFinish: () -> Unit) {
                 RollEditScreen(
                     rollId = rollEdit.rollId,
                     onNavigateUp = { navController.navigateUp() },
+                    onEditFilmStock = { _ ->
+                        navController.navigate(route = RollFilmStockEdit(filmStockId = -1))
+                    },
                     mainViewModel = mainViewModel,
                     framesViewModel = framesViewModel
                 )
@@ -203,8 +210,20 @@ fun App(onFinish: () -> Unit) {
                 val filmStock = backStackEntry.toRoute<FilmStockEdit>()
                 FilmStockEditScreen(
                     filmStockId = filmStock.filmStockId,
-                    onDismiss = { navController.navigateUp() },
+                    onNavigateUp = { navController.navigateUp() },
                     filmStocksViewModel = filmStocksViewModel
+                )
+            }
+            dialog<RollFilmStockEdit> { backStackEntry ->
+                val rollEditEntry = remember(backStackEntry) { navController.getBackStackEntry<RollEdit>() }
+                val filmStock = backStackEntry.toRoute<RollFilmStockEdit>()
+                val rollViewModel = hiltViewModel<RollViewModel>(rollEditEntry)
+                FilmStockEditScreen(
+                    filmStockId = filmStock.filmStockId,
+                    onNavigateUp = { navController.navigateUp() },
+                    afterSubmit = { stock ->
+                        rollViewModel.setFilmStock(stock)
+                    }
                 )
             }
             composable<Labels> {
@@ -279,6 +298,9 @@ private data class LensEdit(val lensId: Long, val fixedLens: Boolean)
 
 @Serializable
 private data class FilterEdit(val filterId: Long)
+
+@Serializable
+private data class RollFilmStockEdit(val filmStockId: Long)
 
 @Serializable
 private data class FilmStockEdit(val filmStockId: Long)

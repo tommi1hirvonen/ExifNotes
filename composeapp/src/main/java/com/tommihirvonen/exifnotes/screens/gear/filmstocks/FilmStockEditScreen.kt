@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
+import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.screens.DialogContent
 import com.tommihirvonen.exifnotes.util.description
@@ -53,11 +54,12 @@ import com.tommihirvonen.exifnotes.util.description
 @Composable
 fun FilmStockEditScreen(
     filmStockId: Long,
-    onDismiss: () -> Unit,
-    filmStocksViewModel: FilmStocksViewModel,
+    onNavigateUp: () -> Unit,
+    filmStocksViewModel: FilmStocksViewModel = hiltViewModel(),
     filmStockViewModel: FilmStockViewModel = hiltViewModel { factory: FilmStockViewModel.Factory ->
         factory.create(filmStockId)
-    }
+    },
+    afterSubmit: (FilmStock) -> Unit = {}
 ) {
     val make = filmStockViewModel.make.collectAsState()
     val model = filmStockViewModel.model.collectAsState()
@@ -80,12 +82,13 @@ fun FilmStockEditScreen(
         onIsoChange = filmStockViewModel::setIso,
         onTypeChange = filmStockViewModel::setType,
         onProcessChange = filmStockViewModel::setProcess,
-        onDismiss = onDismiss,
+        onDismiss = onNavigateUp,
         onSubmit = {
             val result = filmStockViewModel.validate()
             if (result) {
                 filmStocksViewModel.submitFilmStock(filmStockViewModel.filmStock)
-                onDismiss()
+                afterSubmit(filmStockViewModel.filmStock)
+                onNavigateUp()
             }
         }
     )
