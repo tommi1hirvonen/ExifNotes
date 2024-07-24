@@ -62,37 +62,21 @@ class FixedLensViewModel @AssistedInject constructor(
 
 abstract class LensViewModel(
     private val application: Application,
-    val lens: Lens,
+    initialLens: Lens,
     private val fixedLens: Boolean
 ) : AndroidViewModel(application) {
 
     val context: Context get() = application.applicationContext
 
-    private val _make = MutableStateFlow(lens.make)
-    private val _model = MutableStateFlow(lens.model)
-    private val _serialNumber = MutableStateFlow(lens.serialNumber)
-    private val _minFocalLength = MutableStateFlow(lens.minFocalLength)
-    private val _maxFocalLength = MutableStateFlow(lens.maxFocalLength)
-    private val _apertureIncrements = MutableStateFlow(lens.apertureIncrements)
-    private val _minAperture = MutableStateFlow(lens.minAperture)
-    private val _maxAperture = MutableStateFlow(lens.maxAperture)
-    private val _customApertureValues = MutableStateFlow(lens.customApertureValues)
+    private val _lens = MutableStateFlow(initialLens)
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
     private val _apertureRangeError = MutableStateFlow("")
     private val _minFocalLengthError = MutableStateFlow("")
     private val _maxFocalLengthError = MutableStateFlow("")
-    private val _apertureValues = MutableStateFlow(getApertureValues())
+    private val _apertureValues = MutableStateFlow(getApertureValues(initialLens.apertureIncrements))
 
-    val make = _make.asStateFlow()
-    val model = _model.asStateFlow()
-    val serialNumber = _serialNumber.asStateFlow()
-    val minFocalLength = _minFocalLength.asStateFlow()
-    val maxFocalLength = _maxFocalLength.asStateFlow()
-    val apertureIncrements = _apertureIncrements.asStateFlow()
-    val minAperture = _minAperture.asStateFlow()
-    val maxAperture = _maxAperture.asStateFlow()
-    val customApertureValues = _customApertureValues.asStateFlow()
+    val lens = _lens.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
     val apertureRangeError = _apertureRangeError.asStateFlow()
@@ -101,29 +85,26 @@ abstract class LensViewModel(
     val apertureValues = _apertureValues.asStateFlow()
 
     fun setMake(value: String) {
-        lens.make = value
-        _make.value = value
+        _lens.value = _lens.value.copy(make = value)
         _makeError.value = false
     }
 
     fun setModel(value: String) {
-        lens.model = value
-        _model.value = value
+        _lens.value = _lens.value.copy(model = value)
         _modelError.value = false
     }
 
     fun setSerialNumber(value: String) {
-        lens.serialNumber = value.ifEmpty { null }
-        _serialNumber.value = value
+        val serialNumber = value.ifEmpty { null }
+        _lens.value = _lens.value.copy(serialNumber = serialNumber)
     }
 
     fun setApertureIncrements(value: Increment) {
-        lens.apertureIncrements = value
-        _apertureIncrements.value = value
-        _apertureValues.value = getApertureValues()
-        val options = getApertureValues()
-        val minFound = options.contains(lens.minAperture)
-        val maxFound = options.contains(lens.maxAperture)
+        _lens.value = _lens.value.copy(apertureIncrements = value)
+        val values = getApertureValues(value)
+        _apertureValues.value = values
+        val minFound = values.contains(lens.value.minAperture)
+        val maxFound = values.contains(lens.value.maxAperture)
         // If either one wasn't found in the new values array, null them.
         if (!minFound || !maxFound) {
             setMinAperture(null)
@@ -137,11 +118,12 @@ abstract class LensViewModel(
     }
 
     fun setCustomApertureValues(values: List<Float>) {
-        lens.customApertureValues = values.filter { it >= 0f }.sorted().distinct()
-        _customApertureValues.value = lens.customApertureValues
+        _lens.value = _lens.value.copy(
+            customApertureValues = values.filter { it >= 0f }.sorted().distinct()
+        )
     }
 
-    private fun getApertureValues() = when (lens.apertureIncrements) {
+    private fun getApertureValues(increment: Increment) = when (increment) {
         Increment.THIRD -> context.resources.getStringArray(R.array.ApertureValuesThird).toList()
         Increment.HALF -> context.resources.getStringArray(R.array.ApertureValuesHalf).toList()
         Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull).toList()
@@ -149,22 +131,18 @@ abstract class LensViewModel(
 
     fun setMinAperture(value: String?) {
         if (value?.toDoubleOrNull() != null) {
-            lens.minAperture = value
-            _minAperture.value = value
+            _lens.value = _lens.value.copy(minAperture = value)
         } else {
-            lens.minAperture = null
-            _minAperture.value = null
+            _lens.value = _lens.value.copy(minAperture = null)
         }
         _apertureRangeError.value = ""
     }
 
     fun setMaxAperture(value: String?) {
         if (value?.toDoubleOrNull() != null) {
-            lens.maxAperture = value
-            _maxAperture.value = value
+            _lens.value = _lens.value.copy(maxAperture = value)
         } else {
-            lens.maxAperture = null
-            _maxAperture.value = null
+            _lens.value = _lens.value.copy(maxAperture = null)
         }
         _apertureRangeError.value = ""
     }
@@ -172,8 +150,7 @@ abstract class LensViewModel(
     fun setMinFocalLength(value: String) {
         val v = value.toIntOrNull() ?: return
         if (v in 0..1_000_000) {
-            lens.minFocalLength = v
-            _minFocalLength.value = v
+            _lens.value = _lens.value.copy(minFocalLength = v)
             _minFocalLengthError.value = ""
         }
     }
@@ -181,8 +158,7 @@ abstract class LensViewModel(
     fun setMaxFocalLength(value: String) {
         val v = value.toIntOrNull() ?: return
         if (v in 0..1_000_000) {
-            lens.maxFocalLength = v
-            _maxFocalLength.value = v
+            _lens.value = _lens.value.copy(maxFocalLength = v)
             _maxFocalLengthError.value = ""
         }
     }
@@ -223,7 +199,7 @@ abstract class LensViewModel(
                 true
             }
         }
-        return lens.validate(makeValidation, modelValidation, focalLengthValidation,
+        return _lens.value.validate(makeValidation, modelValidation, focalLengthValidation,
             ::apertureRangeValidation)
     }
 

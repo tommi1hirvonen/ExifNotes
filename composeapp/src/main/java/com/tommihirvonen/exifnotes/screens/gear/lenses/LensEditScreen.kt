@@ -81,22 +81,14 @@ import com.tommihirvonen.exifnotes.util.copy
 
 @Composable
 fun FixedLensEditScreen(
-    lens: Lens,
+    initialLens: Lens,
     onCancel: () -> Unit,
     onSubmit: (Lens) -> Unit,
     lensViewModel: FixedLensViewModel = hiltViewModel { factory: FixedLensViewModel.Factory ->
-        factory.create(lens.copy())
+        factory.create(initialLens)
     }
 ) {
-    val make = lensViewModel.make.collectAsState()
-    val model = lensViewModel.model.collectAsState()
-    val serialNumber = lensViewModel.serialNumber.collectAsState()
-    val minFocalLength = lensViewModel.minFocalLength.collectAsState()
-    val maxFocalLength = lensViewModel.maxFocalLength.collectAsState()
-    val apertureIncrements = lensViewModel.apertureIncrements.collectAsState()
-    val minAperture = lensViewModel.minAperture.collectAsState()
-    val maxAperture = lensViewModel.maxAperture.collectAsState()
-    val customApertureValues = lensViewModel.customApertureValues.collectAsState()
+    val lens = lensViewModel.lens.collectAsState()
     val apertureValues = lensViewModel.apertureValues.collectAsState()
     val makeError = lensViewModel.makeError.collectAsState()
     val modelError = lensViewModel.modelError.collectAsState()
@@ -107,15 +99,7 @@ fun FixedLensEditScreen(
     LensEditContent(
         title = title,
         isFixedLens = true,
-        make = make.value ?: "",
-        model = model.value ?: "",
-        serialNumber = serialNumber.value ?: "",
-        minFocalLength = minFocalLength.value,
-        maxFocalLength = maxFocalLength.value,
-        apertureIncrements = apertureIncrements.value,
-        minAperture = minAperture.value ?: "",
-        maxAperture = maxAperture.value ?: "",
-        customApertureValues = customApertureValues.value,
+        lens = lens.value,
         apertureValues = apertureValues.value,
         makeError = makeError.value,
         modelError = modelError.value,
@@ -135,7 +119,7 @@ fun FixedLensEditScreen(
         onNavigateUp = onCancel,
         onSubmit = {
             if (lensViewModel.validate()) {
-                onSubmit(lensViewModel.lens)
+                onSubmit(lensViewModel.lens.value)
             }
         }
     )
@@ -150,15 +134,7 @@ fun InterchangeableLensEditScreen(
         factory.create(lensId)
     }
 ) {
-    val make = lensViewModel.make.collectAsState()
-    val model = lensViewModel.model.collectAsState()
-    val serialNumber = lensViewModel.serialNumber.collectAsState()
-    val minFocalLength = lensViewModel.minFocalLength.collectAsState()
-    val maxFocalLength = lensViewModel.maxFocalLength.collectAsState()
-    val apertureIncrements = lensViewModel.apertureIncrements.collectAsState()
-    val minAperture = lensViewModel.minAperture.collectAsState()
-    val maxAperture = lensViewModel.maxAperture.collectAsState()
-    val customApertureValues = lensViewModel.customApertureValues.collectAsState()
+    val lens = lensViewModel.lens.collectAsState()
     val apertureValues = lensViewModel.apertureValues.collectAsState()
     val makeError = lensViewModel.makeError.collectAsState()
     val modelError = lensViewModel.modelError.collectAsState()
@@ -169,15 +145,7 @@ fun InterchangeableLensEditScreen(
     LensEditContent(
         title = title,
         isFixedLens = false,
-        make = make.value ?: "",
-        model = model.value ?: "",
-        serialNumber = serialNumber.value ?: "",
-        minFocalLength = minFocalLength.value,
-        maxFocalLength = maxFocalLength.value,
-        apertureIncrements = apertureIncrements.value,
-        minAperture = minAperture.value ?: "",
-        maxAperture = maxAperture.value ?: "",
-        customApertureValues = customApertureValues.value,
+        lens = lens.value,
         apertureValues = apertureValues.value,
         makeError = makeError.value,
         modelError = modelError.value,
@@ -197,7 +165,7 @@ fun InterchangeableLensEditScreen(
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (lensViewModel.validate()) {
-                gearViewModel.submitLens(lensViewModel.lens)
+                gearViewModel.submitLens(lensViewModel.lens.value)
                 onNavigateUp()
             }
         }
@@ -207,9 +175,7 @@ fun InterchangeableLensEditScreen(
 @Preview
 @Composable
 private fun LensEditContentPreview() {
-    LensEditContent(
-        title = "Add new lens",
-        isFixedLens = false,
+    val lens = Lens(
         make = "Canon",
         model = "FD 28mm f/2.8",
         serialNumber = "123ASD456",
@@ -218,7 +184,12 @@ private fun LensEditContentPreview() {
         apertureIncrements = Increment.THIRD,
         minAperture = "22",
         maxAperture = "2.8",
-        customApertureValues = listOf(2.8f, 5.6f),
+        customApertureValues = listOf(2.8f, 5.6f)
+    )
+    LensEditContent(
+        title = "Add new lens",
+        isFixedLens = false,
+        lens = lens,
         apertureValues = emptyList(),
         makeError = false,
         modelError = false,
@@ -245,15 +216,7 @@ private fun LensEditContentPreview() {
 private fun LensEditContent(
     title: String,
     isFixedLens: Boolean,
-    make: String,
-    model: String,
-    serialNumber: String,
-    minFocalLength: Int,
-    maxFocalLength: Int,
-    apertureIncrements: Increment,
-    minAperture: String,
-    maxAperture: String,
-    customApertureValues: List<Float>,
+    lens: Lens,
     apertureValues: List<String>,
     makeError: Boolean,
     modelError: Boolean,
@@ -320,7 +283,7 @@ private fun LensEditContent(
                 Row(modifier = Modifier.padding(top = 8.dp)) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = make,
+                        value = lens.make ?: "",
                         onValueChange = onMakeChange,
                         label = { Text(stringResource(R.string.Make)) },
                         supportingText = { Text(stringResource(R.string.Required)) },
@@ -330,7 +293,7 @@ private fun LensEditContent(
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = model,
+                        value = lens.model ?: "",
                         onValueChange = onModelChange,
                         label = { Text(stringResource(R.string.Model)) },
                         supportingText = { Text(stringResource(R.string.Required)) },
@@ -340,7 +303,7 @@ private fun LensEditContent(
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = serialNumber,
+                        value = lens.serialNumber ?: "",
                         onValueChange = onSerialNumberChange,
                         label = { Text(stringResource(R.string.SerialNumber)) }
                     )
@@ -358,7 +321,7 @@ private fun LensEditContent(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = apertureIncrements.description(context),
+                        value = lens.apertureIncrements.description(context),
                         onValueChange = {},
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureIncrementsExpanded)
@@ -402,7 +365,7 @@ private fun LensEditContent(
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = maxAperture,
+                            value = lens.maxAperture ?: "",
                             isError = apertureRangeError.isNotEmpty(),
                             onValueChange = {},
                             trailingIcon = {
@@ -438,7 +401,7 @@ private fun LensEditContent(
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = minAperture,
+                            value = lens.minAperture ?: "",
                             isError = apertureRangeError.isNotEmpty(),
                             onValueChange = {},
                             trailingIcon = {
@@ -487,7 +450,7 @@ private fun LensEditContent(
             ) {
                 DropdownButton(
                     modifier = Modifier.weight(1f),
-                    text = customApertureValues.sorted().distinct().joinToString(),
+                    text = lens.customApertureValues.sorted().distinct().joinToString(),
                     onClick = { showRemoveCustomApertureValuesDialog = true }
                 )
                 Box(
@@ -518,7 +481,7 @@ private fun LensEditContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                     OutlinedTextField(
-                        value = minFocalLength.toString(),
+                        value = lens.minFocalLength.toString(),
                         isError = minFocalLengthError.isNotEmpty(),
                         onValueChange = onSetMinFocalLength,
                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -540,7 +503,7 @@ private fun LensEditContent(
                         style = MaterialTheme.typography.bodySmall
                     )
                     OutlinedTextField(
-                        value = maxFocalLength.toString(),
+                        value = lens.maxFocalLength.toString(),
                         isError = maxFocalLengthError.isNotEmpty(),
                         onValueChange = onSetMaxFocalLength,
                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -586,7 +549,7 @@ private fun LensEditContent(
                         when (val v = value.toFloatOrNull()) {
                             is Float -> {
                                 onSetCustomApertureValues(
-                                    customApertureValues.plus(v)
+                                    lens.customApertureValues.plus(v)
                                 )
                             }
                         }
@@ -624,7 +587,7 @@ private fun LensEditContent(
         )
     }
     if (showRemoveCustomApertureValuesDialog) {
-        var values by remember(customApertureValues) { mutableStateOf(customApertureValues) }
+        var values by remember(lens) { mutableStateOf(lens.customApertureValues) }
         AlertDialog(
             onDismissRequest = { showRemoveCustomApertureValuesDialog = false },
             dismissButton = {
