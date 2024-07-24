@@ -61,20 +61,12 @@ fun FilmStockEditScreen(
     },
     afterSubmit: (FilmStock) -> Unit = {}
 ) {
-    val make = filmStockViewModel.make.collectAsState()
-    val model = filmStockViewModel.model.collectAsState()
-    val iso = filmStockViewModel.iso.collectAsState()
-    val type = filmStockViewModel.type.collectAsState()
-    val process = filmStockViewModel.process.collectAsState()
+    val filmStock = filmStockViewModel.filmStock.collectAsState()
     val makeError = filmStockViewModel.makeError.collectAsState()
     val modelError = filmStockViewModel.modelError.collectAsState()
     FilmStockEditForm(
-        isNewFilmStock = filmStockViewModel.filmStock.id <= 0,
-        make = make.value ?: "",
-        model = model.value ?: "",
-        iso = iso.value.toString(),
-        type = type.value,
-        process = process.value,
+        isNewFilmStock = filmStock.value.id <= 0,
+        filmStock = filmStock.value,
         makeError = makeError.value,
         modelError = modelError.value,
         onMakeChange = filmStockViewModel::setMake,
@@ -86,8 +78,8 @@ fun FilmStockEditScreen(
         onSubmit = {
             val result = filmStockViewModel.validate()
             if (result) {
-                filmStocksViewModel.submitFilmStock(filmStockViewModel.filmStock)
-                afterSubmit(filmStockViewModel.filmStock)
+                filmStocksViewModel.submitFilmStock(filmStockViewModel.filmStock.value)
+                afterSubmit(filmStockViewModel.filmStock.value)
                 onNavigateUp()
             }
         }
@@ -97,13 +89,16 @@ fun FilmStockEditScreen(
 @Preview
 @Composable
 private fun FilmStockEditFormPreview() {
-    FilmStockEditForm(
-        isNewFilmStock = false,
+    val filmStock = FilmStock(
         make = "Exif Notes Labs",
         model = "400 Professional",
-        iso = "400",
+        iso = 400,
         type = FilmType.BW_NEGATIVE,
-        process = FilmProcess.BW_NEGATIVE,
+        process = FilmProcess.BW_NEGATIVE
+    )
+    FilmStockEditForm(
+        isNewFilmStock = false,
+        filmStock = filmStock,
         makeError = false,
         modelError = false,
         onMakeChange = {},
@@ -120,11 +115,7 @@ private fun FilmStockEditFormPreview() {
 @Composable
 private fun FilmStockEditForm(
     isNewFilmStock: Boolean,
-    make: String,
-    model: String,
-    iso: String,
-    type: FilmType,
-    process: FilmProcess,
+    filmStock: FilmStock,
     makeError: Boolean,
     modelError: Boolean,
     onMakeChange: (String) -> Unit,
@@ -148,7 +139,7 @@ private fun FilmStockEditForm(
             Row(modifier = Modifier.padding(top = 8.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = make,
+                    value = filmStock.make ?: "",
                     onValueChange = onMakeChange,
                     label = { Text(stringResource(R.string.Make)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -158,7 +149,7 @@ private fun FilmStockEditForm(
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = model,
+                    value = filmStock.model ?: "",
                     onValueChange = onModelChange,
                     label = { Text(stringResource(R.string.Model)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -168,7 +159,7 @@ private fun FilmStockEditForm(
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
-                    value = iso,
+                    value = filmStock.iso.toString(),
                     onValueChange = onIsoChange,
                     label = { Text(stringResource(R.string.ISO)) },
                     supportingText = { Text(stringResource(R.string.Required)) },
@@ -185,7 +176,7 @@ private fun FilmStockEditForm(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = type.description ?: "",
+                        value = filmStock.type.description ?: "",
                         onValueChange = {},
                         label = { Text(stringResource(R.string.FilmType)) },
                         trailingIcon = {
@@ -216,7 +207,7 @@ private fun FilmStockEditForm(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = process.description ?: "",
+                        value = filmStock.process.description ?: "",
                         onValueChange = {},
                         label = { Text(stringResource(R.string.FilmProcess)) },
                         trailingIcon = {

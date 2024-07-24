@@ -42,52 +42,39 @@ class FilmStockViewModel @AssistedInject constructor (
         fun create(filmStockId: Long): FilmStockViewModel
     }
 
-    val filmStock = filmStockRepository.getFilmStock(filmStockId) ?: FilmStock()
-
-    private val _make = MutableStateFlow(filmStock.make)
-    private val _model = MutableStateFlow(filmStock.model)
-    private val _iso = MutableStateFlow(filmStock.iso)
-    private val _type = MutableStateFlow(filmStock.type)
-    private val _process = MutableStateFlow(filmStock.process)
+    private val _filmStock = MutableStateFlow(
+        filmStockRepository.getFilmStock(filmStockId) ?: FilmStock()
+    )
     private val _makeError = MutableStateFlow(false)
     private val _modelError = MutableStateFlow(false)
 
-    val make = _make.asStateFlow()
-    val model = _model.asStateFlow()
-    val iso = _iso.asStateFlow()
-    val type = _type.asStateFlow()
-    val process = _process.asStateFlow()
+    val filmStock = _filmStock.asStateFlow()
     val makeError = _makeError.asStateFlow()
     val modelError = _modelError.asStateFlow()
 
     fun setMake(value: String) {
-        filmStock.make = value
-        _make.value = value
+        _filmStock.value = _filmStock.value.copy(make = value)
         _makeError.value = false
     }
 
     fun setModel(value: String) {
-        filmStock.model = value
-        _model.value = value
+        _filmStock.value = _filmStock.value.copy(model = value)
         _modelError.value = false
     }
 
     fun setIso(value: String) {
         val v = value.toIntOrNull() ?: return
         if (v in 0..1_000_000) {
-            filmStock.iso = v
-            _iso.value = v
+            _filmStock.value = _filmStock.value.copy(iso = v)
         }
     }
 
     fun setType(value: FilmType) {
-        filmStock.type = value
-        _type.value = value
+        _filmStock.value = _filmStock.value.copy(type = value)
     }
 
     fun setProcess(value: FilmProcess) {
-        filmStock.process = value
-        _process.value = value
+        _filmStock.value = _filmStock.value.copy(process = value)
     }
 
     fun validate(): Boolean {
@@ -107,6 +94,6 @@ class FilmStockViewModel @AssistedInject constructor (
                 false
             }
         }
-        return filmStock.validate(makeValidation, modelValidation)
+        return _filmStock.value.validate(makeValidation, modelValidation)
     }
 }
