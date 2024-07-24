@@ -25,7 +25,6 @@ import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
-import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
@@ -40,8 +39,7 @@ import java.time.LocalDateTime
 class RollViewModel @AssistedInject constructor (
     @Assisted rollId: Long,
     application: Application,
-    rollRepository: RollRepository,
-    cameraRepository: CameraRepository
+    rollRepository: RollRepository
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -49,7 +47,6 @@ class RollViewModel @AssistedInject constructor (
         fun create(rollId: Long): RollViewModel
     }
 
-    val cameras = cameraRepository.cameras
     val pushPullValues = application.applicationContext.resources
         .getStringArray(R.array.CompValues)
         .toList()

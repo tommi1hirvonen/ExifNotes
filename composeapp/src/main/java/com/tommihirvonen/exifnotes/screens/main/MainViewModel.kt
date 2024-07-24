@@ -120,8 +120,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun addCamera(camera: Camera) {
-        cameraRepository.addCamera(camera)
+    fun submitCamera(camera: Camera) {
+        if (cameraRepository.updateCamera(camera) == 0) {
+            cameraRepository.addCamera(camera)
+        }
         mCameras.value = mCameras.value
             .filterNot { it.id == camera.id }
             .plus(camera)

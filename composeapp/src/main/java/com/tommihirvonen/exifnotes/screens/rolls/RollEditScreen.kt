@@ -108,6 +108,7 @@ fun RollEditScreen(
     },
     afterSubmit: () -> Unit = {}
 ) {
+    val cameras = mainViewModel.cameras.collectAsState()
     val name = rollViewModel.name.collectAsState()
     val date = rollViewModel.date.collectAsState()
     val unloaded = rollViewModel.unloaded.collectAsState()
@@ -127,7 +128,7 @@ fun RollEditScreen(
         developed = developed.value,
         filmStock = filmStock.value,
         camera = camera.value,
-        cameras = rollViewModel.cameras,
+        cameras = cameras.value,
         iso = iso.value,
         pushPull = pushPull.value,
         pushPullValues = rollViewModel.pushPullValues,
@@ -493,7 +494,9 @@ private fun RollEditContent(
                     onExpandedChange = { formatExpanded = it }
                 ) {
                     OutlinedTextField(
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
                         readOnly = true,
                         value = format.description(context),
                         onValueChange = {},
