@@ -140,7 +140,10 @@ fun App(onFinish: () -> Unit) {
                 GearScreen(
                     gearViewModel = gearViewModel,
                     filmStocksViewModel = filmStocksViewModel,
-                    onNavigateUp = { navController.navigateUp() },
+                    onNavigateUp = {
+                        mainViewModel.loadAll()
+                        navController.navigateUp()
+                    },
                     onEditCamera = { camera ->
                         navController.navigate(route = CameraEdit(cameraId = camera?.id ?: -1))
                     },
