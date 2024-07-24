@@ -99,8 +99,13 @@ fun App(onFinish: () -> Unit) {
                 RollEditScreen(
                     rollId = rollEdit.rollId,
                     onNavigateUp = { navController.navigateUp() },
-                    onEditFilmStock = { _ ->
-                        navController.navigate(route = RollFilmStockEdit(filmStockId = -1))
+                    onEditFilmStock = { filmStock ->
+                        val route = RollFilmStockEdit(filmStockId = filmStock?.id ?: -1)
+                        navController.navigate(route = route)
+                    },
+                    onEditCamera = { camera ->
+                        val route = RollCameraEdit(cameraId = camera?.id ?: -1)
+                        navController.navigate(route = route)
                     },
                     mainViewModel = mainViewModel
                 )
@@ -122,8 +127,13 @@ fun App(onFinish: () -> Unit) {
                 RollEditScreen(
                     rollId = rollEdit.rollId,
                     onNavigateUp = { navController.navigateUp() },
-                    onEditFilmStock = { _ ->
-                        navController.navigate(route = RollFilmStockEdit(filmStockId = -1))
+                    onEditFilmStock = { filmStock ->
+                        val route = RollFilmStockEdit(filmStockId = filmStock?.id ?: -1)
+                        navController.navigate(route = route)
+                    },
+                    onEditCamera = { camera ->
+                        val route = RollCameraEdit(cameraId = camera?.id ?: -1)
+                        navController.navigate(route = route)
                     },
                     mainViewModel = mainViewModel,
                     framesViewModel = framesViewModel
@@ -163,19 +173,33 @@ fun App(onFinish: () -> Unit) {
                 val gearEntry = remember(backStackEntry) { navController.getBackStackEntry<Gear>() }
                 val gearViewModel = hiltViewModel<GearViewModel>(gearEntry)
                 val camera = backStackEntry.toRoute<CameraEdit>()
-                val cameraViewModel: CameraViewModel = hiltViewModel { factory: CameraViewModel.Factory ->
-                    factory.create(camera.cameraId)
-                }
                 CameraEditScreen(
+                    cameraId = camera.cameraId,
                     onNavigateUp = { navController.navigateUp() },
                     onEditFixedLens = { navController.navigate(route = FixedLensEdit) },
-                    gearViewModel = gearViewModel,
-                    cameraViewModel = cameraViewModel
+                    gearViewModel = gearViewModel
+                )
+            }
+            composable<RollCameraEdit> { backStackEntry ->
+                val rollEditEntry = remember(backStackEntry) { navController.getBackStackEntry<RollEdit>() }
+                val camera = backStackEntry.toRoute<RollCameraEdit>()
+                val rollViewModel = hiltViewModel<RollViewModel>(rollEditEntry)
+                CameraEditScreen(
+                    cameraId = camera.cameraId,
+                    onNavigateUp = { navController.navigateUp() },
+                    onEditFixedLens = { navController.navigate(route = FixedLensEdit) },
+                    afterSubmit = { c ->
+                        rollViewModel.setCamera(c)
+                    }
                 )
             }
             composable<FixedLensEdit> { backStackEntry ->
                 val cameraEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry<CameraEdit>()
+                    try {
+                        navController.getBackStackEntry<CameraEdit>()
+                    } catch (e: IllegalArgumentException) {
+                        navController.getBackStackEntry<RollCameraEdit>()
+                    }
                 }
                 val cameraViewModel = hiltViewModel<CameraViewModel>(cameraEntry)
                 FixedLensEditScreen(
@@ -289,6 +313,9 @@ private object RollsMap
 
 @Serializable
 private object Gear
+
+@Serializable
+private data class RollCameraEdit(val cameraId: Long)
 
 @Serializable
 private data class CameraEdit(val cameraId: Long)

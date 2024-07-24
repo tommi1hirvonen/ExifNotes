@@ -82,6 +82,7 @@ fun RollEditScreen(
     rollId: Long,
     onNavigateUp: () -> Unit,
     onEditFilmStock: (FilmStock?) -> Unit,
+    onEditCamera: (Camera?) -> Unit,
     mainViewModel: MainViewModel,
     framesViewModel: FramesViewModel,
     rollViewModel: RollViewModel = hiltViewModel { factory: RollViewModel.Factory ->
@@ -92,6 +93,7 @@ fun RollEditScreen(
         rollId = rollId,
         onNavigateUp = onNavigateUp,
         onEditFilmStock = onEditFilmStock,
+        onEditCamera = onEditCamera,
         mainViewModel = mainViewModel,
         rollViewModel = rollViewModel,
         afterSubmit = {
@@ -105,6 +107,7 @@ fun RollEditScreen(
     rollId: Long,
     onNavigateUp: () -> Unit,
     onEditFilmStock: (FilmStock?) -> Unit,
+    onEditCamera: (Camera?) -> Unit,
     mainViewModel: MainViewModel,
     rollViewModel: RollViewModel = hiltViewModel { factory: RollViewModel.Factory ->
         factory.create(rollId)
@@ -150,6 +153,7 @@ fun RollEditScreen(
         onNoteChange = rollViewModel::setNote,
         onNavigateUp = onNavigateUp,
         onEditFilmStock = onEditFilmStock,
+        onEditCamera = onEditCamera,
         onSubmit = {
             if (rollViewModel.validate()) {
                 mainViewModel.submitRoll(rollViewModel.roll)
@@ -190,6 +194,7 @@ private fun RollEditContentPreview() {
         onNoteChange = {},
         onNavigateUp = {},
         onEditFilmStock = {},
+        onEditCamera = {},
         onSubmit = {}
     )
 }
@@ -223,6 +228,7 @@ private fun RollEditContent(
     onNoteChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onEditFilmStock: (FilmStock?) -> Unit,
+    onEditCamera: (Camera?) -> Unit,
     onSubmit: () -> Unit
 ) {
     val context = LocalContext.current
@@ -426,7 +432,7 @@ private fun RollEditContent(
                             Icon(Icons.Outlined.Clear, "")
                         }
                     } else {
-                        FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                        FilledTonalIconButton(onClick = { onEditCamera(null) }) {
                             Icon(Icons.Outlined.Add, "")
                         }
                     }

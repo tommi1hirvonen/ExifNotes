@@ -63,7 +63,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
@@ -73,10 +75,30 @@ import com.tommihirvonen.exifnotes.util.copy
 
 @Composable
 fun CameraEditScreen(
+    cameraId: Long,
+    onNavigateUp: () -> Unit,
+    onEditFixedLens: () -> Unit,
+    afterSubmit: (Camera) -> Unit
+) {
+    CameraEditScreen(
+        cameraId = cameraId,
+        onNavigateUp = onNavigateUp,
+        onEditFixedLens = onEditFixedLens,
+        afterSubmit = afterSubmit,
+        gearViewModel = hiltViewModel()
+    )
+}
+
+@Composable
+fun CameraEditScreen(
+    cameraId: Long,
     onNavigateUp: () -> Unit,
     onEditFixedLens: () -> Unit,
     gearViewModel: GearViewModel,
-    cameraViewModel: CameraViewModel
+    cameraViewModel: CameraViewModel = hiltViewModel { factory: CameraViewModel.Factory ->
+        factory.create(cameraId)
+    },
+    afterSubmit: (Camera) -> Unit = {}
 ) {
     val make = cameraViewModel.make.collectAsState()
     val model = cameraViewModel.model.collectAsState()
@@ -121,6 +143,7 @@ fun CameraEditScreen(
         onSubmit = {
             if (cameraViewModel.validate()) {
                 gearViewModel.submitCamera(cameraViewModel.camera)
+                afterSubmit(cameraViewModel.camera)
                 onNavigateUp()
             }
         }
