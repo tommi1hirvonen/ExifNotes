@@ -49,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
@@ -57,9 +58,31 @@ fun RollEditScreen(
     rollId: Long,
     onNavigateUp: () -> Unit,
     mainViewModel: MainViewModel,
+    framesViewModel: FramesViewModel,
     rollViewModel: RollViewModel = hiltViewModel { factory: RollViewModel.Factory ->
         factory.create(rollId)
     }
+) {
+    RollEditScreen(
+        rollId = rollId,
+        onNavigateUp = onNavigateUp,
+        mainViewModel = mainViewModel,
+        rollViewModel = rollViewModel,
+        afterSubmit = {
+            framesViewModel.setRoll(rollViewModel.roll)
+        }
+    )
+}
+
+@Composable
+fun RollEditScreen(
+    rollId: Long,
+    onNavigateUp: () -> Unit,
+    mainViewModel: MainViewModel,
+    rollViewModel: RollViewModel = hiltViewModel { factory: RollViewModel.Factory ->
+        factory.create(rollId)
+    },
+    afterSubmit: () -> Unit = {}
 ) {
     val name = rollViewModel.name.collectAsState()
     val nameError = rollViewModel.nameError.collectAsState()
@@ -72,6 +95,7 @@ fun RollEditScreen(
         onSubmit = {
             if (rollViewModel.validate()) {
                 mainViewModel.submitRoll(rollViewModel.roll)
+                afterSubmit()
                 onNavigateUp()
             }
         }

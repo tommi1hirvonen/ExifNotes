@@ -32,6 +32,7 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.GpsCheckDialog
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
+import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CameraEditScreen
@@ -104,7 +105,21 @@ fun App(onFinish: () -> Unit) {
                 val frames = backStackEntry.toRoute<Frames>()
                 FramesScreen(
                     rollId = frames.rollId,
+                    onEditRoll = {
+                        navController.navigate(route = FramesRollEdit(rollId = frames.rollId))
+                    },
                     onNavigateUp = { navController.navigateUp() }
+                )
+            }
+            composable<FramesRollEdit> { backStackEntry ->
+                val rollEdit = backStackEntry.toRoute<FramesRollEdit>()
+                val framesEntry = remember(backStackEntry) { navController.getBackStackEntry<Frames>() }
+                val framesViewModel = hiltViewModel<FramesViewModel>(framesEntry)
+                RollEditScreen(
+                    rollId = rollEdit.rollId,
+                    onNavigateUp = { navController.navigateUp() },
+                    mainViewModel = mainViewModel,
+                    framesViewModel = framesViewModel
                 )
             }
             composable<RollsMap> {
@@ -242,6 +257,12 @@ private object Main
 private data class RollEdit(val rollId: Long)
 
 @Serializable
+private data class Frames(val rollId: Long)
+
+@Serializable
+private data class FramesRollEdit(val rollId: Long)
+
+@Serializable
 private object RollsMap
 
 @Serializable
@@ -276,6 +297,3 @@ private object License
 
 @Serializable
 private object ThirdPartyLicenses
-
-@Serializable
-private data class Frames(val rollId: Long)

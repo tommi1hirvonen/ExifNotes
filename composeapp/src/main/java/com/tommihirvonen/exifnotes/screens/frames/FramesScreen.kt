@@ -68,6 +68,7 @@ import com.tommihirvonen.exifnotes.util.State
 @Composable
 fun FramesScreen(
     rollId: Long,
+    onEditRoll: (Roll) -> Unit,
     framesViewModel: FramesViewModel = hiltViewModel { factory: FramesViewModel.Factory ->
         factory.create(rollId)
     },
@@ -84,6 +85,7 @@ fun FramesScreen(
         toggleFrameSelection = framesViewModel::toggleFrameSelection,
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,
+        onEditRoll = { onEditRoll(rollFromModel.value) },
         onNavigateUp = onNavigateUp
     )
 }
@@ -114,6 +116,7 @@ private fun FramesContentPreview() {
         toggleFrameSelection = {},
         toggleFrameSelectionAll = {},
         toggleFrameSelectionNone = {},
+        onEditRoll = {},
         onNavigateUp = {}
     )
 }
@@ -128,6 +131,7 @@ private fun FramesContent(
     toggleFrameSelection: (Frame) -> Unit,
     toggleFrameSelectionAll: () -> Unit,
     toggleFrameSelectionNone: () -> Unit,
+    onEditRoll: () -> Unit,
     onNavigateUp: () -> Unit
 ) {
     val actionModeEnabled = selectedFrames.isNotEmpty()
@@ -150,7 +154,7 @@ private fun FramesContent(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = onEditRoll) {
                         Icon(Icons.Outlined.Edit, "")
                     }
                     IconButton(onClick = { /*TODO*/ }) {

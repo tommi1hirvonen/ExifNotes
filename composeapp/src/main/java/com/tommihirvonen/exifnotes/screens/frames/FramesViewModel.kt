@@ -81,6 +81,13 @@ class FramesViewModel @AssistedInject constructor(
         loadFrames()
     }
 
+    fun setRoll(roll: Roll) {
+        _roll.value = roll
+        for (frame in framesList) {
+            frame.roll = roll
+        }
+    }
+
     fun toggleFrameSelection(frame: Frame) {
         val frames = _selectedFrames.value.toHashSet()
         if (frames.contains(frame)) {
