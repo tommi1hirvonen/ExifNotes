@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.gear.filmstocks
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -106,10 +107,11 @@ private fun SelectFilmStockDialog(
                     items = manufacturers,
                     key = { _, item -> item }
                 ) { index, manufacturer ->
+                    val isSelected = selectedManufacturer == manufacturer
                     Column(
                         modifier = Modifier
                             .clickable {
-                                selectedManufacturer = if (selectedManufacturer == manufacturer) {
+                                selectedManufacturer = if (isSelected) {
                                     null
                                 } else {
                                     manufacturer
@@ -125,7 +127,7 @@ private fun SelectFilmStockDialog(
                         ) {
                             Text(manufacturer, style = MaterialTheme.typography.titleSmall)
                             val targetRotation by animateFloatAsState(
-                                targetValue = if (selectedManufacturer == manufacturer) -180f else 0f,
+                                targetValue = if (isSelected) -180f else 0f,
                                 animationSpec = tween(300),
                                 label = "rotation",
                             )
@@ -140,27 +142,31 @@ private fun SelectFilmStockDialog(
                             HorizontalDivider(modifier = Modifier.fillMaxWidth())
                         }
                     }
-                    if (selectedManufacturer == manufacturer) {
+                    AnimatedVisibility(
+                        visible = isSelected
+                    ) {
                         if (index == manufacturers.size - 1) {
                             HorizontalDivider(modifier = Modifier.fillMaxWidth())
                         }
                         val stocks = manufacturerFilmStocks[manufacturer] ?: emptyList()
-                        for (filmStock in stocks) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onSelect(filmStock) }
-                            ) {
-                                Row(
+                        Column {
+                            for (filmStock in stocks) {
+                                Column(
                                     modifier = Modifier
-                                        .padding(top = 14.dp, bottom = 14.dp, start = 30.dp)
+                                        .fillMaxWidth()
+                                        .clickable { onSelect(filmStock) }
                                 ) {
-                                    Text(
-                                        text = filmStock.model ?: "",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .padding(top = 14.dp, bottom = 14.dp, start = 30.dp)
+                                    ) {
+                                        Text(
+                                            text = filmStock.model ?: "",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
                                 }
-                                HorizontalDivider(modifier = Modifier.fillMaxWidth())
                             }
                         }
                     }
