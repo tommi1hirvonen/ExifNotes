@@ -56,13 +56,13 @@ class SettingsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     companion object {
-        private const val KEY_GPS_UPDATE = "GPSUpdate"
-        private const val KEY_IGNORE_WARNINGS = "IgnoreWarnings"
-        private const val KEY_FILE_ENDING = "FileEnding"
-        private const val KEY_PATH_TO_PICTURES = "PicturesPath"
-        private const val KEY_EXIFTOOL_PATH = "ExiftoolPath"
-        private const val KEY_COPYRIGHT_INFO = "CopyrightInformation"
-        private const val KEY_ARTIST_NAME = "ArtistName"
+        const val KEY_GPS_UPDATE = "GPSUpdate"
+        const val KEY_IGNORE_WARNINGS = "IgnoreWarnings"
+        const val KEY_FILE_ENDING = "FileEnding"
+        const val KEY_PATH_TO_PICTURES = "PicturesPath"
+        const val KEY_EXIFTOOL_PATH = "ExiftoolPath"
+        const val KEY_COPYRIGHT_INFO = "CopyrightInformation"
+        const val KEY_ARTIST_NAME = "ArtistName"
     }
 
     private val termsOfUseKey: String get() {

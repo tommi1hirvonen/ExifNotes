@@ -24,6 +24,7 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.sortableDateTime
+import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
 import com.tommihirvonen.exifnotes.util.exifToolLocation
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.Normalizer
@@ -64,12 +65,12 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
 
     fun create(roll: Roll, frames: List<Frame>): String {
         val stringBuilder = StringBuilder()
-        val artistName = prefs.getString("ArtistName", "") ?: ""
-        val copyrightInformation = prefs.getString("CopyrightInformation", "") ?: ""
-        val exiftoolPath = prefs.getString("ExiftoolPath", "") ?: ""
-        val picturesPath = prefs.getString("PicturesPath", "") ?: ""
-        val ignoreWarnings = prefs.getBoolean("IgnoreWarnings", false)
-        var fileEnding = prefs.getString("FileEnding", ".jpg") ?: ".jpg"
+        val artistName = prefs.getString(SettingsViewModel.KEY_ARTIST_NAME, "") ?: ""
+        val copyrightInformation = prefs.getString(SettingsViewModel.KEY_COPYRIGHT_INFO, "") ?: ""
+        val exiftoolPath = prefs.getString(SettingsViewModel.KEY_EXIFTOOL_PATH, "") ?: ""
+        val picturesPath = prefs.getString(SettingsViewModel.KEY_PATH_TO_PICTURES, "") ?: ""
+        val ignoreWarnings = prefs.getBoolean(SettingsViewModel.KEY_IGNORE_WARNINGS, false)
+        var fileEnding = prefs.getString(SettingsViewModel.KEY_FILE_ENDING, ".jpg") ?: ".jpg"
 
         //Check that fileEnding begins with a dot.
         if (fileEnding.first() != '.') fileEnding = ".$fileEnding"
