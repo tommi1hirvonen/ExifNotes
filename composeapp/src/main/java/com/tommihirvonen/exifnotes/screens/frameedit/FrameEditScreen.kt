@@ -65,11 +65,14 @@ import java.time.LocalDateTime
 
 @Composable
 fun FrameEditScreen(
+    rollId: Long,
     frameId: Long,
+    previousFrameId: Long,
+    frameCount: Int,
     onNavigateUp: () -> Unit,
     framesViewModel: FramesViewModel,
     frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
-        factory.create(frameId)
+        factory.create(rollId, frameId, previousFrameId, frameCount)
     }
 ) {
     val frame = frameViewModel.frame.collectAsState()

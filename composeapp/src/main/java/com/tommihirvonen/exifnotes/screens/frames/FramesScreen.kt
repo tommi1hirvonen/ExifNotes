@@ -70,7 +70,7 @@ import java.io.IOException
 fun FramesScreen(
     rollId: Long,
     onEditRoll: (Roll) -> Unit,
-    onEditFrame: (Frame?) -> Unit,
+    onEditFrame: (Frame?, Frame?, Int) -> Unit,
     onNavigateToMap: (Roll) -> Unit,
     mainViewModel: MainViewModel,
     framesViewModel: FramesViewModel = hiltViewModel { factory: FramesViewModel.Factory ->
@@ -80,7 +80,7 @@ fun FramesScreen(
 ) {
     val labels = mainViewModel.labels.collectAsState()
     val roll = framesViewModel.roll.collectAsState()
-    val frames = framesViewModel.frames.collectAsState()
+    val framesLoadState = framesViewModel.frames.collectAsState()
     val selectedFrames = framesViewModel.selectedFrames.collectAsState()
     val sortMode = framesViewModel.frameSortMode.collectAsState()
     val context = LocalContext.current
@@ -107,11 +107,21 @@ fun FramesScreen(
 
     FramesContent(
         roll = roll.value,
-        frames = frames.value,
+        frames = framesLoadState.value,
         selectedFrames = selectedFrames.value,
         sortMode = sortMode.value,
-        onFrameClick = onEditFrame,
-        onFabClick = { onEditFrame(null) },
+        onFrameClick = { frame ->
+            onEditFrame(frame, null, 0)
+        },
+        onFabClick = {
+            val frames = when (val state = framesLoadState.value) {
+                is LoadState.Success -> state.data
+                else -> emptyList()
+            }
+            val frameCount = frames.maxOfOrNull(Frame::count)?.plus(1) ?: 1
+            val previousFrame = frames.maxByOrNull(Frame::id)
+            onEditFrame(null, previousFrame, frameCount)
+        },
         toggleFrameSelection = framesViewModel::toggleFrameSelection,
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,

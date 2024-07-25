@@ -120,8 +120,13 @@ fun App(onFinish: () -> Unit) {
                     onEditRoll = {
                         navController.navigate(route = FramesRollEdit(rollId = frames.rollId))
                     },
-                    onEditFrame = { frame ->
-                        val route = FrameEdit(frameId = frame?.id ?: -1)
+                    onEditFrame = { frame, previousFrame, frameCount ->
+                        val route = FrameEdit(
+                            rollId = frames.rollId,
+                            frameId = frame?.id ?: -1,
+                            previousFrameId = previousFrame?.id ?: -1,
+                            frameCount = frameCount
+                        )
                         navController.navigate(route = route)
                     },
                     onNavigateToMap = { roll ->
@@ -136,7 +141,10 @@ fun App(onFinish: () -> Unit) {
                 val framesEntry = remember(backStackEntry) { navController.getBackStackEntry<Frames>() }
                 val framesViewModel = hiltViewModel<FramesViewModel>(framesEntry)
                 FrameEditScreen(
+                    rollId = frameEdit.rollId,
                     frameId = frameEdit.frameId,
+                    previousFrameId = frameEdit.previousFrameId,
+                    frameCount = frameEdit.frameCount,
                     framesViewModel = framesViewModel,
                     onNavigateUp = { navController.navigateUp() }
                 )
@@ -339,7 +347,9 @@ private data class Frames(val rollId: Long)
 private data class FramesRollEdit(val rollId: Long)
 
 @Serializable
-private data class FrameEdit(val frameId: Long)
+private data class FrameEdit(
+    val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int
+)
 
 @Serializable
 private data class FramesMap(val rollId: Long)
