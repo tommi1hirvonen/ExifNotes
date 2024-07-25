@@ -105,6 +105,10 @@ class FrameViewModel @AssistedInject constructor(
         _frame.value = _frame.value.copy(date = value)
     }
 
+    fun setNote(value: String) {
+        _frame.value = _frame.value.copy(note = value)
+    }
+
     fun validate(): Boolean = true
 
 }

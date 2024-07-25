@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.screens.frameedit
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -80,6 +81,7 @@ fun FrameEditScreen(
         frame = frame.value,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
+        onNoteChange = frameViewModel::setNote,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -98,6 +100,7 @@ private fun FrameEditContentPreview() {
         frame,
         onCountChange = {},
         onDateChange = {},
+        onNoteChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -109,6 +112,7 @@ private fun FrameEditContent(
     frame: Frame,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
+    onNoteChange: (String) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -200,6 +204,14 @@ private fun FrameEditContent(
                 DateTimeButtonCombo(
                     dateTime = frame.date,
                     onDateTimeSet = onDateChange
+                )
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = frame.note ?: "",
+                    onValueChange = onNoteChange,
+                    label = { Text(stringResource(R.string.DescriptionOrNote)) }
                 )
             }
         }
