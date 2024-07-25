@@ -28,20 +28,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Sort
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Map
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -58,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
@@ -76,15 +65,21 @@ fun FramesScreen(
     val roll = framesViewModel.roll.collectAsState()
     val frames = framesViewModel.frames.collectAsState()
     val selectedFrames = framesViewModel.selectedFrames.collectAsState()
+    val sortMode = framesViewModel.frameSortMode.collectAsState()
     FramesContent(
         roll = roll.value,
         frames = frames.value,
         selectedFrames = selectedFrames.value,
+        sortMode = sortMode.value,
         onFrameClick = { /*TODO*/ },
         onFabClick = { /*TODO*/ },
         toggleFrameSelection = framesViewModel::toggleFrameSelection,
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,
+        onSortModeChange = framesViewModel::setSortMode,
+        onRollShare = { /*TODO*/ },
+        onRollExport = { /*TODO*/ },
+        onNavigateToMap = { /*TODO*/ },
         onEditRoll = { onEditRoll(roll.value) },
         onToggleFavorite = {
             val favorite = roll.value.favorite
@@ -124,11 +119,16 @@ private fun FramesContentPreview() {
         roll = roll,
         frames = LoadState.Success(listOf(frame1, frame2)),
         selectedFrames = hashSetOf(),
+        sortMode = FrameSortMode.FRAME_COUNT,
         onFrameClick = {},
         onFabClick = {},
         toggleFrameSelection = {},
         toggleFrameSelectionAll = {},
         toggleFrameSelectionNone = {},
+        onSortModeChange = {},
+        onRollShare = {},
+        onRollExport = {},
+        onNavigateToMap = {},
         onEditRoll = {},
         onNavigateUp = {},
         onToggleFavorite = {},
@@ -145,11 +145,16 @@ private fun FramesContent(
     roll: Roll,
     frames: LoadState<List<Frame>>,
     selectedFrames: HashSet<Frame>,
+    sortMode: FrameSortMode,
     onFrameClick: (Frame) -> Unit,
     onFabClick: () -> Unit,
     toggleFrameSelection: (Frame) -> Unit,
     toggleFrameSelectionAll: () -> Unit,
     toggleFrameSelectionNone: () -> Unit,
+    onSortModeChange: (FrameSortMode) -> Unit,
+    onRollShare: () -> Unit,
+    onRollExport: () -> Unit,
+    onNavigateToMap: () -> Unit,
     onEditRoll: () -> Unit,
     onNavigateUp: () -> Unit,
     onToggleFavorite: () -> Unit,
@@ -192,30 +197,13 @@ private fun FramesContent(
             }
         },
         bottomBar = {
-            BottomAppBar(
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.AutoMirrored.Outlined.Sort, "")
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Outlined.Map, "")
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Outlined.Share, "")
-                    }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(Icons.Outlined.MoreVert, "")
-                    }
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = onFabClick,
-                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
-                    ) {
-                        Icon(Icons.Outlined.Add, contentDescription = "")
-                    }
-                }
+            FramesBottomAppBar(
+                sortMode = sortMode,
+                onFabClick = onFabClick,
+                onSortModeChange = onSortModeChange,
+                onRollShare = onRollShare,
+                onRollExport = onRollExport,
+                onNavigateToMap = onNavigateToMap
             )
         }
     ) { innerPadding ->

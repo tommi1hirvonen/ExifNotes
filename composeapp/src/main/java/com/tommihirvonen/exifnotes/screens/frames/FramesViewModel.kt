@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.screens.frames
 
 import android.app.Application
+import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
@@ -104,6 +105,15 @@ class FramesViewModel @AssistedInject constructor(
 
     fun toggleFrameSelectionNone() {
         _selectedFrames.value = hashSetOf()
+    }
+
+    fun setSortMode(mode: FrameSortMode) {
+        sharedPreferences.edit {
+            putInt(KEY_FRAME_SORT_ORDER, mode.value)
+        }
+        _frameSortMode.value = mode
+        framesList = framesList.sorted(getApplication(), mode)
+        _frames.value = LoadState.Success(framesList)
     }
 
     fun deleteFrame(frame: Frame) {
