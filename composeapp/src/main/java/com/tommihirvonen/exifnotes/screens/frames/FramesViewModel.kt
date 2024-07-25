@@ -36,6 +36,7 @@ import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.export.RollExportHelper
 import com.tommihirvonen.exifnotes.di.export.RollExportOption
 import com.tommihirvonen.exifnotes.di.export.RollShareIntentBuilder
+import com.tommihirvonen.exifnotes.di.location.LocationService
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.assisted.Assisted
@@ -56,6 +57,7 @@ class FramesViewModel @AssistedInject constructor(
     private val complementaryPicturesManager: ComplementaryPicturesManager,
     private val rollShareIntentBuilder: RollShareIntentBuilder,
     private val rollExportHelper: RollExportHelper,
+    private val locationService: LocationService,
     private val application: Application
 ) : AndroidViewModel(application) {
 
@@ -89,7 +91,13 @@ class FramesViewModel @AssistedInject constructor(
     private var framesList = emptyList<Frame>()
 
     init {
+        locationService.startLocationUpdates()
         loadFrames()
+    }
+
+    override fun onCleared() {
+        locationService.stopLocationUpdates()
+        super.onCleared()
     }
 
     fun setRoll(roll: Roll) {

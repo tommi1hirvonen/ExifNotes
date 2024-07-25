@@ -28,7 +28,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import com.google.android.libraries.places.api.Places
-import com.tommihirvonen.exifnotes.di.location.LocationService
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.util.purgeDirectory
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,9 +38,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var complementaryPicturesManager: ComplementaryPicturesManager
-
-    @Inject
-    lateinit var locationService: LocationService
 
     private val requestMultiplePermissionsLauncher =
         registerForActivityResult(
@@ -108,15 +104,5 @@ class MainActivity : ComponentActivity() {
         externalStorageDir?.purgeDirectory()
         externalCacheDir?.purgeDirectory()
         super.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        locationService.startLocationUpdates()
-    }
-
-    override fun onPause() {
-        locationService.stopLocationUpdates()
-        super.onPause()
     }
 }
