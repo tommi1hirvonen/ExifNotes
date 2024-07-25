@@ -19,11 +19,19 @@
 package com.tommihirvonen.exifnotes.screens.frameedit
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.location.LocationService
 import dagger.assisted.Assisted
@@ -40,9 +48,12 @@ class FrameViewModel @AssistedInject constructor(
     @Assisted("frameId") frameId: Long,
     @Assisted("previousFrameId") previousFrameId: Long,
     @Assisted("frameCount") frameCount: Int,
-    application: Application,
+    private val application: Application,
     frameRepository: FrameRepository,
     rollRepository: RollRepository,
+    lensRepository: LensRepository,
+    private val cameraRepository: CameraRepository,
+    private val filterRepository: FilterRepository,
     locationService: LocationService
 ) : AndroidViewModel(application) {
 
@@ -56,7 +67,9 @@ class FrameViewModel @AssistedInject constructor(
         ): FrameViewModel
     }
 
+    private val context: Context get() = application.applicationContext
     private val _frame: MutableStateFlow<Frame>
+    private val _lenses: MutableStateFlow<List<Lens>>
 
     init {
         val existingFrame = frameRepository.getFrame(frameId)
@@ -93,9 +106,21 @@ class FrameViewModel @AssistedInject constructor(
             }
         }
         _frame = MutableStateFlow(frame)
+        _lenses = MutableStateFlow(
+            frame.roll.camera?.let(cameraRepository::getLinkedLenses)
+                ?: lensRepository.lenses
+        )
     }
 
+    private val lens get() = _frame.value.roll.camera?.lens ?: _frame.value.lens
+
+    private val _filters = MutableStateFlow(getFilters(lens))
+    private val _apertureValues = MutableStateFlow(getApertureValues(lens))
+
     val frame = _frame.asStateFlow()
+    val filters = _filters.asStateFlow()
+    val lenses = _lenses.asStateFlow()
+    val apertureValues = _apertureValues.asStateFlow()
 
     fun setCount(value: Int) {
         _frame.value = _frame.value.copy(count = value)
@@ -109,6 +134,70 @@ class FrameViewModel @AssistedInject constructor(
         _frame.value = _frame.value.copy(note = value)
     }
 
+    fun setShutter(value: String?) {
+        _frame.value = _frame.value.copy(shutter = value?.toShutterSpeedOrNull())
+    }
+
+    fun setAperture(value: String?) {
+        _frame.value = _frame.value.copy(aperture = value?.toDoubleOrNull()?.toString())
+    }
+
+    fun setExposureComp(value: String) {
+        _frame.value = _frame.value.copy(exposureComp = value)
+    }
+
+    fun setNoOfExposures(value: Int) {
+        if (value >= 1) {
+            _frame.value = _frame.value.copy(noOfExposures = value)
+        }
+    }
+
+    fun setFlashUsed(value: Boolean) {
+        _frame.value = _frame.value.copy(flashUsed = value)
+    }
+
+    fun setLightSource(value: LightSource) {
+        _frame.value = _frame.value.copy(lightSource = value)
+    }
+
+    fun setLens(value: Lens?) {
+        val frame = _frame.value
+        val filters = getFilters(value)
+        val apertureValues = getApertureValues(value)
+        _filters.value = filters
+        _apertureValues.value = apertureValues
+        val aperture = if (!apertureValues.contains(frame.aperture)) null else frame.aperture
+        val focalLength = if (value != null && frame.focalLength > value.maxFocalLength)
+            value.maxFocalLength
+        else if (value != null && frame.focalLength < value.minFocalLength)
+            value.minFocalLength
+        else
+            frame.focalLength
+        _frame.value = frame.copy(
+            lens = value,
+            filters = frame.filters.filter(filters::contains),
+            aperture = aperture,
+            focalLength = focalLength
+        )
+    }
+
+    fun setFilters(value: List<Filter>) {
+        _frame.value = _frame.value.copy(filters = value)
+    }
+
+    fun setFocalLength(value: Int) {
+        _frame.value = _frame.value.copy(focalLength = value)
+    }
+
     fun validate(): Boolean = true
 
+    private fun getFilters(lens: Lens?): List<Filter> =
+        lens?.let(filterRepository::getLinkedFilters)
+            ?: this.lens?.let(filterRepository::getLinkedFilters)
+            ?: filterRepository.filters
+
+    private fun getApertureValues(lens: Lens?): List<String> =
+        lens?.apertureValues(context)?.toList()
+            ?: this.lens?.apertureValues(context)?.toList()
+            ?: Lens.defaultApertureValues(context).toList()
 }
