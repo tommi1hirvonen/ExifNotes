@@ -65,10 +65,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
+import com.tommihirvonen.exifnotes.screens.DropdownButton
+import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
@@ -88,11 +91,13 @@ fun FrameEditScreen(
 ) {
     val frame = frameViewModel.frame.collectAsState()
     val apertureValues = frameViewModel.apertureValues.collectAsState()
+    val filters = frameViewModel.filters.collectAsState()
     FrameEditContent(
         frame = frame.value,
         apertureValues = apertureValues.value,
         shutterValues = frameViewModel.shutterValues,
         lenses = frameViewModel.lenses,
+        filters = filters.value,
         exposureCompValues = frameViewModel.exposureCompValues,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
@@ -100,6 +105,7 @@ fun FrameEditScreen(
         onApertureChange = frameViewModel::setAperture,
         onShutterChange = frameViewModel::setShutter,
         onLensChange = frameViewModel::setLens,
+        onFiltersChange = frameViewModel::setFilters,
         onExposureCompChange = frameViewModel::setExposureComp,
         onNoOfExposuresChange = frameViewModel::setNoOfExposures,
         onFlashChange = frameViewModel::setFlashUsed,
@@ -123,6 +129,7 @@ private fun FrameEditContentPreview() {
         apertureValues = emptyList(),
         shutterValues = emptyList(),
         lenses = emptyList(),
+        filters = emptyList(),
         exposureCompValues = emptyList(),
         onCountChange = {},
         onDateChange = {},
@@ -130,6 +137,7 @@ private fun FrameEditContentPreview() {
         onApertureChange = {},
         onShutterChange = {},
         onLensChange = {},
+        onFiltersChange = {},
         onExposureCompChange = {},
         onNoOfExposuresChange = {},
         onFlashChange = {},
@@ -146,6 +154,7 @@ private fun FrameEditContent(
     apertureValues: List<String>,
     shutterValues: List<String>,
     lenses: List<Lens>,
+    filters: List<Filter>,
     exposureCompValues: List<String>,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
@@ -153,6 +162,7 @@ private fun FrameEditContent(
     onApertureChange: (String?) -> Unit,
     onShutterChange: (String?) -> Unit,
     onLensChange: (Lens?) -> Unit,
+    onFiltersChange: (List<Filter>) -> Unit,
     onExposureCompChange: (String) -> Unit,
     onNoOfExposuresChange: (Int) -> Unit,
     onFlashChange: (Boolean) -> Unit,
@@ -169,6 +179,7 @@ private fun FrameEditContent(
     var exposureCompExpanded by remember { mutableStateOf(false) }
     var noOfExposuresExpanded by remember { mutableStateOf(false) }
     var lightSourceExpanded by remember { mutableStateOf(false) }
+    var showFiltersDialog by remember { mutableStateOf(false) }
     val lensesWithUniqueNames = remember(lenses) {
         lenses.mapNonUniqueToNameWithSerial()
     }
@@ -432,6 +443,31 @@ private fun FrameEditContent(
                 }
             }
             Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.FilterOrFilters),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val filtersText = frame.filters.joinToString(separator = "\n") { "-${it.name}" }
+                DropdownButton(
+                    modifier = Modifier.weight(1f),
+                    text = filtersText,
+                    maxLines = Int.MAX_VALUE,
+                    onClick = { showFiltersDialog = true }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Outlined.Add, "")
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(R.string.ExposureComp),
@@ -567,5 +603,17 @@ private fun FrameEditContent(
                 )
             }
         }
+    }
+    if (showFiltersDialog) {
+        MultiChoiceDialog(
+            initialItems = filters.associateWith { filter -> frame.filters.any { it.id == filter.id } },
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showFiltersDialog = false },
+            onConfirm = { selectedFilters ->
+                showFiltersDialog = false
+                onFiltersChange(selectedFilters)
+            }
+        )
     }
 }

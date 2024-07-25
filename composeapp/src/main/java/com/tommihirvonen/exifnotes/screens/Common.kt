@@ -348,6 +348,7 @@ private fun DropdownButtonPreview() {
 fun DropdownButton(
     modifier: Modifier = Modifier,
     text: String = "",
+    maxLines: Int = 1,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(4.dp)
@@ -372,7 +373,7 @@ fun DropdownButton(
             Text(
                 text = text,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
+                maxLines = maxLines,
                 overflow = TextOverflow.Ellipsis
             )
             Icon(
