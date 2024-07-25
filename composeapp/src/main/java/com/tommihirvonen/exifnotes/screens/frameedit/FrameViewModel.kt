@@ -22,6 +22,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
@@ -121,6 +122,8 @@ class FrameViewModel @AssistedInject constructor(
     val filters = _filters.asStateFlow()
     val lenses = _lenses.asStateFlow()
     val apertureValues = _apertureValues.asStateFlow()
+    val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
+        ?: Camera.defaultShutterSpeedValues(context).toList()
 
     fun setCount(value: Int) {
         _frame.value = _frame.value.copy(count = value)
@@ -139,7 +142,9 @@ class FrameViewModel @AssistedInject constructor(
     }
 
     fun setAperture(value: String?) {
-        _frame.value = _frame.value.copy(aperture = value?.toDoubleOrNull()?.toString())
+        if (value == null || value.toDoubleOrNull() != null) {
+            _frame.value = _frame.value.copy(aperture = value)
+        }
     }
 
     fun setExposureComp(value: String) {

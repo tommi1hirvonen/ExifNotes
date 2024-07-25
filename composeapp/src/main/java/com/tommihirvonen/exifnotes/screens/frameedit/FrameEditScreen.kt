@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.frameedit
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +31,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -77,11 +81,16 @@ fun FrameEditScreen(
     }
 ) {
     val frame = frameViewModel.frame.collectAsState()
+    val apertureValues = frameViewModel.apertureValues.collectAsState()
     FrameEditContent(
         frame = frame.value,
+        apertureValues = apertureValues.value,
+        shutterValues = frameViewModel.shutterValues,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
+        onApertureChange = frameViewModel::setAperture,
+        onShutterChange = frameViewModel::setShutter,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -98,9 +107,13 @@ private fun FrameEditContentPreview() {
     val frame = Frame(count = 5, date = LocalDateTime.now())
     FrameEditContent(
         frame,
+        apertureValues = emptyList(),
+        shutterValues = emptyList(),
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
+        onApertureChange = {},
+        onShutterChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -110,14 +123,20 @@ private fun FrameEditContentPreview() {
 @Composable
 private fun FrameEditContent(
     frame: Frame,
+    apertureValues: List<String>,
+    shutterValues: List<String>,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
+    onApertureChange: (String?) -> Unit,
+    onShutterChange: (String?) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var countExpanded by remember { mutableStateOf(false) }
+    var apertureExpanded by remember { mutableStateOf(false) }
+    var shutterExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -205,6 +224,114 @@ private fun FrameEditContent(
                     dateTime = frame.date,
                     onDateTimeSet = onDateChange
                 )
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.Aperture),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ExposedDropdownMenuBox(
+                    modifier = Modifier.weight(1f),
+                    expanded = apertureExpanded,
+                    onExpandedChange = { apertureExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .menuAnchor(),
+                        readOnly = true,
+                        value = frame.aperture ?: "",
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = apertureExpanded,
+                        onDismissRequest = { apertureExpanded = false }
+                    ) {
+                        apertureValues.forEach { value ->
+                            DropdownMenuItem(
+                                text = { Text(value) },
+                                onClick = {
+                                    onApertureChange(value)
+                                    apertureExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                ) {
+                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Outlined.Edit, "")
+                    }
+                }
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    FilledTonalIconButton(onClick = { onApertureChange(null) }) {
+                        Icon(Icons.Outlined.Clear, "")
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.ShutterSpeed),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ExposedDropdownMenuBox(
+                    modifier = Modifier.weight(1f),
+                    expanded = shutterExpanded,
+                    onExpandedChange = { shutterExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .menuAnchor(),
+                        readOnly = true,
+                        value = frame.shutter ?: "",
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = shutterExpanded,
+                        onDismissRequest = { shutterExpanded = false }
+                    ) {
+                        shutterValues.forEach { value ->
+                            DropdownMenuItem(
+                                text = { Text(value) },
+                                onClick = {
+                                    onShutterChange(value)
+                                    shutterExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                ) {
+                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Outlined.Edit, "")
+                    }
+                }
+                Box(
+                    modifier = Modifier.padding(vertical = 4.dp)
+                ) {
+                    FilledTonalIconButton(onClick = { onShutterChange(null) }) {
+                        Icon(Icons.Outlined.Clear, "")
+                    }
+                }
             }
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 OutlinedTextField(
