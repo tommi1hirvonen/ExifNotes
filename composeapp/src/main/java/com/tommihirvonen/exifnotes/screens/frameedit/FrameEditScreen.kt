@@ -18,6 +18,8 @@
 
 package com.tommihirvonen.exifnotes.screens.frameedit
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -44,12 +47,14 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -58,6 +63,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -83,6 +89,7 @@ import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import java.time.LocalDateTime
+import kotlin.math.roundToInt
 
 @Composable
 fun FrameEditScreen(
@@ -117,6 +124,7 @@ fun FrameEditScreen(
         onNoOfExposuresChange = frameViewModel::setNoOfExposures,
         onFlashChange = frameViewModel::setFlashUsed,
         onLightSourceChange = frameViewModel::setLightSource,
+        onFocalLengthChange = frameViewModel::setFocalLength,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -149,6 +157,7 @@ private fun FrameEditContentPreview() {
         onNoOfExposuresChange = {},
         onFlashChange = {},
         onLightSourceChange = {},
+        onFocalLengthChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -174,6 +183,7 @@ private fun FrameEditContent(
     onNoOfExposuresChange: (Int) -> Unit,
     onFlashChange: (Boolean) -> Unit,
     onLightSourceChange: (LightSource) -> Unit,
+    onFocalLengthChange: (Int) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -189,6 +199,7 @@ private fun FrameEditContent(
     var showFiltersDialog by remember { mutableStateOf(false) }
     var showCustomApertureDialog by remember { mutableStateOf(false) }
     var showCustomShutterDialog by remember { mutableStateOf(false) }
+    var showFocalLengthDialog by remember { mutableStateOf(false) }
     val lensesWithUniqueNames = remember(lenses) {
         lenses.mapNonUniqueToNameWithSerial()
     }
@@ -476,6 +487,16 @@ private fun FrameEditContent(
                     }
                 }
             }
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.FocalLengthSingleLine),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                DropdownButton(
+                    text = frame.focalLength.toString(),
+                    onClick = { showFocalLengthDialog = true }
+                )
+            }
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -643,6 +664,18 @@ private fun FrameEditContent(
             }
         )
     }
+    if (showFocalLengthDialog) {
+        FocalLengthDialog(
+            initialValue = frame.focalLength,
+            minValue = frame.lens?.minFocalLength ?: 0,
+            maxValue = frame.lens?.maxFocalLength ?: 500,
+            onDismiss = { showFocalLengthDialog = false },
+            onConfirm = { value ->
+                showFocalLengthDialog = false
+                onFocalLengthChange(value)
+            }
+        )
+    }
 }
 
 @Preview
@@ -737,6 +770,90 @@ private fun CustomShutterDialog(
                     modifier = Modifier.width(100.dp),
                     value = value,
                     onValueChange = { value = it }
+                )
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun FocalLengthDialog(
+    initialValue: Int = 0,
+    minValue: Int = 0,
+    maxValue: Int = 500,
+    onDismiss: () -> Unit = {},
+    onConfirm: (Int) -> Unit = {}
+) {
+    var value by remember(initialValue) { mutableFloatStateOf(initialValue.toFloat()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm(value.roundToInt())
+                }
+            ) {
+                Text(stringResource(R.string.OK))
+            }
+        },
+        text = {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilledTonalButton(
+                        onClick = {
+                            if (value.roundToInt() - 1 >= minValue)
+                                value--
+                        },
+                        enabled = value.roundToInt() > minValue
+                    ) {
+                        Text("-1")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                shape = CircleShape
+                            )
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .align(Alignment.Center)
+                        ) {
+                            Text(
+                                text = value.roundToInt().toString(),
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    FilledTonalButton(
+                        onClick = {
+                            if (value.roundToInt() + 1 <= maxValue)
+                                value++
+                        },
+                        enabled = value.roundToInt() < maxValue
+                    ) {
+                        Text("+1")
+                    }
+                }
+                Slider(
+                    value = value,
+                    onValueChange = { value = it },
+                    valueRange = minValue.toFloat()..maxValue.toFloat()
                 )
             }
         }
