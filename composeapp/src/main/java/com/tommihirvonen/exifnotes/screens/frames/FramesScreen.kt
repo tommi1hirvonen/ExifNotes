@@ -287,6 +287,7 @@ private fun FramesContent(
         if (frames is LoadState.InProgress) {
             Column(
                 modifier = Modifier
+                    .padding(innerPadding)
                     .padding(vertical = 48.dp)
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
