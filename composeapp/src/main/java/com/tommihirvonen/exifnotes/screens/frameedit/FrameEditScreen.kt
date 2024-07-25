@@ -57,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -86,11 +87,14 @@ fun FrameEditScreen(
         frame = frame.value,
         apertureValues = apertureValues.value,
         shutterValues = frameViewModel.shutterValues,
+        exposureCompValues = frameViewModel.exposureCompValues,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
         onApertureChange = frameViewModel::setAperture,
         onShutterChange = frameViewModel::setShutter,
+        onExposureCompChange = frameViewModel::setExposureComp,
+        onNoOfExposuresChange = frameViewModel::setNoOfExposures,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -109,11 +113,14 @@ private fun FrameEditContentPreview() {
         frame,
         apertureValues = emptyList(),
         shutterValues = emptyList(),
+        exposureCompValues = emptyList(),
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
         onApertureChange = {},
         onShutterChange = {},
+        onExposureCompChange = {},
+        onNoOfExposuresChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -125,18 +132,24 @@ private fun FrameEditContent(
     frame: Frame,
     apertureValues: List<String>,
     shutterValues: List<String>,
+    exposureCompValues: List<String>,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
     onApertureChange: (String?) -> Unit,
     onShutterChange: (String?) -> Unit,
+    onExposureCompChange: (String) -> Unit,
+    onNoOfExposuresChange: (Int) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var countExpanded by remember { mutableStateOf(false) }
     var apertureExpanded by remember { mutableStateOf(false) }
     var shutterExpanded by remember { mutableStateOf(false) }
+    var exposureCompExpanded by remember { mutableStateOf(false) }
+    var noOfExposuresExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -330,6 +343,79 @@ private fun FrameEditContent(
                 ) {
                     FilledTonalIconButton(onClick = { onShutterChange(null) }) {
                         Icon(Icons.Outlined.Clear, "")
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.ExposureComp),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = exposureCompExpanded,
+                        onExpandedChange = { exposureCompExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor(),
+                            readOnly = true,
+                            value = frame.exposureComp ?: "",
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = exposureCompExpanded,
+                            onDismissRequest = { exposureCompExpanded = false }
+                        ) {
+                            exposureCompValues.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value) },
+                                    onClick = {
+                                        onExposureCompChange(value)
+                                        exposureCompExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.NoOfExposuresSingleLine),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = noOfExposuresExpanded,
+                        onExpandedChange = { noOfExposuresExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor(),
+                            readOnly = true,
+                            value = frame.noOfExposures.toString(),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = noOfExposuresExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = noOfExposuresExpanded,
+                            onDismissRequest = { noOfExposuresExpanded = false }
+                        ) {
+                            (1..10).forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value.toString()) },
+                                    onClick = {
+                                        onNoOfExposuresChange(value)
+                                        noOfExposuresExpanded = false
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }

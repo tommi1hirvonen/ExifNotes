@@ -124,6 +124,8 @@ class FrameViewModel @AssistedInject constructor(
     val apertureValues = _apertureValues.asStateFlow()
     val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
         ?: Camera.defaultShutterSpeedValues(context).toList()
+    val exposureCompValues = _frame.value.roll.camera?.exposureCompValues(context)?.toList()
+        ?: Camera.defaultExposureCompValues(context).toList()
 
     fun setCount(value: Int) {
         _frame.value = _frame.value.copy(count = value)
@@ -148,7 +150,8 @@ class FrameViewModel @AssistedInject constructor(
     }
 
     fun setExposureComp(value: String) {
-        _frame.value = _frame.value.copy(exposureComp = value)
+        val actualValue = if (value == "0") null else value
+        _frame.value = _frame.value.copy(exposureComp = actualValue)
     }
 
     fun setNoOfExposures(value: Int) {
