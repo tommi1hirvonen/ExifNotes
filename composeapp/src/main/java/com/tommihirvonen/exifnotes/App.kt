@@ -34,6 +34,7 @@ import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frameedit.FrameEditScreen
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
+import com.tommihirvonen.exifnotes.screens.framesmap.FramesMapScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
 import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.screens.gear.cameras.CameraEditScreen
@@ -123,6 +124,10 @@ fun App(onFinish: () -> Unit) {
                         val route = FrameEdit(frameId = frame?.id ?: -1)
                         navController.navigate(route = route)
                     },
+                    onNavigateToMap = { roll ->
+                        val route = FramesMap(rollId = roll.id)
+                        navController.navigate(route = route)
+                    },
                     onNavigateUp = { navController.navigateUp() }
                 )
             }
@@ -130,6 +135,13 @@ fun App(onFinish: () -> Unit) {
                 val frameEdit = backStackEntry.toRoute<FrameEdit>()
                 FrameEditScreen(
                     frameId = frameEdit.frameId,
+                    onNavigateUp = { navController.navigateUp() }
+                )
+            }
+            composable<FramesMap> { backStackEntry ->
+                val roll = backStackEntry.toRoute<FramesMap>()
+                FramesMapScreen(
+                    rollId = roll.rollId,
                     onNavigateUp = { navController.navigateUp() }
                 )
             }
@@ -325,6 +337,9 @@ private data class FramesRollEdit(val rollId: Long)
 
 @Serializable
 private data class FrameEdit(val frameId: Long)
+
+@Serializable
+private data class FramesMap(val rollId: Long)
 
 @Serializable
 private object RollsMap

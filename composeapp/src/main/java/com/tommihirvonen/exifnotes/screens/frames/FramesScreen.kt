@@ -57,6 +57,7 @@ fun FramesScreen(
     rollId: Long,
     onEditRoll: (Roll) -> Unit,
     onEditFrame: (Frame?) -> Unit,
+    onNavigateToMap: (Roll) -> Unit,
     mainViewModel: MainViewModel,
     framesViewModel: FramesViewModel = hiltViewModel { factory: FramesViewModel.Factory ->
         factory.create(rollId)
@@ -80,7 +81,7 @@ fun FramesScreen(
         onSortModeChange = framesViewModel::setSortMode,
         onRollShare = { /*TODO*/ },
         onRollExport = { /*TODO*/ },
-        onNavigateToMap = { /*TODO*/ },
+        onNavigateToMap = { onNavigateToMap(roll.value) },
         onEditRoll = { onEditRoll(roll.value) },
         onToggleFavorite = {
             val favorite = roll.value.favorite
