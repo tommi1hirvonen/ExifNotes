@@ -141,7 +141,11 @@ class FrameViewModel @AssistedInject constructor(
 
     fun setAperture(value: String?) {
         if (value == null || value.toDoubleOrNull() != null) {
-            _frame.value = _frame.value.copy(aperture = value)
+            val actualValue = value?.replace(
+                regex = "[^\\d.]".toRegex(),
+                replacement = ""
+            )
+            _frame.value = _frame.value.copy(aperture = actualValue)
         }
     }
 
