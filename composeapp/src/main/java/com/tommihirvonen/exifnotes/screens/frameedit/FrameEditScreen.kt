@@ -104,10 +104,12 @@ fun FrameEditScreen(
     }
 ) {
     val frame = frameViewModel.frame.collectAsState()
+    val lens = frameViewModel.lens.collectAsState()
     val apertureValues = frameViewModel.apertureValues.collectAsState()
     val filters = frameViewModel.filters.collectAsState()
     FrameEditContent(
         frame = frame.value,
+        lens = lens.value,
         apertureValues = apertureValues.value,
         shutterValues = frameViewModel.shutterValues,
         lenses = frameViewModel.lenses,
@@ -140,7 +142,8 @@ fun FrameEditScreen(
 private fun FrameEditContentPreview() {
     val frame = Frame(count = 5, date = LocalDateTime.now())
     FrameEditContent(
-        frame,
+        frame = frame,
+        lens = null,
         apertureValues = emptyList(),
         shutterValues = emptyList(),
         lenses = emptyList(),
@@ -167,6 +170,7 @@ private fun FrameEditContentPreview() {
 @Composable
 private fun FrameEditContent(
     frame: Frame,
+    lens: Lens?,
     apertureValues: List<String>,
     shutterValues: List<String>,
     lenses: List<Lens>,
@@ -667,8 +671,8 @@ private fun FrameEditContent(
     if (showFocalLengthDialog) {
         FocalLengthDialog(
             initialValue = frame.focalLength,
-            minValue = frame.lens?.minFocalLength ?: 0,
-            maxValue = frame.lens?.maxFocalLength ?: 500,
+            minValue = lens?.minFocalLength ?: 0,
+            maxValue = lens?.maxFocalLength ?: 500,
             onDismiss = { showFocalLengthDialog = false },
             onConfirm = { value ->
                 showFocalLengthDialog = false

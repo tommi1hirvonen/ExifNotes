@@ -70,6 +70,7 @@ class FrameViewModel @AssistedInject constructor(
 
     private val context: Context get() = application.applicationContext
     private val _frame: MutableStateFlow<Frame>
+    private val _lens: MutableStateFlow<Lens?>
 
     init {
         val existingFrame = frameRepository.getFrame(frameId)
@@ -106,16 +107,19 @@ class FrameViewModel @AssistedInject constructor(
             }
         }
         _frame = MutableStateFlow(frame)
+        _lens = MutableStateFlow(
+            frame.roll.camera?.lens ?: frame.lens
+        )
     }
 
-    private val lens get() = _frame.value.roll.camera?.lens ?: _frame.value.lens
-
-    private val _filters = MutableStateFlow(getFilters(lens))
-    private val _apertureValues = MutableStateFlow(getApertureValues(lens))
+    private val _filters = MutableStateFlow(getFilters(_lens.value))
+    private val _apertureValues = MutableStateFlow(getApertureValues(_lens.value))
 
     val frame = _frame.asStateFlow()
+    val lens = _lens.asStateFlow()
     val filters = _filters.asStateFlow()
     val apertureValues = _apertureValues.asStateFlow()
+
     val lenses = _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
         ?: lensRepository.lenses
     val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
@@ -181,6 +185,7 @@ class FrameViewModel @AssistedInject constructor(
             value.minFocalLength
         else
             frame.focalLength
+        _lens.value = value
         _frame.value = frame.copy(
             lens = value,
             filters = frame.filters.filter(filters::contains),
@@ -201,11 +206,11 @@ class FrameViewModel @AssistedInject constructor(
 
     private fun getFilters(lens: Lens?): List<Filter> =
         lens?.let(filterRepository::getLinkedFilters)
-            ?: this.lens?.let(filterRepository::getLinkedFilters)
+            ?: this.lens.value?.let(filterRepository::getLinkedFilters)
             ?: filterRepository.filters
 
     private fun getApertureValues(lens: Lens?): List<String> =
         lens?.apertureValues(context)?.toList()
-            ?: this.lens?.apertureValues(context)?.toList()
+            ?: this.lens.value?.apertureValues(context)?.toList()
             ?: Lens.defaultApertureValues(context).toList()
 }
