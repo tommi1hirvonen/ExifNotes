@@ -45,20 +45,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
+import com.tommihirvonen.exifnotes.di.export.RollExportOption
+import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 
 @Composable
 fun FramesBottomAppBar(
     sortMode: FrameSortMode,
     onFabClick: () -> Unit,
     onSortModeChange: (FrameSortMode) -> Unit,
-    onRollShare: () -> Unit,
-    onRollExport: () -> Unit,
+    onRollShare: (List<RollExportOption>) -> Unit,
+    onRollExport: (List<RollExportOption>) -> Unit,
     onNavigateToMap: () -> Unit
 ) {
+    var sortMenuExpanded by remember { mutableStateOf(false) }
+    var shareMenuExpanded by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    var showShareDialog by remember { mutableStateOf(false) }
     BottomAppBar(
         actions = {
-            var sortMenuExpanded by remember { mutableStateOf(false) }
-            var shareMenuExpanded by remember { mutableStateOf(false) }
             IconButton(onClick = { sortMenuExpanded = !sortMenuExpanded }) {
                 Icon(Icons.AutoMirrored.Outlined.Sort, "")
             }
@@ -156,7 +160,7 @@ fun FramesBottomAppBar(
                     text = { Text(stringResource(R.string.ExportOrShare)) },
                     onClick = {
                         shareMenuExpanded = false
-                        onRollShare()
+                        showShareDialog = true
                     },
                     leadingIcon = {
                         Icon(Icons.Outlined.Share, "")
@@ -166,7 +170,7 @@ fun FramesBottomAppBar(
                     text = { Text(stringResource(R.string.ExportToDevice)) },
                     onClick = {
                         shareMenuExpanded = false
-                        onRollExport()
+                        showExportDialog = true
                     },
                     leadingIcon = {
                         Icon(Icons.Outlined.SdStorage, "")
@@ -184,4 +188,28 @@ fun FramesBottomAppBar(
             }
         }
     )
+    if (showExportDialog) {
+        val title = stringResource(R.string.FilesToExport)
+        val items = RollExportOption.entries.associateWith { false }
+        MultiChoiceDialog(
+            title = title,
+            initialItems = items,
+            itemText = { it.toString() },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showExportDialog = false },
+            onConfirm = onRollExport
+        )
+    }
+    if (showShareDialog) {
+        val title = stringResource(R.string.FilesToShare)
+        val items = RollExportOption.entries.associateWith { false }
+        MultiChoiceDialog(
+            title = title,
+            initialItems = items,
+            itemText = { it.toString() },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showShareDialog = false },
+            onConfirm = onRollShare
+        )
+    }
 }

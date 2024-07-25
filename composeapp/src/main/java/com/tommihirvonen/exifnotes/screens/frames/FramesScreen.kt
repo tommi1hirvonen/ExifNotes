@@ -18,6 +18,8 @@
 
 package com.tommihirvonen.exifnotes.screens.frames
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +34,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -39,11 +43,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,9 +59,12 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.di.export.RollExportOption
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.LoadState
+import kotlinx.coroutines.launch
+import java.io.IOException
 
 @Composable
 fun FramesScreen(
@@ -74,7 +83,28 @@ fun FramesScreen(
     val frames = framesViewModel.frames.collectAsState()
     val selectedFrames = framesViewModel.selectedFrames.collectAsState()
     val sortMode = framesViewModel.frameSortMode.collectAsState()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var showLabels by remember { mutableStateOf(false) }
+    var exportOptions by remember { mutableStateOf(emptyList<RollExportOption>()) }
+
+    val exportSuccessText = stringResource(R.string.ExportedFilesSuccessfully)
+    val exportFailureText = stringResource(R.string.ErrorExporting)
+    val pickExportLocation = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        try {
+            framesViewModel.exportFiles(uri, exportOptions)
+            scope.launch { snackbarHostState.showSnackbar(exportSuccessText) }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            scope.launch { snackbarHostState.showSnackbar(exportFailureText) }
+        }
+    }
+
     FramesContent(
         roll = roll.value,
         frames = frames.value,
@@ -86,8 +116,14 @@ fun FramesScreen(
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,
         onSortModeChange = framesViewModel::setSortMode,
-        onRollShare = { /*TODO*/ },
-        onRollExport = { /*TODO*/ },
+        onRollShare = { options ->
+            val intent = framesViewModel.createShareFilesIntent(options)
+            context.startActivity(intent)
+        },
+        onRollExport = { options ->
+            exportOptions = options
+            pickExportLocation.launch(null)
+        },
         onNavigateToMap = { onNavigateToMap(roll.value) },
         onEditRoll = { onEditRoll(roll.value) },
         onToggleFavorite = {
@@ -102,7 +138,8 @@ fun FramesScreen(
         },
         onEdit = { /*TODO*/ },
         onCopy = { /*TODO*/ },
-        onNavigateUp = onNavigateUp
+        onNavigateUp = onNavigateUp,
+        snackbarHostState = snackbarHostState
     )
     if (showLabels) {
         val initialItems = labels.value.associateWith { label ->
@@ -162,7 +199,8 @@ private fun FramesContentPreview() {
         onEditLabels = {},
         onDelete = {},
         onEdit = {},
-        onCopy = {}
+        onCopy = {},
+        snackbarHostState = SnackbarHostState()
     )
 }
 
@@ -179,8 +217,8 @@ private fun FramesContent(
     toggleFrameSelectionAll: () -> Unit,
     toggleFrameSelectionNone: () -> Unit,
     onSortModeChange: (FrameSortMode) -> Unit,
-    onRollShare: () -> Unit,
-    onRollExport: () -> Unit,
+    onRollShare: (List<RollExportOption>) -> Unit,
+    onRollExport: (List<RollExportOption>) -> Unit,
     onNavigateToMap: () -> Unit,
     onEditRoll: () -> Unit,
     onNavigateUp: () -> Unit,
@@ -188,7 +226,8 @@ private fun FramesContent(
     onEditLabels: () -> Unit,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
-    onCopy: () -> Unit
+    onCopy: () -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val actionModeEnabled = selectedFrames.isNotEmpty()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -232,7 +271,8 @@ private fun FramesContent(
                 onRollExport = onRollExport,
                 onNavigateToMap = onNavigateToMap
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         if (frames is LoadState.InProgress) {
             Column(

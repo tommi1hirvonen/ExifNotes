@@ -19,16 +19,23 @@
 package com.tommihirvonen.exifnotes.screens.frames
 
 import android.app.Application
+import android.content.Intent
+import android.net.Uri
 import androidx.core.content.edit
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
+import com.tommihirvonen.exifnotes.di.export.RollExportHelper
+import com.tommihirvonen.exifnotes.di.export.RollExportOption
+import com.tommihirvonen.exifnotes.di.export.RollShareIntentBuilder
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.assisted.Assisted
@@ -47,7 +54,9 @@ class FramesViewModel @AssistedInject constructor(
     private val rollRepository: RollRepository,
     private val frameRepository: FrameRepository,
     private val complementaryPicturesManager: ComplementaryPicturesManager,
-    application: Application
+    private val rollShareIntentBuilder: RollShareIntentBuilder,
+    private val rollExportHelper: RollExportHelper,
+    private val application: Application
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -59,6 +68,7 @@ class FramesViewModel @AssistedInject constructor(
         const val KEY_FRAME_SORT_ORDER = "FrameSortOrder"
     }
 
+    private val context get() = application.applicationContext
     private val sharedPreferences = PreferenceManager
         .getDefaultSharedPreferences(application.applicationContext)
 
@@ -142,5 +152,18 @@ class FramesViewModel @AssistedInject constructor(
                 _frames.value = LoadState.Success(framesList)
             }
         }
+    }
+
+    fun exportFiles(uri: Uri, exportOptions: List<RollExportOption>) {
+        val directoryDocumentFile = DocumentFile.fromTreeUri(getApplication(), uri)
+            ?: return
+        rollExportHelper.export(roll.value, exportOptions, directoryDocumentFile)
+    }
+
+    fun createShareFilesIntent(exportOptions: List<RollExportOption>): Intent? {
+        val title = context.resources.getString(R.string.Share)
+        val shareIntent = rollShareIntentBuilder.create(roll.value, exportOptions)
+        val intent = shareIntent?.let { Intent.createChooser(it, title) }
+        return intent
     }
 }
