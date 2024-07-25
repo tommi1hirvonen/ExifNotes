@@ -75,6 +75,7 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
+import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
@@ -187,6 +188,7 @@ private fun FrameEditContent(
     var lightSourceExpanded by remember { mutableStateOf(false) }
     var showFiltersDialog by remember { mutableStateOf(false) }
     var showCustomApertureDialog by remember { mutableStateOf(false) }
+    var showCustomShutterDialog by remember { mutableStateOf(false) }
     val lensesWithUniqueNames = remember(lenses) {
         lenses.mapNonUniqueToNameWithSerial()
     }
@@ -379,7 +381,7 @@ private fun FrameEditContent(
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                 ) {
-                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                    FilledTonalIconButton(onClick = { showCustomShutterDialog = true }) {
                         Icon(Icons.Outlined.Edit, "")
                     }
                 }
@@ -632,6 +634,15 @@ private fun FrameEditContent(
             }
         )
     }
+    if (showCustomShutterDialog) {
+        CustomShutterDialog(
+            onDismiss = { showCustomShutterDialog = false },
+            onConfirm = { value ->
+                showCustomShutterDialog = false
+                onShutterChange(value)
+            }
+        )
+    }
 }
 
 @Preview
@@ -683,6 +694,49 @@ private fun CustomApertureDialog(
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number
                     )
+                )
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun CustomShutterDialog(
+    onDismiss: () -> Unit = {},
+    onConfirm: (String) -> Unit = {}
+) {
+    var value by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = value.toShutterSpeedOrNull() != null,
+                onClick = {
+                    if (value.toShutterSpeedOrNull() != null) {
+                        onConfirm(value)
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.OK))
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(stringResource(R.string.AllowedFormatsCustomShutterValue))
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    modifier = Modifier.width(100.dp),
+                    value = value,
+                    onValueChange = { value = it }
                 )
             }
         }
