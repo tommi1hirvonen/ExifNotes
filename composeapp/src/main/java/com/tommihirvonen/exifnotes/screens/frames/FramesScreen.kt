@@ -56,6 +56,7 @@ import com.tommihirvonen.exifnotes.util.LoadState
 fun FramesScreen(
     rollId: Long,
     onEditRoll: (Roll) -> Unit,
+    onEditFrame: (Frame?) -> Unit,
     mainViewModel: MainViewModel,
     framesViewModel: FramesViewModel = hiltViewModel { factory: FramesViewModel.Factory ->
         factory.create(rollId)
@@ -71,8 +72,8 @@ fun FramesScreen(
         frames = frames.value,
         selectedFrames = selectedFrames.value,
         sortMode = sortMode.value,
-        onFrameClick = { /*TODO*/ },
-        onFabClick = { /*TODO*/ },
+        onFrameClick = onEditFrame,
+        onFabClick = { onEditFrame(null) },
         toggleFrameSelection = framesViewModel::toggleFrameSelection,
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,

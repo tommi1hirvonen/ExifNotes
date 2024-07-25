@@ -31,6 +31,7 @@ import androidx.navigation.toRoute
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.GpsCheckDialog
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
+import com.tommihirvonen.exifnotes.screens.frameedit.FrameEditScreen
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.screens.gear.GearScreen
@@ -118,6 +119,17 @@ fun App(onFinish: () -> Unit) {
                     onEditRoll = {
                         navController.navigate(route = FramesRollEdit(rollId = frames.rollId))
                     },
+                    onEditFrame = { frame ->
+                        val route = FrameEdit(frameId = frame?.id ?: -1)
+                        navController.navigate(route = route)
+                    },
+                    onNavigateUp = { navController.navigateUp() }
+                )
+            }
+            composable<FrameEdit> { backStackEntry ->
+                val frameEdit = backStackEntry.toRoute<FrameEdit>()
+                FrameEditScreen(
+                    frameId = frameEdit.frameId,
                     onNavigateUp = { navController.navigateUp() }
                 )
             }
@@ -310,6 +322,9 @@ private data class Frames(val rollId: Long)
 
 @Serializable
 private data class FramesRollEdit(val rollId: Long)
+
+@Serializable
+private data class FrameEdit(val frameId: Long)
 
 @Serializable
 private object RollsMap
