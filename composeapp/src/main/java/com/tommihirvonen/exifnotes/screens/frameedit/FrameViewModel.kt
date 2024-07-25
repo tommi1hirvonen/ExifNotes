@@ -70,7 +70,6 @@ class FrameViewModel @AssistedInject constructor(
 
     private val context: Context get() = application.applicationContext
     private val _frame: MutableStateFlow<Frame>
-    private val _lenses: MutableStateFlow<List<Lens>>
 
     init {
         val existingFrame = frameRepository.getFrame(frameId)
@@ -107,10 +106,6 @@ class FrameViewModel @AssistedInject constructor(
             }
         }
         _frame = MutableStateFlow(frame)
-        _lenses = MutableStateFlow(
-            frame.roll.camera?.let(cameraRepository::getLinkedLenses)
-                ?: lensRepository.lenses
-        )
     }
 
     private val lens get() = _frame.value.roll.camera?.lens ?: _frame.value.lens
@@ -120,8 +115,9 @@ class FrameViewModel @AssistedInject constructor(
 
     val frame = _frame.asStateFlow()
     val filters = _filters.asStateFlow()
-    val lenses = _lenses.asStateFlow()
     val apertureValues = _apertureValues.asStateFlow()
+    val lenses = _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
+        ?: lensRepository.lenses
     val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
         ?: Camera.defaultShutterSpeedValues(context).toList()
     val exposureCompValues = _frame.value.roll.camera?.exposureCompValues(context)?.toList()

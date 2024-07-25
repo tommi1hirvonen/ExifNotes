@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
@@ -57,16 +58,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.util.copy
+import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import java.time.LocalDateTime
 
 @Composable
@@ -87,12 +89,14 @@ fun FrameEditScreen(
         frame = frame.value,
         apertureValues = apertureValues.value,
         shutterValues = frameViewModel.shutterValues,
+        lenses = frameViewModel.lenses,
         exposureCompValues = frameViewModel.exposureCompValues,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
         onApertureChange = frameViewModel::setAperture,
         onShutterChange = frameViewModel::setShutter,
+        onLensChange = frameViewModel::setLens,
         onExposureCompChange = frameViewModel::setExposureComp,
         onNoOfExposuresChange = frameViewModel::setNoOfExposures,
         onNavigateUp = onNavigateUp,
@@ -113,12 +117,14 @@ private fun FrameEditContentPreview() {
         frame,
         apertureValues = emptyList(),
         shutterValues = emptyList(),
+        lenses = emptyList(),
         exposureCompValues = emptyList(),
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
         onApertureChange = {},
         onShutterChange = {},
+        onLensChange = {},
         onExposureCompChange = {},
         onNoOfExposuresChange = {},
         onNavigateUp = {},
@@ -132,24 +138,34 @@ private fun FrameEditContent(
     frame: Frame,
     apertureValues: List<String>,
     shutterValues: List<String>,
+    lenses: List<Lens>,
     exposureCompValues: List<String>,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
     onApertureChange: (String?) -> Unit,
     onShutterChange: (String?) -> Unit,
+    onLensChange: (Lens?) -> Unit,
     onExposureCompChange: (String) -> Unit,
     onNoOfExposuresChange: (Int) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
-    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var countExpanded by remember { mutableStateOf(false) }
     var apertureExpanded by remember { mutableStateOf(false) }
     var shutterExpanded by remember { mutableStateOf(false) }
+    var lensesExpanded by remember { mutableStateOf(false) }
     var exposureCompExpanded by remember { mutableStateOf(false) }
     var noOfExposuresExpanded by remember { mutableStateOf(false) }
+    val lensesWithUniqueNames = remember(lenses) {
+        lenses.mapNonUniqueToNameWithSerial()
+    }
+    val lensName = remember(frame) {
+        lensesWithUniqueNames.firstOrNull { it.first.id == frame.lens?.id }?.second
+            ?: frame.lens?.name
+            ?: ""
+    }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -343,6 +359,64 @@ private fun FrameEditContent(
                 ) {
                     FilledTonalIconButton(onClick = { onShutterChange(null) }) {
                         Icon(Icons.Outlined.Clear, "")
+                    }
+                }
+            }
+            if (frame.roll.camera?.isNotFixedLens != false) {
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Lens),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier.weight(1f),
+                        expanded = lensesExpanded,
+                        onExpandedChange = { lensesExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            value = lensName,
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = lensesExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = lensesExpanded,
+                            onDismissRequest = { lensesExpanded = false }
+                        ) {
+                            lensesWithUniqueNames.forEach { (lens, lensName) ->
+                                DropdownMenuItem(
+                                    text = { Text(lensName) },
+                                    onClick = {
+                                        onLensChange(lens)
+                                        lensesExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        if (frame.lens != null) {
+                            FilledTonalIconButton(onClick = { onLensChange(null) }) {
+                                Icon(Icons.Outlined.Clear, "")
+                            }
+                        } else {
+                            FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                                Icon(Icons.Outlined.Add, "")
+                            }
+                        }
                     }
                 }
             }
