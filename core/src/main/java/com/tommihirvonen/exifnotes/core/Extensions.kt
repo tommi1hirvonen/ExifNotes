@@ -82,5 +82,5 @@ fun String.toShutterSpeedOrNull(): String? {
 }
 
 private val regexInteger = "[1-9]+[0-9]*\"?".toRegex()
-private val regexDecimal = "(?:[1-9]+[0-9]*|[0-9])\\.[0-9]?[1-9]\"?".toRegex()
+private val regexDecimal = "(?:[1-9]+[0-9]*|[0-9])\\.[0-9]*[1-9]\"?".toRegex()
 private val regexFraction = "1/[1-9]+[0-9]*".toRegex()

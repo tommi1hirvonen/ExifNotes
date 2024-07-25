@@ -48,6 +48,7 @@ class ShutterSpeedParsingTest(private val input: String?, private val expectedVa
             arrayOf("123.", null),
             arrayOf("0.05", "0.05\""),
             arrayOf("01.5", null),
+            arrayOf("1.001", "1.001\""),
             arrayOf("2\"", "2\""),
             arrayOf("2.5", "2.5\""),
             arrayOf("2.5\"", "2.5\""),
