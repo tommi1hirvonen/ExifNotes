@@ -36,6 +36,7 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -58,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,6 +67,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.util.copy
@@ -99,6 +102,8 @@ fun FrameEditScreen(
         onLensChange = frameViewModel::setLens,
         onExposureCompChange = frameViewModel::setExposureComp,
         onNoOfExposuresChange = frameViewModel::setNoOfExposures,
+        onFlashChange = frameViewModel::setFlashUsed,
+        onLightSourceChange = frameViewModel::setLightSource,
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -127,6 +132,8 @@ private fun FrameEditContentPreview() {
         onLensChange = {},
         onExposureCompChange = {},
         onNoOfExposuresChange = {},
+        onFlashChange = {},
+        onLightSourceChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -148,9 +155,12 @@ private fun FrameEditContent(
     onLensChange: (Lens?) -> Unit,
     onExposureCompChange: (String) -> Unit,
     onNoOfExposuresChange: (Int) -> Unit,
+    onFlashChange: (Boolean) -> Unit,
+    onLightSourceChange: (LightSource) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     var countExpanded by remember { mutableStateOf(false) }
     var apertureExpanded by remember { mutableStateOf(false) }
@@ -158,6 +168,7 @@ private fun FrameEditContent(
     var lensesExpanded by remember { mutableStateOf(false) }
     var exposureCompExpanded by remember { mutableStateOf(false) }
     var noOfExposuresExpanded by remember { mutableStateOf(false) }
+    var lightSourceExpanded by remember { mutableStateOf(false) }
     val lensesWithUniqueNames = remember(lenses) {
         lenses.mapNonUniqueToNameWithSerial()
     }
@@ -486,6 +497,60 @@ private fun FrameEditContent(
                                     onClick = {
                                         onNoOfExposuresChange(value)
                                         noOfExposuresExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.Flash),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(end = 32.dp)
+                    ) {
+                        Checkbox(
+                            checked = frame.flashUsed,
+                            onCheckedChange = onFlashChange
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.LightSource),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = lightSourceExpanded,
+                        onExpandedChange = { lightSourceExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor(),
+                            readOnly = true,
+                            value = frame.lightSource.description(context) ?: "",
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = lightSourceExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = lightSourceExpanded,
+                            onDismissRequest = { lightSourceExpanded = false }
+                        ) {
+                            LightSource.entries.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value.description(context) ?: "") },
+                                    onClick = {
+                                        onLightSourceChange(value)
+                                        lightSourceExpanded = false
                                     }
                                 )
                             }
