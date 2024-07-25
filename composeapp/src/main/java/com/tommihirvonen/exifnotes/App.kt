@@ -133,8 +133,11 @@ fun App(onFinish: () -> Unit) {
             }
             composable<FrameEdit> { backStackEntry ->
                 val frameEdit = backStackEntry.toRoute<FrameEdit>()
+                val framesEntry = remember(backStackEntry) { navController.getBackStackEntry<Frames>() }
+                val framesViewModel = hiltViewModel<FramesViewModel>(framesEntry)
                 FrameEditScreen(
                     frameId = frameEdit.frameId,
+                    framesViewModel = framesViewModel,
                     onNavigateUp = { navController.navigateUp() }
                 )
             }

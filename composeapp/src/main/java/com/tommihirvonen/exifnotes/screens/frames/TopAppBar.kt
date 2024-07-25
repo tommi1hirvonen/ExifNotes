@@ -164,7 +164,10 @@ private fun TopAppBarActionMenu(
                 }
             },
             confirmButton = {
-                TextButton(onClick = onDelete) {
+                TextButton(onClick = {
+                    showDeleteConfirmDialog = false
+                    onDelete()
+                }) {
                     Text(stringResource(R.string.OK))
                 }
             }

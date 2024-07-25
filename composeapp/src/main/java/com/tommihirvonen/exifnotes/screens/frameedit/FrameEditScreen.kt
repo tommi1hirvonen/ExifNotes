@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.screens.frameedit
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,39 +31,70 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
+import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.util.copy
+import java.time.LocalDateTime
 
 @Composable
 fun FrameEditScreen(
     frameId: Long,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
+    framesViewModel: FramesViewModel,
+    frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
+        factory.create(frameId)
+    }
 ) {
+    val frame = frameViewModel.frame.collectAsState()
     FrameEditContent(
-        isNewFrame = frameId <= 0,
+        frame = frame.value,
+        onCountChange = frameViewModel::setCount,
+        onDateChange = frameViewModel::setDate,
         onNavigateUp = onNavigateUp,
-        onSubmit = { /*TODO*/ }
+        onSubmit = {
+            if (frameViewModel.validate()) {
+                framesViewModel.submitFrame(frameViewModel.frame.value)
+                onNavigateUp()
+            }
+        }
     )
 }
 
 @Preview
 @Composable
 private fun FrameEditContentPreview() {
+    val frame = Frame(count = 5, date = LocalDateTime.now())
     FrameEditContent(
-        isNewFrame = true,
+        frame,
+        onCountChange = {},
+        onDateChange = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -71,15 +103,21 @@ private fun FrameEditContentPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FrameEditContent(
-    isNewFrame: Boolean,
+    frame: Frame,
+    onCountChange: (Int) -> Unit,
+    onDateChange: (LocalDateTime) -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var countExpanded by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            val title = stringResource(if (isNewFrame) R.string.AddNewFrame else R.string.EditFrame)
+            val title = if (frame.id <= 0)
+                stringResource(R.string.AddNewFrame)
+            else
+                "${stringResource(R.string.EditFrame)}${frame.count}"
             TopAppBar(
                 scrollBehavior = scrollBehavior,
                 title = { Text(title) },
@@ -112,7 +150,55 @@ private fun FrameEditContent(
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.FrameCount),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                ExposedDropdownMenuBox(
+                    expanded = countExpanded,
+                    onExpandedChange = { countExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .menuAnchor(),
+                        readOnly = true,
+                        value = frame.count.toString(),
+                        onValueChange = {},
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = countExpanded)
+                        }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = countExpanded,
+                        onDismissRequest = { countExpanded = false }
+                    ) {
+                        (0..100).forEach { count ->
+                            DropdownMenuItem(
+                                text = { Text(count.toString()) },
+                                onClick = {
+                                    onCountChange(count)
+                                    countExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+            Row(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.Date),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                DateTimeButtonCombo(
+                    dateTime = frame.date,
+                    onDateTimeSet = onDateChange
+                )
+            }
         }
     }
 }

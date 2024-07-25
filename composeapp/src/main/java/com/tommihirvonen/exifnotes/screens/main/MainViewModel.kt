@@ -143,6 +143,7 @@ class MainViewModel @Inject constructor(
     fun deleteRoll(roll: Roll) {
         rollRepository.deleteRoll(roll)
         rollList = rollList.filterNot { it.id == roll.id }
+        mSelectedRolls.value = mSelectedRolls.value.filterNot { it.id == roll.id }.toHashSet()
         mRolls.value = LoadState.Success(rollList)
         viewModelScope.launch {
             loadRollCounts()

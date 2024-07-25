@@ -100,6 +100,18 @@ class FramesViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
+    fun submitFrame(frame: Frame) {
+        if (frameRepository.updateFrame(frame) == 0) {
+            frameRepository.addFrame(frame)
+        }
+        val sortMode = _frameSortMode.value
+        framesList = framesList
+            .filterNot { it.id == frame.id }
+            .plus(frame)
+            .sorted(getApplication(), sortMode)
+        _frames.value = LoadState.Success(framesList)
+    }
+
     fun setRoll(roll: Roll) {
         _roll.value = roll
         for (frame in framesList) {
@@ -137,6 +149,7 @@ class FramesViewModel @AssistedInject constructor(
     fun deleteFrame(frame: Frame) {
         frameRepository.deleteFrame(frame)
         framesList = framesList.filterNot { it.id == frame.id }
+        _selectedFrames.value = _selectedFrames.value.filterNot { it.id == frame.id }.toHashSet()
         _frames.value = LoadState.Success(framesList)
     }
 
