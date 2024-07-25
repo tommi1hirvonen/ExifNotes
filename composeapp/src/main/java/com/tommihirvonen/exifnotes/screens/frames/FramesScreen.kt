@@ -36,6 +36,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -49,6 +53,7 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.LoadState
 
@@ -64,10 +69,12 @@ fun FramesScreen(
     },
     onNavigateUp: () -> Unit
 ) {
+    val labels = mainViewModel.labels.collectAsState()
     val roll = framesViewModel.roll.collectAsState()
     val frames = framesViewModel.frames.collectAsState()
     val selectedFrames = framesViewModel.selectedFrames.collectAsState()
     val sortMode = framesViewModel.frameSortMode.collectAsState()
+    var showLabels by remember { mutableStateOf(false) }
     FramesContent(
         roll = roll.value,
         frames = frames.value,
@@ -89,7 +96,7 @@ fun FramesScreen(
             mainViewModel.submitRoll(updated)
             framesViewModel.setRoll(updated)
         },
-        onEditLabels = { /*TODO*/ },
+        onEditLabels = { showLabels = true },
         onDelete = {
             selectedFrames.value.forEach(framesViewModel::deleteFrame)
         },
@@ -97,6 +104,24 @@ fun FramesScreen(
         onCopy = { /*TODO*/ },
         onNavigateUp = onNavigateUp
     )
+    if (showLabels) {
+        val initialItems = labels.value.associateWith { label ->
+            roll.value.labels.any { it.id == label.id }
+        }
+        val title = stringResource(R.string.ManageLabels)
+        MultiChoiceDialog(
+            title = title,
+            initialItems = initialItems,
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showLabels = false },
+            onConfirm = { selectedLabels ->
+                val updated = roll.value.copy(labels = selectedLabels)
+                mainViewModel.submitRoll(updated)
+                framesViewModel.setRoll(updated)
+            }
+        )
+    }
 }
 
 @Preview
