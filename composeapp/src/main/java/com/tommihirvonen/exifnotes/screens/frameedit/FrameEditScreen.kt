@@ -43,6 +43,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -88,6 +89,7 @@ import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
+import com.tommihirvonen.exifnotes.util.readableCoordinates
 import java.time.LocalDateTime
 import kotlin.math.roundToInt
 
@@ -107,6 +109,7 @@ fun FrameEditScreen(
     val lens = frameViewModel.lens.collectAsState()
     val apertureValues = frameViewModel.apertureValues.collectAsState()
     val filters = frameViewModel.filters.collectAsState()
+    val isResolvingAddress = frameViewModel.isResolvingFormattedAddress.collectAsState()
     FrameEditContent(
         frame = frame.value,
         lens = lens.value,
@@ -115,6 +118,7 @@ fun FrameEditScreen(
         lenses = frameViewModel.lenses,
         filters = filters.value,
         exposureCompValues = frameViewModel.exposureCompValues,
+        isResolvingAddress = isResolvingAddress.value,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
@@ -127,6 +131,8 @@ fun FrameEditScreen(
         onFlashChange = frameViewModel::setFlashUsed,
         onLightSourceChange = frameViewModel::setLightSource,
         onFocalLengthChange = frameViewModel::setFocalLength,
+        onLocationClick = { /*TODO*/ },
+        onLocationClear = { frameViewModel.setLocation(null, null) },
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -149,6 +155,7 @@ private fun FrameEditContentPreview() {
         lenses = emptyList(),
         filters = emptyList(),
         exposureCompValues = emptyList(),
+        isResolvingAddress = true,
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
@@ -161,6 +168,8 @@ private fun FrameEditContentPreview() {
         onFlashChange = {},
         onLightSourceChange = {},
         onFocalLengthChange = {},
+        onLocationClick = {},
+        onLocationClear = {},
         onNavigateUp = {},
         onSubmit = {}
     )
@@ -176,6 +185,7 @@ private fun FrameEditContent(
     lenses: List<Lens>,
     filters: List<Filter>,
     exposureCompValues: List<String>,
+    isResolvingAddress: Boolean,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
@@ -188,6 +198,8 @@ private fun FrameEditContent(
     onFlashChange: (Boolean) -> Unit,
     onLightSourceChange: (LightSource) -> Unit,
     onFocalLengthChange: (Int) -> Unit,
+    onLocationClick: () -> Unit,
+    onLocationClear: () -> Unit,
     onNavigateUp: () -> Unit,
     onSubmit: () -> Unit
 ) {
@@ -500,6 +512,46 @@ private fun FrameEditContent(
                     text = frame.focalLength.toString(),
                     onClick = { showFocalLengthDialog = true }
                 )
+            }
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                Text(
+                    text = stringResource(R.string.Location),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                val locationText = frame.formattedAddress?.ifEmpty { null }
+                    ?: frame.location?.readableCoordinates
+                        ?.replace("N ", "N\n")
+                        ?.replace("S ", "S\n")
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 4.dp)
+                        .weight(1f)
+                ) {
+                    DropdownButton(
+                        text = locationText ?: "",
+                        maxLines = 2,
+                        onClick = onLocationClick
+                    )
+                    if (isResolvingAddress) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(horizontal = 55.dp)
+                                .size(30.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Box {
+                    FilledTonalIconButton(onClick = onLocationClear) {
+                        Icon(Icons.Outlined.Clear, "")
+                    }
+                }
             }
             Row(modifier = Modifier.padding(top = 16.dp)) {
                 Column(modifier = Modifier.weight(1f)) {

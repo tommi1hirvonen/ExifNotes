@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.screens.frameedit
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
@@ -34,6 +35,8 @@ import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
+import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
+import com.tommihirvonen.exifnotes.di.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.di.location.LocationService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -41,6 +44,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 @HiltViewModel(assistedFactory = FrameViewModel.Factory::class )
@@ -55,7 +59,8 @@ class FrameViewModel @AssistedInject constructor(
     lensRepository: LensRepository,
     private val cameraRepository: CameraRepository,
     private val filterRepository: FilterRepository,
-    locationService: LocationService
+    locationService: LocationService,
+    private val geocoderRequestBuilder: GeocoderRequestBuilder
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -71,6 +76,7 @@ class FrameViewModel @AssistedInject constructor(
     private val context: Context get() = application.applicationContext
     private val _frame: MutableStateFlow<Frame>
     private val _lens: MutableStateFlow<Lens?>
+    private val _isResolvingFormattedAddress = MutableStateFlow(false)
 
     init {
         val existingFrame = frameRepository.getFrame(frameId)
@@ -110,6 +116,19 @@ class FrameViewModel @AssistedInject constructor(
         _lens = MutableStateFlow(
             frame.roll.camera?.lens ?: frame.lens
         )
+        val location = frame.location
+        if (location != null && frame.formattedAddress.isNullOrEmpty()) {
+            // Make the ProgressBar visible to indicate that a query is being executed
+            _isResolvingFormattedAddress.value = true
+            // Start a coroutine to asynchronously fetch the formatted address.
+            viewModelScope.launch {
+                val response = geocoderRequestBuilder.fromLatLng(location).getResponse()
+                if (response is GeocoderResponse.Success) {
+                    setLocation(location, response.formattedAddress.ifEmpty { null })
+                }
+                _isResolvingFormattedAddress.value = false
+            }
+        }
     }
 
     private val _filters = MutableStateFlow(getFilters(_lens.value))
@@ -119,6 +138,7 @@ class FrameViewModel @AssistedInject constructor(
     val lens = _lens.asStateFlow()
     val filters = _filters.asStateFlow()
     val apertureValues = _apertureValues.asStateFlow()
+    val isResolvingFormattedAddress = _isResolvingFormattedAddress.asStateFlow()
 
     val lenses = _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
         ?: lensRepository.lenses
@@ -200,6 +220,13 @@ class FrameViewModel @AssistedInject constructor(
 
     fun setFocalLength(value: Int) {
         _frame.value = _frame.value.copy(focalLength = value)
+    }
+
+    fun setLocation(location: LatLng?, formattedAddress: String?) {
+        _frame.value = _frame.value.copy(
+            location = location,
+            formattedAddress = formattedAddress
+        )
     }
 
     fun validate(): Boolean = true
