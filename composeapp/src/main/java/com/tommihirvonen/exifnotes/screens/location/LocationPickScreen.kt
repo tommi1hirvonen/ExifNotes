@@ -18,16 +18,21 @@
 
 package com.tommihirvonen.exifnotes.screens.location
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,9 +46,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,39 +62,100 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.util.readableCoordinates
+import kotlinx.coroutines.launch
 
-@Preview
-@Composable
-private fun LocationPickScreenPreview() {
-    LocationPickScreen(
-        frame = Frame(),
-        onNavigateUp = {},
-        onLocationConfirm = { _, _ -> }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationPickScreen(
     frame: Frame,
     onNavigateUp: () -> Unit,
     onLocationConfirm: (LatLng?, String?) -> Unit,
-    locationPickViewModel: LocationPickViewModel = hiltViewModel()
+    locationPickViewModel: LocationPickViewModel =
+        hiltViewModel { factory: LocationPickViewModel.Factory ->
+            factory.create(frame)
+        }
 ) {
-    val singapore = LatLng(1.35, 103.87)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(singapore, 10f)
-    }
-    val markerState = rememberMarkerState(position = singapore)
-    val snackbarState = remember { SnackbarHostState() }
-
+    val scope = rememberCoroutineScope()
+    val location by locationPickViewModel.location.collectAsState()
+    val address by locationPickViewModel.address.collectAsState()
+    val errorText by locationPickViewModel.errorText.collectAsState()
+    val isLoading by locationPickViewModel.isLoading.collectAsState()
     val searchText by locationPickViewModel.searchText.collectAsState()
     val expanded by locationPickViewModel.expanded.collectAsState()
     val countries by locationPickViewModel.countriesList.collectAsState()
+    LocationPickScreenContent(
+        location = location,
+        address = address,
+        errorText = errorText,
+        isLoading = isLoading,
+        searchText = searchText,
+        expanded = expanded,
+        countries = countries,
+        onNavigateUp = onNavigateUp,
+        onConfirm = {
+            onLocationConfirm(location, address)
+        },
+        onLocationChange = { value ->
+            scope.launch { locationPickViewModel.setLocation(value) }
+        },
+        onSearchTextChange = locationPickViewModel::onSearchTextChange,
+        onToggleSearchExpanded = {
+            locationPickViewModel.onToggleExpanded()
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun LocationPickScreenPreview() {
+    LocationPickScreenContent(
+        location = null,
+        address = "",
+        errorText = null,
+        isLoading = true,
+        searchText = "",
+        expanded = false,
+        countries = emptyList(),
+        onNavigateUp = {},
+        onConfirm = {},
+        onLocationChange = {},
+        onSearchTextChange = {},
+        onToggleSearchExpanded = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LocationPickScreenContent(
+    location: LatLng?,
+    address: String?,
+    errorText: String?,
+    isLoading: Boolean,
+    searchText: String,
+    expanded: Boolean,
+    countries: List<String>,
+    onNavigateUp: () -> Unit,
+    onConfirm: () -> Unit,
+    onLocationChange: (LatLng) -> Unit,
+    onSearchTextChange: (String) -> Unit,
+    onToggleSearchExpanded: () -> Unit,
+) {
+    val cameraPositionState = rememberCameraPositionState {
+        if (location != null) {
+            position = CameraPosition.fromLatLngZoom(location, 10f)
+        }
+    }
+    var markerState by remember {
+        mutableStateOf(
+            location?.let { MarkerState(it) }
+        )
+    }
+    val snackbarState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -98,7 +169,7 @@ fun LocationPickScreen(
                             if (!expanded) {
                                 onNavigateUp()
                             } else {
-                                locationPickViewModel.onToggleExpanded()
+                                onToggleSearchExpanded()
                             }
                         }
                     ) {
@@ -109,7 +180,7 @@ fun LocationPickScreen(
                     if (searchText.isNotEmpty()) {
                         IconButton(
                             onClick = {
-                                locationPickViewModel.onSearchTextChange("")
+                                onSearchTextChange("")
                             }
                         ) {
                             Icon(Icons.Outlined.Clear, "")
@@ -117,10 +188,10 @@ fun LocationPickScreen(
                     }
                 },
                 query = searchText,
-                onQueryChange = locationPickViewModel::onSearchTextChange,
-                onSearch = locationPickViewModel::onSearchTextChange,
+                onQueryChange = onSearchTextChange,
+                onSearch = onSearchTextChange,
                 active = expanded,
-                onActiveChange = { locationPickViewModel.onToggleExpanded() }
+                onActiveChange = { onToggleSearchExpanded() }
             ) {
                 LazyColumn {
                     items(countries) { country ->
@@ -133,27 +204,74 @@ fun LocationPickScreen(
             }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { /*TODO*/ }) {
-                Icon(Icons.Outlined.Check, "")
+            Box(
+                modifier = Modifier.padding(bottom = 180.dp)
+            ) {
+                FloatingActionButton(onClick = onConfirm) {
+                    Icon(Icons.Outlined.Check, "")
+                }
             }
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarState)
         }
     ) { innerPadding ->
-        GoogleMap(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = true),
-            contentPadding = PaddingValues(top = 0.dp, bottom = 80.dp, start = 0.dp, end = 0.dp)
+                .fillMaxSize()
         ) {
-            Marker(
-                state = markerState,
-                title = "Singapore",
-                snippet = "Marker in Singapore"
-            )
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(isMyLocationEnabled = true),
+                contentPadding = PaddingValues(top = 0.dp, bottom = 80.dp, start = 0.dp, end = 0.dp),
+                onMapClick = { location ->
+                    onLocationChange(location)
+                    markerState = MarkerState(location)
+                    scope.launch {
+                        snackbarState.showSnackbar(location.readableCoordinates)
+                    }
+                }
+            ) {
+                val marker = markerState
+                if (marker != null) {
+                    Marker(
+                        state = marker
+                    )
+                }
+            }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .height(60.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val text = if (errorText.isNullOrEmpty()) {
+                        address
+                    } else {
+                        errorText
+                    }
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = text ?: "",
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(40.dp)
+                        )
+                    }
+                }
+            }
         }
     }
     val snackMessage = stringResource(R.string.TapOnMap)
