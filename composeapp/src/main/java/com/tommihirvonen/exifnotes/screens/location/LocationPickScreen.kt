@@ -23,6 +23,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -150,6 +152,9 @@ fun LocationPickScreen(
         },
         onToggleSearchExpanded = {
             locationPickViewModel.onToggleExpanded()
+        },
+        onMyLocationClick = {
+            locationPickViewModel.setMyLocation(cameraPositionState)
         }
     )
 }
@@ -166,7 +171,7 @@ private fun LocationPickScreenPreview() {
         errorText = null,
         isLoadingAddress = true,
         searchText = "",
-        searchExpanded = true,
+        searchExpanded = false,
         isQueryingSuggestions = true,
         suggestions = emptyList(),
         onNavigateUp = {},
@@ -175,7 +180,8 @@ private fun LocationPickScreenPreview() {
         onSearchTextChange = {},
         onQuerySearchRequested = {},
         onPlacesSearchRequested = {},
-        onToggleSearchExpanded = {}
+        onToggleSearchExpanded = {},
+        onMyLocationClick = {}
     )
 }
 
@@ -200,6 +206,7 @@ fun LocationPickScreenContent(
     onQuerySearchRequested: (String) -> Unit,
     onPlacesSearchRequested: (String) -> Unit,
     onToggleSearchExpanded: () -> Unit,
+    onMyLocationClick: () -> Unit
 ) {
     val snackbarState = remember { SnackbarHostState() }
     Scaffold(
@@ -272,10 +279,22 @@ fun LocationPickScreenContent(
             }
         },
         floatingActionButton = {
-            Box(
+            Column(
                 modifier = Modifier.padding(bottom = 140.dp)
             ) {
-                FloatingActionButton(onClick = onConfirm) {
+                FloatingActionButton(
+                    onClick = onMyLocationClick,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ) {
+                    Icon(Icons.Outlined.GpsFixed, "")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                FloatingActionButton(
+                    onClick = onConfirm,
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                ) {
                     Icon(Icons.Outlined.Check, "")
                 }
             }

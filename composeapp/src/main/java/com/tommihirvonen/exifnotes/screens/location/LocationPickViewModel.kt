@@ -26,6 +26,7 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
@@ -39,6 +40,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderResponse
+import com.tommihirvonen.exifnotes.di.location.LocationService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -46,12 +48,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = LocationPickViewModel.Factory::class)
 class LocationPickViewModel @AssistedInject constructor(
     @Assisted frame: Frame,
     private val application: Application,
-    private val geocoderRequestBuilder: GeocoderRequestBuilder
+    private val geocoderRequestBuilder: GeocoderRequestBuilder,
+    private val locationService: LocationService
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -135,6 +139,28 @@ class LocationPickViewModel @AssistedInject constructor(
         }, 350)
     }
 
+    fun onSearchTextChange(text: String, cameraPositionState: CameraPositionState?) {
+        _searchText.value = text
+        updateSuggestions(text, cameraPositionState)
+    }
+
+    fun onToggleExpanded() {
+        _searchExpanded.value = !_searchExpanded.value
+        if (!_searchExpanded.value) {
+            onSearchTextChange("", null)
+        }
+    }
+
+    fun setMyLocation(cameraPositionState: CameraPositionState) {
+        val location = locationService.lastLocation
+        val latLng = location?.let { LatLng(it.latitude, it.longitude) }
+        if (latLng != null) {
+            viewModelScope.launch { setLocation(latLng) }
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 12f)
+            cameraPositionState.move(cameraUpdate)
+        }
+    }
+
     suspend fun setLocation(latLng: LatLng) {
         _isLoadingAddress.value = true
         _address.value = null
@@ -159,18 +185,6 @@ class LocationPickViewModel @AssistedInject constructor(
         _address.value = formattedAddress
         _errorText.value = errorText
         _isLoadingAddress.value = false
-    }
-
-    fun onSearchTextChange(text: String, cameraPositionState: CameraPositionState?) {
-        _searchText.value = text
-        updateSuggestions(text, cameraPositionState)
-    }
-
-    fun onToggleExpanded() {
-        _searchExpanded.value = !_searchExpanded.value
-        if (!_searchExpanded.value) {
-            onSearchTextChange("", null)
-        }
     }
 
     suspend fun submitPlaceId(placeId: String, cameraPositionState: CameraPositionState) {
