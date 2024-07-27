@@ -18,7 +18,9 @@
 
 package com.tommihirvonen.exifnotes.screens.location
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +39,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SnackbarHost
@@ -58,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -87,24 +92,26 @@ fun LocationPickScreen(
     val cameraPositionState = rememberCameraPositionState {
         val loc = location
         if (loc != null) {
-            position = CameraPosition.fromLatLngZoom(loc, 15f)
+            position = CameraPosition.fromLatLngZoom(loc, 12f)
         }
     }
     val address by locationPickViewModel.address.collectAsState()
     val errorText by locationPickViewModel.errorText.collectAsState()
-    val isLoading by locationPickViewModel.isLoading.collectAsState()
+    val isLoading by locationPickViewModel.isLoadingAddress.collectAsState()
     val searchText by locationPickViewModel.searchText.collectAsState()
-    val expanded by locationPickViewModel.expanded.collectAsState()
-    val countries by locationPickViewModel.countriesList.collectAsState()
+    val expanded by locationPickViewModel.searchExpanded.collectAsState()
+    val isQuerying by locationPickViewModel.isQueryingSuggestions.collectAsState()
+    val suggestions by locationPickViewModel.suggestions.collectAsState()
     LocationPickScreenContent(
         cameraPositionState = cameraPositionState,
         markerState = markerState,
         address = address,
         errorText = errorText,
-        isLoading = isLoading,
+        isLoadingAddress = isLoading,
         searchText = searchText,
-        expanded = expanded,
-        countries = countries,
+        searchExpanded = expanded,
+        isQueryingSuggestions = isQuerying,
+        suggestions = suggestions,
         onNavigateUp = onNavigateUp,
         onConfirm = {
             onLocationConfirm(location, address)
@@ -112,10 +119,18 @@ fun LocationPickScreen(
         onLocationChange = { value ->
             scope.launch { locationPickViewModel.setLocation(value) }
         },
-        onSearchTextChange = locationPickViewModel::onSearchTextChange,
-        onSearchRequested = { query ->
+        onSearchTextChange = { text ->
+            locationPickViewModel.onSearchTextChange(text, cameraPositionState)
+        },
+        onQuerySearchRequested = { query ->
             scope.launch {
                 locationPickViewModel.submitQuery(query, cameraPositionState)
+            }
+            locationPickViewModel.onToggleExpanded()
+        },
+        onPlacesSearchRequested = { placeId ->
+            scope.launch {
+                locationPickViewModel.submitPlaceId(placeId, cameraPositionState)
             }
             locationPickViewModel.onToggleExpanded()
         },
@@ -131,17 +146,19 @@ private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
         cameraPositionState = rememberCameraPositionState(),
         markerState = null,
-        address = "",
+        address = "Test Address",
         errorText = null,
-        isLoading = true,
+        isLoadingAddress = true,
         searchText = "",
-        expanded = false,
-        countries = emptyList(),
+        searchExpanded = true,
+        isQueryingSuggestions = true,
+        suggestions = emptyList(),
         onNavigateUp = {},
         onConfirm = {},
         onLocationChange = {},
         onSearchTextChange = {},
-        onSearchRequested = {},
+        onQuerySearchRequested = {},
+        onPlacesSearchRequested = {},
         onToggleSearchExpanded = {}
     )
 }
@@ -153,21 +170,21 @@ fun LocationPickScreenContent(
     markerState: MarkerState?,
     address: String?,
     errorText: String?,
-    isLoading: Boolean,
+    isLoadingAddress: Boolean,
     searchText: String,
-    expanded: Boolean,
-    countries: List<String>,
+    searchExpanded: Boolean,
+    isQueryingSuggestions: Boolean,
+    suggestions: List<AutocompletePrediction>,
     onNavigateUp: () -> Unit,
     onConfirm: () -> Unit,
     onLocationChange: (LatLng) -> Unit,
     onSearchTextChange: (String) -> Unit,
-    onSearchRequested: (String) -> Unit,
+    onQuerySearchRequested: (String) -> Unit,
+    onPlacesSearchRequested: (String) -> Unit,
     onToggleSearchExpanded: () -> Unit,
 ) {
-
     val snackbarState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
     Scaffold(
         topBar = {
             SearchBar(
@@ -177,7 +194,7 @@ fun LocationPickScreenContent(
                 leadingIcon = {
                     IconButton(
                         onClick = {
-                            if (!expanded) {
+                            if (!searchExpanded) {
                                 onNavigateUp()
                             } else {
                                 onToggleSearchExpanded()
@@ -200,16 +217,39 @@ fun LocationPickScreenContent(
                 },
                 query = searchText,
                 onQueryChange = onSearchTextChange,
-                onSearch = onSearchRequested,
-                active = expanded,
+                onSearch = onQuerySearchRequested,
+                active = searchExpanded,
                 onActiveChange = { onToggleSearchExpanded() }
             ) {
+                if (isQueryingSuggestions) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 LazyColumn {
-                    items(countries) { country ->
-                        Text(
-                            text = country,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
+                    items(
+                        items = suggestions,
+                        key = { it.placeId }
+                    ) { suggestion ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onPlacesSearchRequested(suggestion.placeId) }
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = suggestion.getPrimaryText(null).toString(),
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Text(
+                                    text = suggestion.getSecondaryText(null).toString(),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -272,7 +312,7 @@ fun LocationPickScreenContent(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-                    if (isLoading) {
+                    if (isLoadingAddress) {
                         CircularProgressIndicator(
                             modifier = Modifier
                                 .align(Alignment.Center)
