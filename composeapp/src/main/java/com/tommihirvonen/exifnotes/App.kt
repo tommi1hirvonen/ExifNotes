@@ -63,8 +63,8 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun App(onFinish: () -> Unit) {
-    val themeModel = hiltViewModel<ThemeViewModel>()
-    ExifNotesTheme(themeModel) {
+    val themeViewModel = hiltViewModel<ThemeViewModel>()
+    ExifNotesTheme(themeViewModel) {
         val navController = rememberNavController()
         val mainViewModel = hiltViewModel<MainViewModel>()
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
@@ -163,7 +163,8 @@ fun App(onFinish: () -> Unit) {
                     onLocationConfirm = { latLng, address ->
                         frameViewModel.setLocation(latLng, address)
                         navController.navigateUp()
-                    }
+                    },
+                    themeViewModel = themeViewModel
                 )
             }
             composable<FramesMap> { backStackEntry ->
@@ -319,7 +320,7 @@ fun App(onFinish: () -> Unit) {
             }
             composable<Settings> {
                 SettingsScreen(
-                    themeViewModel = themeModel,
+                    themeViewModel = themeViewModel,
                     settingsViewModel = settingsViewModel,
                     mainViewModel = mainViewModel,
                     onNavigateUp = { navController.navigateUp() },

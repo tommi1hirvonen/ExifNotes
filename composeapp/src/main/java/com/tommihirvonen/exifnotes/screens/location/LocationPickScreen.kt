@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.screens.location
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
@@ -71,6 +73,8 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.theme.Theme
+import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import com.tommihirvonen.exifnotes.util.readableCoordinates
 import kotlinx.coroutines.launch
 
@@ -79,11 +83,19 @@ fun LocationPickScreen(
     frame: Frame,
     onNavigateUp: () -> Unit,
     onLocationConfirm: (LatLng?, String?) -> Unit,
+    themeViewModel: ThemeViewModel,
     locationPickViewModel: LocationPickViewModel =
         hiltViewModel { factory: LocationPickViewModel.Factory ->
             factory.create(frame)
         }
 ) {
+    val theme = themeViewModel.theme.collectAsState()
+    val darkTheme = when (theme.value) {
+        is Theme.Light -> false
+        is Theme.Dark -> true
+        is Theme.Auto -> isSystemInDarkTheme()
+    }
+
     val scope = rememberCoroutineScope()
     val location by locationPickViewModel.location.collectAsState()
     val markerState by remember {
@@ -103,6 +115,7 @@ fun LocationPickScreen(
     val isQuerying by locationPickViewModel.isQueryingSuggestions.collectAsState()
     val suggestions by locationPickViewModel.suggestions.collectAsState()
     LocationPickScreenContent(
+        isDarkTheme = darkTheme,
         cameraPositionState = cameraPositionState,
         markerState = markerState,
         address = address,
@@ -144,6 +157,7 @@ fun LocationPickScreen(
 @Composable
 private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
+        isDarkTheme = false,
         cameraPositionState = rememberCameraPositionState(),
         markerState = null,
         address = "Test Address",
@@ -166,6 +180,7 @@ private fun LocationPickScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationPickScreenContent(
+    isDarkTheme: Boolean,
     cameraPositionState: CameraPositionState,
     markerState: MarkerState?,
     address: String?,
@@ -272,11 +287,19 @@ fun LocationPickScreenContent(
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
+            val mapStyle = if (isDarkTheme) {
+                MapStyleOptions(stringResource(R.string.style_json))
+            } else {
+                null
+            }
             GoogleMap(
                 modifier = Modifier
                     .fillMaxSize(),
                 cameraPositionState = cameraPositionState,
-                properties = MapProperties(isMyLocationEnabled = true),
+                properties = MapProperties(
+                    isMyLocationEnabled = true, // TODO Check permissions
+                    mapStyleOptions = mapStyle
+                ),
                 contentPadding = PaddingValues(top = 0.dp, bottom = 80.dp, start = 0.dp, end = 0.dp),
                 onMapClick = { location ->
                     onLocationChange(location)
