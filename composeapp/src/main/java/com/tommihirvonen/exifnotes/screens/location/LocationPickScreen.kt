@@ -45,11 +45,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -59,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
@@ -81,6 +81,15 @@ fun LocationPickScreen(
 ) {
     val scope = rememberCoroutineScope()
     val location by locationPickViewModel.location.collectAsState()
+    val markerState by remember {
+        derivedStateOf { location?.let { MarkerState(it) } }
+    }
+    val cameraPositionState = rememberCameraPositionState {
+        val loc = location
+        if (loc != null) {
+            position = CameraPosition.fromLatLngZoom(loc, 15f)
+        }
+    }
     val address by locationPickViewModel.address.collectAsState()
     val errorText by locationPickViewModel.errorText.collectAsState()
     val isLoading by locationPickViewModel.isLoading.collectAsState()
@@ -88,7 +97,8 @@ fun LocationPickScreen(
     val expanded by locationPickViewModel.expanded.collectAsState()
     val countries by locationPickViewModel.countriesList.collectAsState()
     LocationPickScreenContent(
-        location = location,
+        cameraPositionState = cameraPositionState,
+        markerState = markerState,
         address = address,
         errorText = errorText,
         isLoading = isLoading,
@@ -103,6 +113,12 @@ fun LocationPickScreen(
             scope.launch { locationPickViewModel.setLocation(value) }
         },
         onSearchTextChange = locationPickViewModel::onSearchTextChange,
+        onSearchRequested = { query ->
+            scope.launch {
+                locationPickViewModel.submitQuery(query, cameraPositionState)
+            }
+            locationPickViewModel.onToggleExpanded()
+        },
         onToggleSearchExpanded = {
             locationPickViewModel.onToggleExpanded()
         }
@@ -113,7 +129,8 @@ fun LocationPickScreen(
 @Composable
 private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
-        location = null,
+        cameraPositionState = rememberCameraPositionState(),
+        markerState = null,
         address = "",
         errorText = null,
         isLoading = true,
@@ -124,6 +141,7 @@ private fun LocationPickScreenPreview() {
         onConfirm = {},
         onLocationChange = {},
         onSearchTextChange = {},
+        onSearchRequested = {},
         onToggleSearchExpanded = {}
     )
 }
@@ -131,7 +149,8 @@ private fun LocationPickScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationPickScreenContent(
-    location: LatLng?,
+    cameraPositionState: CameraPositionState,
+    markerState: MarkerState?,
     address: String?,
     errorText: String?,
     isLoading: Boolean,
@@ -142,18 +161,10 @@ fun LocationPickScreenContent(
     onConfirm: () -> Unit,
     onLocationChange: (LatLng) -> Unit,
     onSearchTextChange: (String) -> Unit,
+    onSearchRequested: (String) -> Unit,
     onToggleSearchExpanded: () -> Unit,
 ) {
-    val cameraPositionState = rememberCameraPositionState {
-        if (location != null) {
-            position = CameraPosition.fromLatLngZoom(location, 10f)
-        }
-    }
-    var markerState by remember {
-        mutableStateOf(
-            location?.let { MarkerState(it) }
-        )
-    }
+
     val snackbarState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -189,7 +200,7 @@ fun LocationPickScreenContent(
                 },
                 query = searchText,
                 onQueryChange = onSearchTextChange,
-                onSearch = onSearchTextChange,
+                onSearch = onSearchRequested,
                 active = expanded,
                 onActiveChange = { onToggleSearchExpanded() }
             ) {
@@ -229,16 +240,14 @@ fun LocationPickScreenContent(
                 contentPadding = PaddingValues(top = 0.dp, bottom = 80.dp, start = 0.dp, end = 0.dp),
                 onMapClick = { location ->
                     onLocationChange(location)
-                    markerState = MarkerState(location)
                     scope.launch {
                         snackbarState.showSnackbar(location.readableCoordinates)
                     }
                 }
             ) {
-                val marker = markerState
-                if (marker != null) {
+                if (markerState != null) {
                     Marker(
-                        state = marker
+                        state = markerState
                     )
                 }
             }

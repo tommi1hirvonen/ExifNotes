@@ -21,7 +21,9 @@ package com.tommihirvonen.exifnotes.screens.location
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
@@ -90,6 +92,7 @@ class LocationPickViewModel @AssistedInject constructor(
         _isLoading.value = true
         _address.value = null
         _location.value = latLng
+        _errorText.value = null
         val result = geocoderRequestBuilder.fromLatLng(latLng).getResponse()
         val (formattedAddress, errorText) =
             when (result) {
@@ -120,5 +123,51 @@ class LocationPickViewModel @AssistedInject constructor(
         if (!_expanded.value) {
             onSearchTextChange("")
         }
+    }
+
+    suspend fun submitPlaceId(placeId: String) {
+        _isLoading.value = true
+        _address.value = null
+        _errorText.value = null
+        when (val result = geocoderRequestBuilder.fromPlaceId(placeId).getResponse()) {
+            is GeocoderResponse.Success -> {
+                _address.value = result.formattedAddress
+                _location.value = result.location
+            }
+            is GeocoderResponse.NotFound -> {
+                _errorText.value = application.resources.getString(R.string.AddressNotFound)
+            }
+            is GeocoderResponse.Timeout -> {
+                _errorText.value = application.resources.getString(R.string.TimeoutGettingAddress)
+            }
+            is GeocoderResponse.Error -> {
+                _errorText.value = application.resources.getString(R.string.ErrorGettingAddress)
+            }
+        }
+        _isLoading.value = false
+    }
+
+    suspend fun submitQuery(query: String, cameraPositionState: CameraPositionState) {
+        _isLoading.value = true
+        _address.value = null
+        _errorText.value = null
+        when (val result = geocoderRequestBuilder.fromQuery(query).getResponse()) {
+            is GeocoderResponse.Success -> {
+                _address.value = result.formattedAddress
+                _location.value = result.location
+                val cameraUpdate = CameraUpdateFactory.newLatLngZoom(result.location, 15f)
+                cameraPositionState.move(cameraUpdate)
+            }
+            is GeocoderResponse.NotFound -> {
+                _errorText.value = application.resources.getString(R.string.AddressNotFound)
+            }
+            is GeocoderResponse.Timeout -> {
+                _errorText.value = application.resources.getString(R.string.TimeoutGettingAddress)
+            }
+            is GeocoderResponse.Error -> {
+                _errorText.value = application.resources.getString(R.string.ErrorGettingAddress)
+            }
+        }
+        _isLoading.value = false
     }
 }
