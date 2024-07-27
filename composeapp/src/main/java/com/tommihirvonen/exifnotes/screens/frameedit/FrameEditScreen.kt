@@ -100,6 +100,7 @@ fun FrameEditScreen(
     previousFrameId: Long,
     frameCount: Int,
     onNavigateUp: () -> Unit,
+    onNavigateToLocationPick: () -> Unit,
     framesViewModel: FramesViewModel,
     frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
         factory.create(rollId, frameId, previousFrameId, frameCount)
@@ -131,7 +132,7 @@ fun FrameEditScreen(
         onFlashChange = frameViewModel::setFlashUsed,
         onLightSourceChange = frameViewModel::setLightSource,
         onFocalLengthChange = frameViewModel::setFocalLength,
-        onLocationClick = { /*TODO*/ },
+        onLocationClick = onNavigateToLocationPick,
         onLocationClear = { frameViewModel.setLocation(null, null) },
         onNavigateUp = onNavigateUp,
         onSubmit = {

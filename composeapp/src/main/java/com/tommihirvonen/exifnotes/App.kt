@@ -32,6 +32,7 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.GpsCheckDialog
 import com.tommihirvonen.exifnotes.screens.TermsOfUseDialog
 import com.tommihirvonen.exifnotes.screens.frameedit.FrameEditScreen
+import com.tommihirvonen.exifnotes.screens.frameedit.FrameViewModel
 import com.tommihirvonen.exifnotes.screens.frames.FramesScreen
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.screens.framesmap.FramesMapScreen
@@ -46,6 +47,7 @@ import com.tommihirvonen.exifnotes.screens.gear.lenses.FixedLensEditScreen
 import com.tommihirvonen.exifnotes.screens.gear.lenses.InterchangeableLensEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelEditScreen
 import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
+import com.tommihirvonen.exifnotes.screens.location.LocationPickScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.rolls.RollEditScreen
@@ -146,7 +148,22 @@ fun App(onFinish: () -> Unit) {
                     previousFrameId = frameEdit.previousFrameId,
                     frameCount = frameEdit.frameCount,
                     framesViewModel = framesViewModel,
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onNavigateToLocationPick = { navController.navigate(route = LocationPick) }
+                )
+            }
+            composable<LocationPick> { backStackEntry ->
+                val frameEditEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry<FrameEdit>()
+                }
+                val frameViewModel = hiltViewModel<FrameViewModel>(frameEditEntry)
+                LocationPickScreen(
+                    frame = frameViewModel.frame.value,
+                    onNavigateUp = { navController.navigateUp() },
+                    onLocationConfirm = { latLng, address ->
+                        frameViewModel.setLocation(latLng, address)
+                        navController.navigateUp()
+                    }
                 )
             }
             composable<FramesMap> { backStackEntry ->
@@ -350,6 +367,9 @@ private data class FramesRollEdit(val rollId: Long)
 private data class FrameEdit(
     val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int
 )
+
+@Serializable
+private object LocationPick
 
 @Serializable
 private data class FramesMap(val rollId: Long)
