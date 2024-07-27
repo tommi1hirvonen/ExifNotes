@@ -20,13 +20,16 @@ package com.tommihirvonen.exifnotes.screens.location
 
 import android.Manifest
 import android.app.Application
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.preference.PreferenceManager
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
@@ -36,6 +39,7 @@ import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.MapType
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
@@ -63,7 +67,16 @@ class LocationPickViewModel @AssistedInject constructor(
         fun create(frame: Frame): LocationPickViewModel
     }
 
+    companion object {
+        const val KEY_MAP_TYPE = "MAP_TYPE"
+    }
+
+    private val sharedPreferences: SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(application)
+
     val myLocationEnabled: Boolean
+
+    private val _mapType: MutableStateFlow<MapType>
 
     init {
         val fineLocationPermissions = ActivityCompat.checkSelfPermission(
@@ -76,6 +89,10 @@ class LocationPickViewModel @AssistedInject constructor(
         )
         myLocationEnabled = fineLocationPermissions == PackageManager.PERMISSION_GRANTED
                 || coarseLocationPermission == PackageManager.PERMISSION_GRANTED
+
+        val mapTypePref = sharedPreferences.getInt(KEY_MAP_TYPE, MapType.NORMAL.value)
+        val type = MapType.entries.firstOrNull { it.ordinal == mapTypePref } ?: MapType.NORMAL
+        _mapType = MutableStateFlow(type)
     }
 
     private val suggestionsHandler = Handler(Looper.getMainLooper())
@@ -105,6 +122,8 @@ class LocationPickViewModel @AssistedInject constructor(
 
     private val _suggestions = MutableStateFlow<List<AutocompletePrediction>>(emptyList())
     val suggestions = _suggestions.asStateFlow()
+
+    val mapType = _mapType.asStateFlow()
 
     private fun updateSuggestions(query: String, cameraPositionState: CameraPositionState?) {
         suggestionsHandler.removeCallbacksAndMessages(null)
@@ -137,6 +156,13 @@ class LocationPickViewModel @AssistedInject constructor(
                 }
             }
         }, 350)
+    }
+
+    fun setMapType(mapType: MapType) {
+        _mapType.value = mapType
+        sharedPreferences.edit {
+            putInt(KEY_MAP_TYPE, mapType.ordinal)
+        }
     }
 
     fun onSearchTextChange(text: String, cameraPositionState: CameraPositionState?) {

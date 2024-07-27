@@ -36,10 +36,13 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.GpsFixed
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -54,8 +57,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -71,11 +76,13 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.DefaultMapUiSettings
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.screens.MapTypeDropdownMenu
 import com.tommihirvonen.exifnotes.theme.Theme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import kotlinx.coroutines.launch
@@ -116,9 +123,11 @@ fun LocationPickScreen(
     val expanded by locationPickViewModel.searchExpanded.collectAsState()
     val isQuerying by locationPickViewModel.isQueryingSuggestions.collectAsState()
     val suggestions by locationPickViewModel.suggestions.collectAsState()
+    val mapType by locationPickViewModel.mapType.collectAsState()
     LocationPickScreenContent(
         isDarkTheme = darkTheme,
         myLocationEnabled = locationPickViewModel.myLocationEnabled,
+        mapType = mapType,
         cameraPositionState = cameraPositionState,
         markerState = markerState,
         address = address,
@@ -155,7 +164,8 @@ fun LocationPickScreen(
         },
         onMyLocationClick = {
             locationPickViewModel.setMyLocation(cameraPositionState)
-        }
+        },
+        onMapTypeChange = locationPickViewModel::setMapType
     )
 }
 
@@ -165,6 +175,7 @@ private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
         isDarkTheme = false,
         myLocationEnabled = true,
+        mapType = MapType.NORMAL,
         cameraPositionState = rememberCameraPositionState(),
         markerState = null,
         address = "Test Address",
@@ -181,7 +192,8 @@ private fun LocationPickScreenPreview() {
         onQuerySearchRequested = {},
         onPlacesSearchRequested = {},
         onToggleSearchExpanded = {},
-        onMyLocationClick = {}
+        onMyLocationClick = {},
+        onMapTypeChange = {}
     )
 }
 
@@ -190,6 +202,7 @@ private fun LocationPickScreenPreview() {
 fun LocationPickScreenContent(
     isDarkTheme: Boolean,
     myLocationEnabled: Boolean,
+    mapType: MapType,
     cameraPositionState: CameraPositionState,
     markerState: MarkerState?,
     address: String?,
@@ -206,9 +219,11 @@ fun LocationPickScreenContent(
     onQuerySearchRequested: (String) -> Unit,
     onPlacesSearchRequested: (String) -> Unit,
     onToggleSearchExpanded: () -> Unit,
-    onMyLocationClick: () -> Unit
+    onMyLocationClick: () -> Unit,
+    onMapTypeChange: (MapType) -> Unit
 ) {
     val snackbarState = remember { SnackbarHostState() }
+    var mapTypeExpanded by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             SearchBar(
@@ -280,8 +295,28 @@ fun LocationPickScreenContent(
         },
         floatingActionButton = {
             Column(
-                modifier = Modifier.padding(bottom = 140.dp)
+                modifier = Modifier.padding(bottom = 140.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                FloatingActionButton(
+                    onClick = { mapTypeExpanded = true },
+                    modifier = Modifier.size(40.dp),
+                    shape = FloatingActionButtonDefaults.smallShape,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ) {
+                    Icon(Icons.Outlined.Map, "")
+                }
+                MapTypeDropdownMenu(
+                    expanded = mapTypeExpanded,
+                    selectedMapType = mapType,
+                    onMapTypeSelected = { type ->
+                        mapTypeExpanded = false
+                        onMapTypeChange(type)
+                    },
+                    onDismiss = { mapTypeExpanded = false }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
                 FloatingActionButton(
                     onClick = onMyLocationClick,
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -319,7 +354,8 @@ fun LocationPickScreenContent(
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(
                     isMyLocationEnabled = myLocationEnabled,
-                    mapStyleOptions = mapStyle
+                    mapStyleOptions = mapStyle,
+                    mapType = mapType
                 ),
                 uiSettings = DefaultMapUiSettings.copy(
                     myLocationButtonEnabled = false,
@@ -341,7 +377,8 @@ fun LocationPickScreenContent(
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .padding(16.dp)
-                    .height(60.dp)
+                    .height(60.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize()

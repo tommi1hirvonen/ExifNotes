@@ -45,6 +45,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -77,6 +79,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.maps.android.compose.MapType
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FilmStockFilterMode
 import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
@@ -573,5 +576,86 @@ fun TimePickerDialog(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun MapTypeDropdownMenuPreview() {
+    MapTypeDropdownMenu(
+        expanded = true,
+        onDismiss = {},
+        selectedMapType = MapType.NORMAL,
+        onMapTypeSelected = {}
+    )
+}
+
+@Composable
+fun MapTypeDropdownMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    selectedMapType: MapType,
+    onMapTypeSelected: (MapType) -> Unit
+) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss
+    ) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Normal)) },
+            onClick = {
+                onMapTypeSelected(MapType.NORMAL)
+            },
+            trailingIcon = {
+                RadioButton(
+                    selected = selectedMapType == MapType.NORMAL,
+                    onClick = {
+                        onMapTypeSelected(MapType.NORMAL)
+                    }
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Hybrid)) },
+            onClick = {
+                onMapTypeSelected(MapType.HYBRID)
+            },
+            trailingIcon = {
+                RadioButton(
+                    selected = selectedMapType == MapType.HYBRID,
+                    onClick = {
+                        onMapTypeSelected(MapType.HYBRID)
+                    }
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Satellite)) },
+            onClick = {
+                onMapTypeSelected(MapType.SATELLITE)
+            },
+            trailingIcon = {
+                RadioButton(
+                    selected = selectedMapType == MapType.SATELLITE,
+                    onClick = {
+                        onMapTypeSelected(MapType.SATELLITE)
+                    }
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.Terrain)) },
+            onClick = {
+                onMapTypeSelected(MapType.TERRAIN)
+            },
+            trailingIcon = {
+                RadioButton(
+                    selected = selectedMapType == MapType.TERRAIN,
+                    onClick = {
+                        onMapTypeSelected(MapType.TERRAIN)
+                    }
+                )
+            }
+        )
     }
 }
