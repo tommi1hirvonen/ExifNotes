@@ -18,10 +18,13 @@
 
 package com.tommihirvonen.exifnotes.screens.location
 
+import android.Manifest
 import android.app.Application
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.AndroidViewModel
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -54,6 +57,21 @@ class LocationPickViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
         fun create(frame: Frame): LocationPickViewModel
+    }
+
+    val myLocationEnabled: Boolean
+
+    init {
+        val fineLocationPermissions = ActivityCompat.checkSelfPermission(
+            application.applicationContext,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        val coarseLocationPermission = ActivityCompat.checkSelfPermission(
+            application.applicationContext,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+        myLocationEnabled = fineLocationPermissions == PackageManager.PERMISSION_GRANTED
+                || coarseLocationPermission == PackageManager.PERMISSION_GRANTED
     }
 
     private val suggestionsHandler = Handler(Looper.getMainLooper())

@@ -66,6 +66,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.DefaultMapUiSettings
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.Marker
@@ -75,7 +76,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.theme.Theme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
-import com.tommihirvonen.exifnotes.util.readableCoordinates
 import kotlinx.coroutines.launch
 
 @Composable
@@ -116,6 +116,7 @@ fun LocationPickScreen(
     val suggestions by locationPickViewModel.suggestions.collectAsState()
     LocationPickScreenContent(
         isDarkTheme = darkTheme,
+        myLocationEnabled = locationPickViewModel.myLocationEnabled,
         cameraPositionState = cameraPositionState,
         markerState = markerState,
         address = address,
@@ -158,6 +159,7 @@ fun LocationPickScreen(
 private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
         isDarkTheme = false,
+        myLocationEnabled = true,
         cameraPositionState = rememberCameraPositionState(),
         markerState = null,
         address = "Test Address",
@@ -181,6 +183,7 @@ private fun LocationPickScreenPreview() {
 @Composable
 fun LocationPickScreenContent(
     isDarkTheme: Boolean,
+    myLocationEnabled: Boolean,
     cameraPositionState: CameraPositionState,
     markerState: MarkerState?,
     address: String?,
@@ -199,7 +202,6 @@ fun LocationPickScreenContent(
     onToggleSearchExpanded: () -> Unit,
 ) {
     val snackbarState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             SearchBar(
@@ -271,7 +273,7 @@ fun LocationPickScreenContent(
         },
         floatingActionButton = {
             Box(
-                modifier = Modifier.padding(bottom = 180.dp)
+                modifier = Modifier.padding(bottom = 140.dp)
             ) {
                 FloatingActionButton(onClick = onConfirm) {
                     Icon(Icons.Outlined.Check, "")
@@ -297,15 +299,16 @@ fun LocationPickScreenContent(
                     .fillMaxSize(),
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(
-                    isMyLocationEnabled = true, // TODO Check permissions
+                    isMyLocationEnabled = myLocationEnabled,
                     mapStyleOptions = mapStyle
+                ),
+                uiSettings = DefaultMapUiSettings.copy(
+                    myLocationButtonEnabled = false,
+                    zoomControlsEnabled = false
                 ),
                 contentPadding = PaddingValues(top = 0.dp, bottom = 80.dp, start = 0.dp, end = 0.dp),
                 onMapClick = { location ->
                     onLocationChange(location)
-                    scope.launch {
-                        snackbarState.showSnackbar(location.readableCoordinates)
-                    }
                 }
             ) {
                 if (markerState != null) {
