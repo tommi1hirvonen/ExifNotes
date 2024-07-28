@@ -60,7 +60,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.MarkerInfoWindowContent
-import com.google.maps.android.compose.rememberMarkerState
+import com.google.maps.android.compose.MarkerState
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
@@ -74,6 +74,7 @@ import com.tommihirvonen.exifnotes.util.LoadState
 @Composable
 fun FramesMapScreen(
     onNavigateUp: () -> Unit,
+    onFrameEdit: (Frame) -> Unit,
     themeViewModel: ThemeViewModel,
     framesViewModel: FramesViewModel,
     framesMapViewModel: FramesMapViewModel = hiltViewModel()
@@ -99,7 +100,8 @@ fun FramesMapScreen(
         myLocationEnabled = framesMapViewModel.myLocationEnabled,
         mapType = mapType,
         onNavigateUp = onNavigateUp,
-        onMapTypeChange = framesMapViewModel::setMapType
+        onMapTypeChange = framesMapViewModel::setMapType,
+        onFrameEdit = onFrameEdit
     )
 }
 
@@ -113,7 +115,8 @@ private fun FramesMapContentPreview() {
         myLocationEnabled = false,
         mapType = MapType.NORMAL,
         onNavigateUp = {},
-        onMapTypeChange = {}
+        onMapTypeChange = {},
+        onFrameEdit = {}
     )
 }
 
@@ -126,7 +129,8 @@ private fun FramesMapContent(
     myLocationEnabled: Boolean,
     mapType: MapType,
     onNavigateUp: () -> Unit,
-    onMapTypeChange: (MapType) -> Unit
+    onMapTypeChange: (MapType) -> Unit,
+    onFrameEdit: (Frame) -> Unit
 ) {
     val context = LocalContext.current
     var mapTypeExpanded by remember { mutableStateOf(false) }
@@ -197,9 +201,15 @@ private fun FramesMapContent(
             ) {
                 for (frame in frames) {
                     val location = frame.location ?: continue
+                    val markerState = remember(frames) {
+                        MarkerState(location)
+                    }
                     MarkerInfoWindowContent(
-                        state = rememberMarkerState(position = location),
-                        title = "#${frame.count}"
+                        state = markerState,
+                        title = "#${frame.count}",
+                        onInfoWindowClick = { _ ->
+                            onFrameEdit(frame)
+                        }
                     ) { _ ->
                         Column {
                             Text("#${frame.count}", style = MaterialTheme.typography.titleMedium)
@@ -212,6 +222,7 @@ private fun FramesMapContent(
                                 fontStyle = FontStyle.Italic,
                                 style = MaterialTheme.typography.bodySmall
                             )
+                            Text(stringResource(R.string.ClickToEdit))
                         }
                     }
                 }

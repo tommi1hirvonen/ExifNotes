@@ -172,7 +172,16 @@ fun App(onFinish: () -> Unit) {
                 FramesMapScreen(
                     themeViewModel = themeViewModel,
                     framesViewModel = framesViewModel,
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onFrameEdit = { frame ->
+                        val route = FrameEdit(
+                            rollId = frame.roll.id,
+                            frameId = frame.id,
+                            previousFrameId = -1,
+                            frameCount = 0
+                        )
+                        navController.navigate(route = route)
+                    }
                 )
             }
             composable<FramesRollEdit> { backStackEntry ->
