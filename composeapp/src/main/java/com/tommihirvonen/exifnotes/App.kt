@@ -131,9 +131,8 @@ fun App(onFinish: () -> Unit) {
                         )
                         navController.navigate(route = route)
                     },
-                    onNavigateToMap = { roll ->
-                        val route = FramesMap(rollId = roll.id)
-                        navController.navigate(route = route)
+                    onNavigateToMap = { _ ->
+                        navController.navigate(route = FramesMap)
                     },
                     onNavigateUp = { navController.navigateUp() }
                 )
@@ -168,9 +167,11 @@ fun App(onFinish: () -> Unit) {
                 )
             }
             composable<FramesMap> { backStackEntry ->
-                val roll = backStackEntry.toRoute<FramesMap>()
+                val framesEntry = remember(backStackEntry) { navController.getBackStackEntry<Frames>() }
+                val framesViewModel = hiltViewModel<FramesViewModel>(framesEntry)
                 FramesMapScreen(
-                    rollId = roll.rollId,
+                    themeViewModel = themeViewModel,
+                    framesViewModel = framesViewModel,
                     onNavigateUp = { navController.navigateUp() }
                 )
             }
@@ -373,7 +374,7 @@ private data class FrameEdit(
 private object LocationPick
 
 @Serializable
-private data class FramesMap(val rollId: Long)
+private object FramesMap
 
 @Serializable
 private object RollsMap
