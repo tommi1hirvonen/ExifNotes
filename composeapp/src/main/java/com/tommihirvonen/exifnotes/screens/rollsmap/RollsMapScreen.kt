@@ -18,69 +18,240 @@
 
 package com.tommihirvonen.exifnotes.screens.rollsmap
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.DefaultMapUiSettings
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapsComposeExperimentalApi
+import com.google.maps.android.compose.MarkerInfoWindowContent
+import com.google.maps.android.compose.MarkerState
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.sortableDateTime
+import com.tommihirvonen.exifnotes.screens.MapTypeDropdownMenu
+import com.tommihirvonen.exifnotes.screens.main.MainViewModel
+import com.tommihirvonen.exifnotes.theme.Theme
+import com.tommihirvonen.exifnotes.theme.ThemeViewModel
+import com.tommihirvonen.exifnotes.util.LoadState
+
+@Composable
+fun RollsMapScreen(
+    onNavigateUp: () -> Unit,
+    onFrameEdit: (Frame) -> Unit,
+    themeViewModel: ThemeViewModel,
+    mainViewModel: MainViewModel,
+    rollsMapViewModel: RollsMapViewModel = hiltViewModel { factory: RollsMapViewModel.Factory ->
+        val rolls = when (val state = mainViewModel.rolls.value) {
+            is LoadState.Success -> state.data
+            else -> emptyList()
+        }
+        factory.create(rolls)
+    }
+) {
+    val theme = themeViewModel.theme.collectAsState()
+    val darkTheme = when (theme.value) {
+        is Theme.Light -> false
+        is Theme.Dark -> true
+        is Theme.Auto -> isSystemInDarkTheme()
+    }
+
+    val title by mainViewModel.toolbarSubtitle.collectAsState()
+    val mapType by rollsMapViewModel.mapType.collectAsState()
+    val rollsLoadState by rollsMapViewModel.rolls.collectAsState()
+    val state = rollsLoadState
+    val rolls = if (state is LoadState.Success) state.data else emptyList()
+    RollsMapContent(
+        title = title,
+        rolls = rolls,
+        isDarkTheme = darkTheme,
+        myLocationEnabled = rollsMapViewModel.myLocationEnabled,
+        mapType = mapType,
+        onNavigateUp = onNavigateUp,
+        onMapTypeChange = rollsMapViewModel::setMapType,
+        onFrameEdit = onFrameEdit
+    )
+}
 
 @Preview
 @Composable
-private fun RollsMapScreenPreview() {
-    RollsMapScreen(onNavigateUp = {})
+private fun RollsMapContentPreview() {
+    RollsMapContent(
+        title = "Title placeholder",
+        rolls = emptyList(),
+        isDarkTheme = false,
+        myLocationEnabled = false,
+        mapType = MapType.NORMAL,
+        onNavigateUp = {},
+        onMapTypeChange = {},
+        onFrameEdit = {}
+    )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
-fun RollsMapScreen(
-    onNavigateUp: () -> Unit
+private fun RollsMapContent(
+    title: String,
+    rolls: List<RollData>,
+    isDarkTheme: Boolean,
+    myLocationEnabled: Boolean,
+    mapType: MapType,
+    onNavigateUp: () -> Unit,
+    onMapTypeChange: (MapType) -> Unit,
+    onFrameEdit: (Frame) -> Unit
 ) {
-    val singapore = LatLng(1.35, 103.87)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(singapore, 10f)
-    }
-    val markerState = rememberMarkerState(position = singapore)
+    val context = LocalContext.current
+    var mapTypeExpanded by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.Map)) },
+                title = {
+                    Text(
+                        text = title,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            Column(
+                modifier = Modifier.padding(bottom = 60.dp)
+            ) {
+                FloatingActionButton(
+                    onClick = { mapTypeExpanded = true },
+                    modifier = Modifier.size(40.dp),
+                    shape = FloatingActionButtonDefaults.smallShape,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ) {
+                    Icon(Icons.Outlined.Map, "")
+                }
+                MapTypeDropdownMenu(
+                    expanded = mapTypeExpanded,
+                    selectedMapType = mapType,
+                    onMapTypeSelected = { type ->
+                        mapTypeExpanded = false
+                        onMapTypeChange(type)
+                    },
+                    onDismiss = { mapTypeExpanded = false }
+                )
+            }
         }
     ) { innerPadding ->
-        GoogleMap(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = true)
+                .fillMaxSize()
         ) {
-            Marker(
-                state = markerState,
-                title = "Singapore",
-                snippet = "Marker in Singapore"
-            )
+            val mapStyle = if (isDarkTheme) {
+                MapStyleOptions(stringResource(R.string.style_json))
+            } else {
+                null
+            }
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxSize(),
+                properties = MapProperties(
+                    isMyLocationEnabled = myLocationEnabled,
+                    mapStyleOptions = mapStyle,
+                    mapType = mapType
+                ),
+                uiSettings = DefaultMapUiSettings.copy(
+                    myLocationButtonEnabled = false,
+                    zoomControlsEnabled = false
+                )
+            ) {
+                for (roll in rolls) {
+                    val frames = roll.frames
+                    for (frame in frames) {
+                        val location = frame.location ?: continue
+                        val markerState = remember(frames) {
+                            MarkerState(location)
+                        }
+                        MarkerInfoWindowContent(
+                            icon = BitmapDescriptorFactory.fromBitmap(roll.marker),
+                            state = markerState,
+                            title = roll.roll.name,
+                            snippet = "#${frame.count}",
+                            onInfoWindowClick = { _ ->
+                                onFrameEdit(frame)
+                            }
+                        ) { _ ->
+                            Column {
+                                Text(roll.roll.name ?: "", style = MaterialTheme.typography.titleMedium)
+                                Text("#${frame.count}")
+                                Text(frame.date.sortableDateTime)
+                                Text(frame.lens?.name ?: "")
+                                Text(
+                                    text = frame.note ?: "",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontStyle = FontStyle.Italic,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(stringResource(R.string.ClickToEdit))
+                            }
+                        }
+                    }
+                }
+                MapEffect(rolls) { map ->
+                    val frames = rolls.flatMap { it.frames }
+                    if (frames.none()) return@MapEffect
+                    val builder = LatLngBounds.Builder()
+                    frames.mapNotNull { it.location }.forEach(builder::include)
+                    val bounds = builder.build()
+                    val width = context.resources.displayMetrics.widthPixels
+                    val height = context.resources.displayMetrics.heightPixels
+                    val padding = (width * 0.12).toInt() // offset from edges of the map 12% of screen
+                    // We use this command where the map's dimensions are specified.
+                    // This is because on some devices, the map's layout may not have yet occurred
+                    // (map size is 0).
+                    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding)
+                    map.moveCamera(cameraUpdate)
+                }
+            }
         }
     }
 }

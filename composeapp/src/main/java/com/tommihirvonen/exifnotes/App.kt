@@ -205,7 +205,10 @@ fun App(onFinish: () -> Unit) {
             }
             composable<RollsMap> {
                 RollsMapScreen(
-                    onNavigateUp = { navController.navigateUp() }
+                    onNavigateUp = { navController.navigateUp() },
+                    onFrameEdit = { /*TODO*/ },
+                    themeViewModel = themeViewModel,
+                    mainViewModel = mainViewModel
                 )
             }
             composable<Gear> {
