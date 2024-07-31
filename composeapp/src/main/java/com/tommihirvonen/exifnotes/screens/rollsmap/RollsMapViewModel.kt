@@ -105,10 +105,12 @@ class RollsMapViewModel @AssistedInject constructor(
     }
 
     fun setSelectedRolls(rolls: List<RollWrapper>) {
-        _selectedRolls.value = rolls.mapIndexed { index, roll ->
-            val i = index % markerBitmaps.size
-            roll to markerBitmaps[i]
-        }
+        _selectedRolls.value = rolls
+            .sortedBy { it.roll.name?.lowercase() }
+            .mapIndexed { index, roll ->
+                val i = index % markerBitmaps.size
+                roll to markerBitmaps[i]
+            }
     }
 
     private fun loadData() {

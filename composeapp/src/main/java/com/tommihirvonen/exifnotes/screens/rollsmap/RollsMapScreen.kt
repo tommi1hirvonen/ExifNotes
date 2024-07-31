@@ -38,7 +38,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Map
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -66,6 +65,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -84,6 +84,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.sortableDateTime
+import com.tommihirvonen.exifnotes.screens.DialogContent
 import com.tommihirvonen.exifnotes.screens.MapTypeDropdownMenu
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.theme.Theme
@@ -333,64 +334,100 @@ private fun RollsFilterDialog(
     val list = remember(selectedRolls) {
         val nonSelected = rolls.filter { roll ->
             selectedRolls.none { it.first.roll.id == roll.roll.id }
-        }.toList()
-        selectedRolls.plus(
-            nonSelected.map { it to null }
-        )
+        }
+        selectedRolls
+            .sortedBy { it.first.roll.name?.lowercase() }
+            .plus(
+                nonSelected.sortedBy { it.roll.name?.lowercase() }
+                    .map { it to null }
+            )
     }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.Close))
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                val selected = items.filter { it.value }.map { it.key }
-                onConfirm(selected)
-            }) {
-                Text(stringResource(R.string.Apply))
-            }
-        },
-        text = {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+    Dialog(onDismissRequest = onDismiss) {
+        DialogContent {
+            Column(modifier = Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
             ) {
-                items(list) { pair ->
-                    val (roll, marker) = pair
-                    val selected = items[roll] ?: false
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                items[roll] = !selected
-                            },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(list) { pair ->
+                        val (roll, marker) = pair
+                        val selected = items[roll] ?: false
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f, fill = false)
-                        ) {
-                            Checkbox(
-                                checked = selected,
-                                onCheckedChange = {
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
                                     items[roll] = !selected
-                                }
-                            )
-                            Text(roll.roll.name ?: "")
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f, fill = false)
+                            ) {
+                                Checkbox(
+                                    checked = selected,
+                                    onCheckedChange = {
+                                        items[roll] = !selected
+                                    }
+                                )
+                                Text(
+                                    text = roll.roll.name ?: "",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                            if (marker != null) {
+                                Image(
+                                    modifier = Modifier.size(24.dp),
+                                    bitmap = marker.asImageBitmap(),
+                                    contentDescription = ""
+                                )
+                            }
                         }
-                        if (marker != null) {
-                            Image(
-                                modifier = Modifier.size(24.dp),
-                                bitmap = marker.asImageBitmap(),
-                                contentDescription = ""
-                            )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (items.none { it.value }) {
+                        TextButton(
+                            onClick = {
+                                for (key in items.keys) {
+                                    items[key] = true
+                                }
+                            }
+                        ) {
+                            Text(stringResource(R.string.SelectAll))
+                        }
+                    } else {
+                        TextButton(
+                            onClick = {
+                                for (key in items.keys) {
+                                    items[key] = false
+                                }
+                            }
+                        ) {
+                            Text(stringResource(R.string.DeselectAll))
+                        }
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.Close))
+                        }
+                        TextButton(onClick = {
+                            val selected = items.filter { it.value }.map { it.key }
+                            onConfirm(selected)
+                        }) {
+                            Text(stringResource(R.string.Apply))
                         }
                     }
                 }
             }
         }
-    )
+    }
 }
