@@ -53,6 +53,7 @@ import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.screens.rolls.RollEditScreen
 import com.tommihirvonen.exifnotes.screens.rolls.RollViewModel
 import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapScreen
+import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapViewModel
 import com.tommihirvonen.exifnotes.screens.settings.LicenseScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsScreen
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
@@ -153,7 +154,11 @@ fun App(onFinish: () -> Unit) {
             }
             composable<LocationPick> { backStackEntry ->
                 val frameEditEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry<FrameEdit>()
+                    try {
+                        navController.getBackStackEntry<FrameEdit>()
+                    } catch (e: IllegalArgumentException) {
+                        navController.getBackStackEntry<RollsMapFrameEdit>()
+                    }
                 }
                 val frameViewModel = hiltViewModel<FrameViewModel>(frameEditEntry)
                 LocationPickScreen(
@@ -206,9 +211,22 @@ fun App(onFinish: () -> Unit) {
             composable<RollsMap> {
                 RollsMapScreen(
                     onNavigateUp = { navController.navigateUp() },
-                    onFrameEdit = { /*TODO*/ },
+                    onFrameEdit = { frame ->
+                        navController.navigate(route = RollsMapFrameEdit(frameId = frame.id))
+                    },
                     themeViewModel = themeViewModel,
                     mainViewModel = mainViewModel
+                )
+            }
+            composable<RollsMapFrameEdit> { backStackEntry ->
+                val frameEdit = backStackEntry.toRoute<RollsMapFrameEdit>()
+                val rollsMapEntry = remember(backStackEntry) { navController.getBackStackEntry<RollsMap>() }
+                val rollsMapViewModel = hiltViewModel<RollsMapViewModel>(rollsMapEntry)
+                FrameEditScreen(
+                    frameId = frameEdit.frameId,
+                    onNavigateUp = { navController.navigateUp() },
+                    onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
+                    rollsMapViewModel = rollsMapViewModel
                 )
             }
             composable<Gear> {
@@ -390,6 +408,9 @@ private object FramesMap
 
 @Serializable
 private object RollsMap
+
+@Serializable
+private data class RollsMapFrameEdit(val frameId: Long)
 
 @Serializable
 private object Gear

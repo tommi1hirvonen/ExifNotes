@@ -87,11 +87,33 @@ import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
+import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import com.tommihirvonen.exifnotes.util.readableCoordinates
 import java.time.LocalDateTime
 import kotlin.math.roundToInt
+
+@Composable
+fun FrameEditScreen(
+    frameId: Long,
+    onNavigateUp: () -> Unit,
+    onNavigateToLocationPick: () -> Unit,
+    rollsMapViewModel: RollsMapViewModel
+) {
+    FrameEditScreen(
+        rollId = -1,
+        frameId = frameId,
+        previousFrameId = -1,
+        frameCount = -1,
+        onNavigateUp = onNavigateUp,
+        onNavigateToLocationPick = onNavigateToLocationPick,
+        onSubmit = { frame ->
+            rollsMapViewModel.submitFrame(frame)
+            onNavigateUp()
+        }
+    )
+}
 
 @Composable
 fun FrameEditScreen(
@@ -101,7 +123,31 @@ fun FrameEditScreen(
     frameCount: Int,
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
-    framesViewModel: FramesViewModel,
+    framesViewModel: FramesViewModel
+) {
+    FrameEditScreen(
+        rollId = rollId,
+        frameId = frameId,
+        previousFrameId = previousFrameId,
+        frameCount = frameCount,
+        onNavigateUp = onNavigateUp,
+        onNavigateToLocationPick = onNavigateToLocationPick,
+        onSubmit = { frame ->
+            framesViewModel.submitFrame(frame)
+            onNavigateUp()
+        }
+    )
+}
+
+@Composable
+private fun FrameEditScreen(
+    rollId: Long,
+    frameId: Long,
+    previousFrameId: Long,
+    frameCount: Int,
+    onNavigateUp: () -> Unit,
+    onNavigateToLocationPick: () -> Unit,
+    onSubmit: (Frame) -> Unit,
     frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
         factory.create(rollId, frameId, previousFrameId, frameCount)
     }
@@ -137,8 +183,7 @@ fun FrameEditScreen(
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (frameViewModel.validate()) {
-                framesViewModel.submitFrame(frameViewModel.frame.value)
-                onNavigateUp()
+                onSubmit(frameViewModel.frame.value)
             }
         }
     )

@@ -113,6 +113,29 @@ class RollsMapViewModel @AssistedInject constructor(
             }
     }
 
+    fun submitFrame(frame: Frame) {
+        if (frameRepository.updateFrame(frame) == 0) {
+            frameRepository.addFrame(frame)
+        }
+        val (roll, prevFrames) = _allRolls.value
+            .firstOrNull { it.roll.id == frame.roll.id }
+            ?: return
+        val frames = prevFrames.filterNot { it.id == frame.id }.plus(frame)
+        _allRolls.value = _allRolls.value
+            .filterNot { it.roll.id == roll.id }
+            .plus(
+                RollWrapper(roll, frames)
+            )
+        val (selected, bitmap) = _selectedRolls.value
+            .firstOrNull { it.first.roll.id == roll.id }
+            ?: return
+        _selectedRolls.value = _selectedRolls.value
+            .filterNot { it.first.roll.id == selected.roll.id }
+            .plus(
+                RollWrapper(roll, frames) to bitmap
+            )
+    }
+
     private fun loadData() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
