@@ -18,15 +18,28 @@
 
 package com.tommihirvonen.exifnotes.screens.rollsmap
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -35,6 +48,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,13 +56,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateMap
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -64,6 +82,7 @@ import com.google.maps.android.compose.MarkerInfoWindowContent
 import com.google.maps.android.compose.MarkerState
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.screens.MapTypeDropdownMenu
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
@@ -94,18 +113,19 @@ fun RollsMapScreen(
 
     val title by mainViewModel.toolbarSubtitle.collectAsState()
     val mapType by rollsMapViewModel.mapType.collectAsState()
-    val rollsLoadState by rollsMapViewModel.rolls.collectAsState()
-    val state = rollsLoadState
-    val rolls = if (state is LoadState.Success) state.data else emptyList()
+    val allRolls by rollsMapViewModel.allRolls.collectAsState()
+    val selectedRolls by rollsMapViewModel.selectedRolls.collectAsState()
     RollsMapContent(
         title = title,
-        rolls = rolls,
+        rolls = allRolls,
+        selectedRolls = selectedRolls,
         isDarkTheme = darkTheme,
         myLocationEnabled = rollsMapViewModel.myLocationEnabled,
         mapType = mapType,
         onNavigateUp = onNavigateUp,
         onMapTypeChange = rollsMapViewModel::setMapType,
-        onFrameEdit = onFrameEdit
+        onFrameEdit = onFrameEdit,
+        onSelectedRollsChange = rollsMapViewModel::setSelectedRolls
     )
 }
 
@@ -115,12 +135,14 @@ private fun RollsMapContentPreview() {
     RollsMapContent(
         title = "Title placeholder",
         rolls = emptyList(),
+        selectedRolls = emptyList(),
         isDarkTheme = false,
         myLocationEnabled = false,
         mapType = MapType.NORMAL,
         onNavigateUp = {},
         onMapTypeChange = {},
-        onFrameEdit = {}
+        onFrameEdit = {},
+        onSelectedRollsChange = {}
     )
 }
 
@@ -128,16 +150,19 @@ private fun RollsMapContentPreview() {
 @Composable
 private fun RollsMapContent(
     title: String,
-    rolls: List<RollData>,
+    rolls: List<RollWrapper>,
+    selectedRolls: List<Pair<RollWrapper, Bitmap>>,
     isDarkTheme: Boolean,
     myLocationEnabled: Boolean,
     mapType: MapType,
     onNavigateUp: () -> Unit,
     onMapTypeChange: (MapType) -> Unit,
-    onFrameEdit: (Frame) -> Unit
+    onFrameEdit: (Frame) -> Unit,
+    onSelectedRollsChange: (List<RollWrapper>) -> Unit
 ) {
     val context = LocalContext.current
     var mapTypeExpanded by remember { mutableStateOf(false) }
+    var showFilterDialog by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -159,6 +184,16 @@ private fun RollsMapContent(
             Column(
                 modifier = Modifier.padding(bottom = 60.dp)
             ) {
+                FloatingActionButton(
+                    onClick = { showFilterDialog = true },
+                    modifier = Modifier.size(40.dp),
+                    shape = FloatingActionButtonDefaults.smallShape,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ) {
+                    Icon(Icons.Outlined.FilterAlt, "")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
                 FloatingActionButton(
                     onClick = { mapTypeExpanded = true },
                     modifier = Modifier.size(40.dp),
@@ -203,24 +238,25 @@ private fun RollsMapContent(
                     zoomControlsEnabled = false
                 )
             ) {
-                for (roll in rolls) {
-                    val frames = roll.frames
+                for (pair in selectedRolls) {
+                    val (rollWrapper, marker) = pair
+                    val (roll, frames) = rollWrapper
                     for (frame in frames) {
                         val location = frame.location ?: continue
                         val markerState = remember(frames) {
                             MarkerState(location)
                         }
                         MarkerInfoWindowContent(
-                            icon = BitmapDescriptorFactory.fromBitmap(roll.marker),
+                            icon = BitmapDescriptorFactory.fromBitmap(marker),
                             state = markerState,
-                            title = roll.roll.name,
+                            title = roll.name,
                             snippet = "#${frame.count}",
                             onInfoWindowClick = { _ ->
                                 onFrameEdit(frame)
                             }
                         ) { _ ->
                             Column {
-                                Text(roll.roll.name ?: "", style = MaterialTheme.typography.titleMedium)
+                                Text(roll.name ?: "", style = MaterialTheme.typography.titleMedium)
                                 Text("#${frame.count}")
                                 Text(frame.date.sortableDateTime)
                                 Text(frame.lens?.name ?: "")
@@ -236,8 +272,8 @@ private fun RollsMapContent(
                         }
                     }
                 }
-                MapEffect(rolls) { map ->
-                    val frames = rolls.flatMap { it.frames }
+                MapEffect(selectedRolls) { map ->
+                    val frames = selectedRolls.flatMap { it.first.frames }
                     if (frames.none()) return@MapEffect
                     val builder = LatLngBounds.Builder()
                     frames.mapNotNull { it.location }.forEach(builder::include)
@@ -254,4 +290,107 @@ private fun RollsMapContent(
             }
         }
     }
+    if (showFilterDialog) {
+        RollsFilterDialog(
+            rolls = rolls,
+            selectedRolls = selectedRolls,
+            onDismiss = { showFilterDialog = false },
+            onConfirm = onSelectedRollsChange
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun RollsFilterDialogPreview() {
+    val drawable = ContextCompat.getDrawable(LocalContext.current, R.drawable.ic_marker_red)!!
+    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
+        drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    val roll = Roll(name = "Test roll")
+    val wrapper = RollWrapper(roll, emptyList())
+    RollsFilterDialog(
+        rolls = listOf(wrapper),
+        selectedRolls = listOf(wrapper to bitmap),
+        onDismiss = {},
+        onConfirm = {}
+    )
+}
+
+@Composable
+private fun RollsFilterDialog(
+    rolls: List<RollWrapper>,
+    selectedRolls: List<Pair<RollWrapper, Bitmap>>,
+    onDismiss: () -> Unit,
+    onConfirm: (List<RollWrapper>) -> Unit
+) {
+    val items = remember(selectedRolls) {
+        rolls.associateWith { roll ->
+                selectedRolls.any { it.first == roll }
+            }
+            .toList()
+            .toMutableStateMap()
+    }
+    val list = remember(selectedRolls) {
+        val nonSelected = rolls.filter { roll ->
+            selectedRolls.none { it.first.roll.id == roll.roll.id }
+        }.toList()
+        selectedRolls.plus(
+            nonSelected.map { it to null }
+        )
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Close))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val selected = items.filter { it.value }.map { it.key }
+                onConfirm(selected)
+            }) {
+                Text(stringResource(R.string.Apply))
+            }
+        },
+        text = {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(list) { pair ->
+                    val (roll, marker) = pair
+                    val selected = items[roll] ?: false
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                items[roll] = !selected
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f, fill = false)
+                        ) {
+                            Checkbox(
+                                checked = selected,
+                                onCheckedChange = {
+                                    items[roll] = !selected
+                                }
+                            )
+                            Text(roll.roll.name ?: "")
+                        }
+                        if (marker != null) {
+                            Image(
+                                modifier = Modifier.size(24.dp),
+                                bitmap = marker.asImageBitmap(),
+                                contentDescription = ""
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
 }

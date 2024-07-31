@@ -38,7 +38,6 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.screens.location.LocationPickViewModel
-import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -92,8 +91,11 @@ class RollsMapViewModel @AssistedInject constructor(
 
     val mapType = _mapType.asStateFlow()
 
-    private val _rolls = MutableStateFlow<LoadState<List<RollData>>>(LoadState.InProgress())
-    val rolls = _rolls.asStateFlow()
+    private val _allRolls = MutableStateFlow<List<RollWrapper>>(emptyList())
+    val allRolls = _allRolls.asStateFlow()
+
+    private val _selectedRolls = MutableStateFlow<List<Pair<RollWrapper, Bitmap>>>(emptyList())
+    val selectedRolls = _selectedRolls.asStateFlow()
 
     fun setMapType(mapType: MapType) {
         _mapType.value = mapType
@@ -102,25 +104,29 @@ class RollsMapViewModel @AssistedInject constructor(
         }
     }
 
+    fun setSelectedRolls(rolls: List<RollWrapper>) {
+        _selectedRolls.value = rolls.mapIndexed { index, roll ->
+            val i = index % markerBitmaps.size
+            roll to markerBitmaps[i]
+        }
+    }
+
     private fun loadData() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val data = initialRolls.mapIndexed { index, roll ->
-                    val i = index % markerBitmaps.size
-                    RollData(roll, true, markerBitmaps[i], frameRepository.getFrames(roll))
+                val rolls = initialRolls.map { roll ->
+                    val frames = frameRepository.getFrames(roll)
+                    RollWrapper(roll, frames)
                 }
-                _rolls.value = LoadState.Success(data)
+                _allRolls.value = rolls
+                _selectedRolls.value = rolls.mapIndexed { index, roll ->
+                    val i = index % markerBitmaps.size
+                    roll to markerBitmaps[i]
+                }
             }
         }
     }
 }
-
-data class RollData(
-    val roll: Roll,
-    val selected: Boolean,
-    val marker: Bitmap,
-    val frames: List<Frame>
-)
 
 private fun getMarkerBitmaps(context: Context): List<Bitmap> = arrayListOf(
     getMarkerBitmap(context),
@@ -164,3 +170,5 @@ private fun setBitmapHue(bitmap: Bitmap, hue: Float): Bitmap {
     }
     return bitmap
 }
+
+data class RollWrapper(val roll: Roll, val frames: List<Frame>)
