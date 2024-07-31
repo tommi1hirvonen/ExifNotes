@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.data.repositories
 
 import android.content.ContentValues
+import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.decimalString
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
@@ -35,9 +36,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FrameRepository @Inject constructor(private val database: Database,
-                                          private val filters: FilterRepository,
-                                          private val lenses: LensRepository) {
+class FrameRepository @Inject constructor(
+    private val database: Database,
+    private val filters: FilterRepository,
+    private val lenses: LensRepository,
+    private val rolls: RollRepository
+) {
     fun addFrame(frame: Frame): Boolean {
         val values = buildFrameContentValues(frame)
         val rowId = database.insert(TABLE_FRAMES, values)
@@ -70,31 +74,47 @@ class FrameRepository @Inject constructor(private val database: Database,
         .from(TABLE_FRAMES)
         .where { KEY_ROLL_ID eq roll.id }
         .orderBy { KEY_COUNT.asc() }
-        .map { row ->
-            Frame(
-                roll = roll,
-                id = row.getLong(KEY_FRAME_ID),
-                count = row.getInt(KEY_COUNT),
-                shutter = row.getStringOrNull(KEY_SHUTTER),
-                aperture = row.getStringOrNull(KEY_APERTURE),
-                note = row.getStringOrNull(KEY_FRAME_NOTE),
-                focalLength = row.getInt(KEY_FOCAL_LENGTH),
-                exposureComp = row.getStringOrNull(KEY_EXPOSURE_COMP),
-                noOfExposures = row.getInt(KEY_NO_OF_EXPOSURES),
-                flashComp = row.getStringOrNull(KEY_FLASH_COMP),
-                meteringMode = row.getInt(KEY_METERING_MODE),
-                formattedAddress = row.getStringOrNull(KEY_FORMATTED_ADDRESS),
-                pictureFilename = row.getStringOrNull(KEY_PICTURE_FILENAME),
-                lightSource = LightSource.from(row.getInt(KEY_LIGHT_SOURCE)),
-                flashUsed = row.getInt(KEY_FLASH_USED) > 0,
-                flashPower = row.getStringOrNull(KEY_FLASH_POWER),
-                location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
-                date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
-                lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
-            ).apply {
-                filters = this@FrameRepository.filters.getLinkedFilters(this)
-            }
+        .map(frameMapper(roll))
+
+    fun getFrame(frameId: Long): Frame? {
+        val rollId = database
+            .from(TABLE_FRAMES)
+            .where { KEY_FRAME_ID eq frameId }
+            .firstOrNull { row -> row.getLong(KEY_ROLL_ID) }
+            ?: return null
+        val roll = rolls.getRoll(rollId) ?: return null
+        val frame = database
+            .from(TABLE_FRAMES)
+            .where { KEY_FRAME_ID eq frameId }
+            .firstOrNull(frameMapper(roll))
+        return frame
+    }
+
+    private fun frameMapper(roll: Roll) = { row: Cursor ->
+        Frame(
+            roll = roll,
+            id = row.getLong(KEY_FRAME_ID),
+            count = row.getInt(KEY_COUNT),
+            shutter = row.getStringOrNull(KEY_SHUTTER),
+            aperture = row.getStringOrNull(KEY_APERTURE),
+            note = row.getStringOrNull(KEY_FRAME_NOTE),
+            focalLength = row.getInt(KEY_FOCAL_LENGTH),
+            exposureComp = row.getStringOrNull(KEY_EXPOSURE_COMP),
+            noOfExposures = row.getInt(KEY_NO_OF_EXPOSURES),
+            flashComp = row.getStringOrNull(KEY_FLASH_COMP),
+            meteringMode = row.getInt(KEY_METERING_MODE),
+            formattedAddress = row.getStringOrNull(KEY_FORMATTED_ADDRESS),
+            pictureFilename = row.getStringOrNull(KEY_PICTURE_FILENAME),
+            lightSource = LightSource.from(row.getInt(KEY_LIGHT_SOURCE)),
+            flashUsed = row.getInt(KEY_FLASH_USED) > 0,
+            flashPower = row.getStringOrNull(KEY_FLASH_POWER),
+            location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
+            date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
+            lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
+        ).apply {
+            filters = this@FrameRepository.filters.getLinkedFilters(this)
         }
+    }
 
     fun updateFrame(frame: Frame): Int {
         val contentValues = buildFrameContentValues(frame)

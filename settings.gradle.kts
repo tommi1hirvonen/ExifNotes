@@ -23,3 +23,4 @@ rootProject.name = "ExifNotes"
 include(":app")
 include(":data")
 include(":core")
+include(":composeapp")

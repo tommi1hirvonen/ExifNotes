@@ -64,7 +64,7 @@ class CameraRepository @Inject constructor(
         )
     }
 
-    internal fun getCamera(cameraId: Long): Camera? {
+    fun getCamera(cameraId: Long): Camera? {
         val lenses = database
             .from(TABLE_LINK_CAMERA_LENS)
             .select(KEY_LENS_ID)

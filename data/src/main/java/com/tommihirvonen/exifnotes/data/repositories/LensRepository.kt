@@ -26,7 +26,6 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.dsl.*
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -42,7 +41,7 @@ class LensRepository @Inject constructor(private val database: Database) {
         return id
     }
 
-    internal fun getLens(lensId: Long): Lens? {
+    fun getLens(lensId: Long): Lens? {
         val filters = database.from(TABLE_LINK_LENS_FILTER)
             .select(KEY_FILTER_ID)
             .where { KEY_LENS_ID eq lensId }

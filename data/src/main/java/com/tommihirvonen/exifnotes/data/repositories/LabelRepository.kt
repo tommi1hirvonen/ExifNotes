@@ -35,6 +35,11 @@ class LabelRepository @Inject constructor(private val database: Database) {
         .orderBy { KEY_LABEL_NAME.asc().ignoreCase() }
         .map(labelMapper)
 
+    fun getLabel(labelId: Long): Label? = database
+        .from(TABLE_LABELS)
+        .where { KEY_LABEL_ID eq labelId }
+        .firstOrNull(labelMapper)
+
     fun getLabels(roll: Roll) = database
         .from(TABLE_LABELS)
         .where {

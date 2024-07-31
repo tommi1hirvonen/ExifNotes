@@ -18,9 +18,19 @@
 
 package com.tommihirvonen.exifnotes.core.entities
 
+import android.content.Context
+import com.tommihirvonen.exifnotes.core.R
+
 enum class Increment {
     THIRD, HALF, FULL;
+
     companion object {
         fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: THIRD
+    }
+
+    fun description(context: Context) = when(this) {
+        THIRD -> context.getString(R.string.ThirdStop)
+        HALF -> context.getString(R.string.HalfStop)
+        FULL -> context.getString(R.string.FullStop)
     }
 }

@@ -409,6 +409,12 @@
         <item>Motion picture colour negative</item>
     </string-array>
 
+    <string-array name="FilmStocksFilterMode">
+        <item>All</item>
+        <item>Preadded</item>
+        <item>User added</item>
+    </string-array>
+
     <string-array name="FilmFormats">
         <item>35 mm</item>
         <item>120</item>

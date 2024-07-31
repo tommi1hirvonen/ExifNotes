@@ -18,10 +18,16 @@
 
 package com.tommihirvonen.exifnotes.core.entities
 
+import android.content.Context
+import com.tommihirvonen.exifnotes.core.R
+
 enum class FilmStockFilterMode {
     ALL, PREADDED, USER_ADDED;
 
     companion object {
         fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: ALL
     }
+
+    fun description(context: Context) =
+        context.resources.getStringArray(R.array.FilmStocksFilterMode).getOrNull(ordinal)
 }
