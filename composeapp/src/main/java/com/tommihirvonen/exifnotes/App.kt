@@ -328,7 +328,7 @@ fun App(onFinish: () -> Unit) {
                 FilmStockEditScreen(
                     filmStockId = filmStock.filmStockId,
                     onNavigateUp = { navController.navigateUp() },
-                    filmStocksViewModel = filmStocksViewModel
+                    submitHandler = filmStocksViewModel::submitFilmStock
                 )
             }
             dialog<RollFilmStockEdit> { backStackEntry ->
@@ -338,8 +338,8 @@ fun App(onFinish: () -> Unit) {
                 FilmStockEditScreen(
                     filmStockId = filmStock.filmStockId,
                     onNavigateUp = { navController.navigateUp() },
-                    afterSubmit = { stock ->
-                        rollViewModel.setFilmStock(stock)
+                    submitHandler = { stock ->
+                        rollViewModel.submitFilmStock(stock)
                         mainViewModel.loadAll()
                     }
                 )

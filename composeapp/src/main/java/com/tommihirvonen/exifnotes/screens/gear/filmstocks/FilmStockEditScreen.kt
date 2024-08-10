@@ -55,11 +55,10 @@ import com.tommihirvonen.exifnotes.util.description
 fun FilmStockEditScreen(
     filmStockId: Long,
     onNavigateUp: () -> Unit,
-    filmStocksViewModel: FilmStocksViewModel = hiltViewModel(),
+    submitHandler: (FilmStock) -> Unit,
     filmStockViewModel: FilmStockViewModel = hiltViewModel { factory: FilmStockViewModel.Factory ->
         factory.create(filmStockId)
-    },
-    afterSubmit: (FilmStock) -> Unit = {}
+    }
 ) {
     val filmStock = filmStockViewModel.filmStock.collectAsState()
     val makeError = filmStockViewModel.makeError.collectAsState()
@@ -78,8 +77,7 @@ fun FilmStockEditScreen(
         onSubmit = {
             val result = filmStockViewModel.validate()
             if (result) {
-                filmStocksViewModel.submitFilmStock(filmStockViewModel.filmStock.value)
-                afterSubmit(filmStockViewModel.filmStock.value)
+                submitHandler(filmStockViewModel.filmStock.value)
                 onNavigateUp()
             }
         }

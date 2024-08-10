@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilmStockRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.util.validate
 import dagger.assisted.Assisted
@@ -41,7 +42,8 @@ class RollViewModel @AssistedInject constructor (
     @Assisted rollId: Long,
     application: Application,
     rollRepository: RollRepository,
-    private val cameraRepository: CameraRepository
+    private val cameraRepository: CameraRepository,
+    private val filmStockRepository: FilmStockRepository
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -66,6 +68,13 @@ class RollViewModel @AssistedInject constructor (
     fun setName(value: String) {
         _roll.value = _roll.value.copy(name = value)
         _nameError.value = false
+    }
+
+    fun submitFilmStock(filmStock: FilmStock) {
+        if (filmStockRepository.updateFilmStock(filmStock) == 0) {
+            filmStockRepository.addFilmStock(filmStock)
+        }
+        setFilmStock(filmStock)
     }
 
     fun setFilmStock(filmStock: FilmStock?) {
