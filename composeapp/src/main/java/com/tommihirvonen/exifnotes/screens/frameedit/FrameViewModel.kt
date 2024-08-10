@@ -34,6 +34,7 @@ import com.tommihirvonen.exifnotes.data.repositories.CameraLensRepository
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensFilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
@@ -61,6 +62,7 @@ class FrameViewModel @AssistedInject constructor(
     private val cameraRepository: CameraRepository,
     private val cameraLensRepository: CameraLensRepository,
     private val filterRepository: FilterRepository,
+    private val lensFilterRepository: LensFilterRepository,
     locationService: LocationService,
     private val geocoderRequestBuilder: GeocoderRequestBuilder
 ) : AndroidViewModel(application) {
@@ -78,6 +80,8 @@ class FrameViewModel @AssistedInject constructor(
     private val context: Context get() = application.applicationContext
     private val _frame: MutableStateFlow<Frame>
     private val _lens: MutableStateFlow<Lens?>
+    private val _filters: MutableStateFlow<List<Filter>>
+    private val _apertureValues: MutableStateFlow<List<String>>
     private val _isResolvingFormattedAddress = MutableStateFlow(false)
 
     init {
@@ -115,9 +119,10 @@ class FrameViewModel @AssistedInject constructor(
             }
         }
         _frame = MutableStateFlow(frame)
-        _lens = MutableStateFlow(
-            frame.roll.camera?.lens ?: frame.lens
-        )
+        val lens = frame.roll.camera?.lens ?: frame.lens
+        _lens = MutableStateFlow(lens)
+        _filters = MutableStateFlow(getFilters(lens))
+        _apertureValues = MutableStateFlow(getApertureValues(lens))
         val location = frame.location
         if (location != null && frame.formattedAddress.isNullOrEmpty()) {
             // Make the ProgressBar visible to indicate that a query is being executed
@@ -137,8 +142,6 @@ class FrameViewModel @AssistedInject constructor(
         _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
             ?: lensRepository.lenses
     )
-    private val _filters = MutableStateFlow(getFilters(_lens.value))
-    private val _apertureValues = MutableStateFlow(getApertureValues(_lens.value))
 
     val frame = _frame.asStateFlow()
     val lens = _lens.asStateFlow()
@@ -230,6 +233,17 @@ class FrameViewModel @AssistedInject constructor(
         )
     }
 
+    fun submitFilter(filter: Filter) {
+        if (filterRepository.updateFilter(filter) == 0) {
+            filterRepository.addFilter(filter)
+        }
+        lens.value?.let {
+            lensFilterRepository.addLensFilterLink(filter, it)
+        }
+        _filters.value = _filters.value.plus(filter).sorted()
+        setFilters(_frame.value.filters.plus(filter).sorted())
+    }
+
     fun setFilters(value: List<Filter>) {
         _frame.value = _frame.value.copy(filters = value)
     }
@@ -249,11 +263,11 @@ class FrameViewModel @AssistedInject constructor(
 
     private fun getFilters(lens: Lens?): List<Filter> =
         lens?.let(filterRepository::getLinkedFilters)
-            ?: this.lens.value?.let(filterRepository::getLinkedFilters)
+            ?: _lens.value?.let(filterRepository::getLinkedFilters)
             ?: filterRepository.filters
 
     private fun getApertureValues(lens: Lens?): List<String> =
         lens?.apertureValues(context)?.toList()
-            ?: this.lens.value?.apertureValues(context)?.toList()
+            ?: _lens.value?.apertureValues(context)?.toList()
             ?: Lens.defaultApertureValues(context).toList()
 }

@@ -37,13 +37,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.screens.DialogContent
-import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 
 @Composable
 fun FilterEditScreen(
     filterId: Long,
     onDismiss: () -> Unit,
-    gearViewModel: GearViewModel,
+    submitHandler: (Filter) -> Unit,
     filterViewModel: FilterViewModel = hiltViewModel { factory: FilterViewModel.Factory ->
         factory.create(filterId)
     }
@@ -62,7 +61,7 @@ fun FilterEditScreen(
         onSubmit = {
             val result = filterViewModel.validate()
             if (result) {
-                gearViewModel.submitFilter(filterViewModel.filter.value)
+                submitHandler(filterViewModel.filter.value)
                 onDismiss()
             }
         }

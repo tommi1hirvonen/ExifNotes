@@ -149,8 +149,12 @@ fun App(onFinish: () -> Unit) {
                     frameCount = frameEdit.frameCount,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
-                    onNavigateToFilterEdit = { /*TODO*/ },
-                    onNavigateToLensEdit = { navController.navigate(route = FrameLensEdit(lensId = -1)) },
+                    onNavigateToFilterEdit = {
+                        navController.navigate(route = FrameFilterEdit(filterId = -1))
+                    },
+                    onNavigateToLensEdit = {
+                        navController.navigate(route = FrameLensEdit(lensId = -1))
+                    },
                     submitHandler = framesViewModel::submitFrame
                 )
             }
@@ -330,7 +334,17 @@ fun App(onFinish: () -> Unit) {
                 FilterEditScreen(
                     filterId = filter.filterId,
                     onDismiss = { navController.navigateUp() },
-                    gearViewModel = gearViewModel
+                    submitHandler = gearViewModel::submitFilter
+                )
+            }
+            dialog<FrameFilterEdit> { backStackEntry ->
+                val filter = backStackEntry.toRoute<FrameFilterEdit>()
+                val frameEntry = remember(backStackEntry) { navController.getBackStackEntry<FrameEdit>() }
+                val frameViewModel = hiltViewModel<FrameViewModel>(frameEntry)
+                FilterEditScreen(
+                    filterId = filter.filterId,
+                    onDismiss = { navController.navigateUp() },
+                    submitHandler = frameViewModel::submitFilter
                 )
             }
             dialog<FilmStockEdit> { backStackEntry ->
@@ -418,6 +432,9 @@ private data class FrameEdit(
 
 @Serializable
 private data class FrameLensEdit(val lensId: Long)
+
+@Serializable
+private data class FrameFilterEdit(val filterId: Long)
 
 @Serializable
 private object LocationPick
