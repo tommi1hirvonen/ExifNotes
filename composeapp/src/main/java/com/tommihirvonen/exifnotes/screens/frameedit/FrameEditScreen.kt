@@ -176,6 +176,7 @@ private fun FrameEditScreen(
         pictureTempFileProvider = frameViewModel::createNewPictureFile,
         onPictureTempFileCommit = frameViewModel::commitPlaceholderPictureFile,
         onPictureSelected = frameViewModel::setPictureFromUri,
+        onAddPictureToGallery = frameViewModel::addPictureToGallery,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
@@ -222,6 +223,7 @@ private fun FrameEditContentPreview() {
         pictureTempFileProvider = { Uri.fromFile(File("")) },
         onPictureTempFileCommit = {},
         onPictureSelected = {},
+        onAddPictureToGallery = {},
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
@@ -262,6 +264,7 @@ private fun FrameEditContent(
     pictureTempFileProvider: () -> Uri,
     onPictureTempFileCommit: () -> Unit,
     onPictureSelected: (Uri) -> Unit,
+    onAddPictureToGallery: () -> Unit,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
@@ -834,7 +837,7 @@ private fun FrameEditContent(
                             },
                             onClick = {
                                 pictureOptionsExpanded = false
-                                // TODO
+                                onAddPictureToGallery()
                             }
                         )
                         DropdownMenuItem(

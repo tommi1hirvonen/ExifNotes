@@ -353,6 +353,15 @@ class FrameViewModel @AssistedInject constructor(
         }
     }
 
+    fun addPictureToGallery() {
+        try {
+            complementaryPicturesManager.addPictureToGallery(_frame.value.pictureFilename)
+            // TODO
+        } catch (e: Exception) {
+            // TODO
+        }
+    }
+
     fun rotatePictureRight() {
         val filename = _frame.value.pictureFilename
         if (filename.isNullOrEmpty()) {
