@@ -259,6 +259,10 @@ class FrameViewModel @AssistedInject constructor(
         )
     }
 
+    fun clearComplementaryPicture() {
+        _frame.value = _frame.value.copy(pictureFilename = null)
+    }
+
     fun validate(): Boolean = true
 
     private fun getFilters(lens: Lens?): List<Filter> =

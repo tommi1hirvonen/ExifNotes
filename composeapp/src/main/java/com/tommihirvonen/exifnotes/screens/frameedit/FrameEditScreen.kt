@@ -36,14 +36,21 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.InsertPhoto
+import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Rotate90DegreesCcw
+import androidx.compose.material.icons.outlined.Rotate90DegreesCw
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -164,6 +171,7 @@ private fun FrameEditScreen(
         onFocalLengthChange = frameViewModel::setFocalLength,
         onLocationClick = onNavigateToLocationPick,
         onLocationClear = { frameViewModel.setLocation(null, null) },
+        onPictureClear = frameViewModel::clearComplementaryPicture,
         onNavigateUp = onNavigateUp,
         onAddFilter = onAddFilter,
         onAddLens = onAddLens,
@@ -202,6 +210,7 @@ private fun FrameEditContentPreview() {
         onFocalLengthChange = {},
         onLocationClick = {},
         onLocationClear = {},
+        onPictureClear = {},
         onNavigateUp = {},
         onAddFilter = {},
         onAddLens = {},
@@ -234,6 +243,7 @@ private fun FrameEditContent(
     onFocalLengthChange: (Int) -> Unit,
     onLocationClick: () -> Unit,
     onLocationClear: () -> Unit,
+    onPictureClear: () -> Unit,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
     onAddLens: () -> Unit,
@@ -252,6 +262,7 @@ private fun FrameEditContent(
     var showCustomApertureDialog by remember { mutableStateOf(false) }
     var showCustomShutterDialog by remember { mutableStateOf(false) }
     var showFocalLengthDialog by remember { mutableStateOf(false) }
+    var pictureOptionsExpanded by remember { mutableStateOf(false) }
     val lensesWithUniqueNames = remember(lenses) {
         lenses.mapNonUniqueToNameWithSerial()
     }
@@ -723,6 +734,95 @@ private fun FrameEditContent(
                     onValueChange = onNoteChange,
                     label = { Text(stringResource(R.string.DescriptionOrNote)) }
                 )
+            }
+            Row(
+                modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                FilledTonalButton(onClick = { pictureOptionsExpanded = true }) {
+                    Icon(Icons.Outlined.MoreHoriz, "")
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(stringResource(R.string.Options))
+                }
+                DropdownMenu(
+                    expanded = pictureOptionsExpanded,
+                    onDismissRequest = { pictureOptionsExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(stringResource(R.string.TakeNewComplementaryPicture))
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.CameraAlt, "")
+                        },
+                        onClick = {
+                            pictureOptionsExpanded = false
+                            // TODO
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(stringResource(R.string.SelectPictureFromGallery))
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.InsertPhoto, "")
+                        },
+                        onClick = {
+                            pictureOptionsExpanded = false
+                            // TODO
+                        }
+                    )
+                    if (frame.pictureFilename != null) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.AddPictureToGallery))
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.AddPhotoAlternate, "")
+                            },
+                            onClick = {
+                                pictureOptionsExpanded = false
+                                // TODO
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.RotateRight90Degrees))
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Rotate90DegreesCw, "")
+                            },
+                            onClick = {
+                                pictureOptionsExpanded = false
+                                // TODO
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.RotateLeft90Degrees))
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Rotate90DegreesCcw, "")
+                            },
+                            onClick = {
+                                pictureOptionsExpanded = false
+                                // TODO
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.Clear))
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.Clear, "")
+                            },
+                            onClick = {
+                                pictureOptionsExpanded = false
+                                onPictureClear()
+                            }
+                        )
+                    }
+                }
             }
         }
     }
