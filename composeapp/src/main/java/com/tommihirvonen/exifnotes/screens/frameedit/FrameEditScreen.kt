@@ -18,12 +18,20 @@
 
 package com.tommihirvonen.exifnotes.screens.frameedit
 
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -77,7 +85,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -96,6 +107,7 @@ import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import com.tommihirvonen.exifnotes.util.readableCoordinates
+import java.io.File
 import java.time.LocalDateTime
 import kotlin.math.roundToInt
 
@@ -148,6 +160,8 @@ private fun FrameEditScreen(
     val apertureValues = frameViewModel.apertureValues.collectAsState()
     val filters = frameViewModel.filters.collectAsState()
     val isResolvingAddress = frameViewModel.isResolvingFormattedAddress.collectAsState()
+    val pictureBitmap = frameViewModel.pictureBitmap.collectAsState()
+    val pictureRotation = frameViewModel.pictureRotation.collectAsState()
     FrameEditContent(
         frame = frame.value,
         lens = lens.value,
@@ -157,6 +171,10 @@ private fun FrameEditScreen(
         filters = filters.value,
         exposureCompValues = frameViewModel.exposureCompValues,
         isResolvingAddress = isResolvingAddress.value,
+        pictureBitmap = pictureBitmap.value,
+        pictureRotation = pictureRotation.value,
+        pictureTempFileProvider = frameViewModel::createNewPictureFile,
+        onPictureTempFileCommit = frameViewModel::commitPlaceholderPictureFile,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
@@ -172,6 +190,8 @@ private fun FrameEditScreen(
         onLocationClick = onNavigateToLocationPick,
         onLocationClear = { frameViewModel.setLocation(null, null) },
         onPictureClear = frameViewModel::clearComplementaryPicture,
+        onPictureRotateRight = frameViewModel::rotatePictureRight,
+        onPictureRotateLeft = frameViewModel::rotatePictureLeft,
         onNavigateUp = onNavigateUp,
         onAddFilter = onAddFilter,
         onAddLens = onAddLens,
@@ -196,6 +216,10 @@ private fun FrameEditContentPreview() {
         filters = emptyList(),
         exposureCompValues = emptyList(),
         isResolvingAddress = true,
+        pictureBitmap = null,
+        pictureRotation = 0f,
+        pictureTempFileProvider = { Uri.fromFile(File("")) },
+        onPictureTempFileCommit = {},
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
@@ -211,6 +235,8 @@ private fun FrameEditContentPreview() {
         onLocationClick = {},
         onLocationClear = {},
         onPictureClear = {},
+        onPictureRotateRight = {},
+        onPictureRotateLeft = {},
         onNavigateUp = {},
         onAddFilter = {},
         onAddLens = {},
@@ -229,6 +255,10 @@ private fun FrameEditContent(
     filters: List<Filter>,
     exposureCompValues: List<String>,
     isResolvingAddress: Boolean,
+    pictureBitmap: Bitmap?,
+    pictureRotation: Float,
+    pictureTempFileProvider: () -> Uri,
+    onPictureTempFileCommit: () -> Unit,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
@@ -244,6 +274,8 @@ private fun FrameEditContent(
     onLocationClick: () -> Unit,
     onLocationClear: () -> Unit,
     onPictureClear: () -> Unit,
+    onPictureRotateRight: () -> Unit,
+    onPictureRotateLeft: () -> Unit,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
     onAddLens: () -> Unit,
@@ -270,6 +302,13 @@ private fun FrameEditContent(
         lensesWithUniqueNames.firstOrNull { it.first.id == frame.lens?.id }?.second
             ?: frame.lens?.name
             ?: ""
+    }
+    val takePicture = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { result ->
+        if (result) {
+            onPictureTempFileCommit()
+        }
     }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -736,7 +775,9 @@ private fun FrameEditContent(
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
                 FilledTonalButton(onClick = { pictureOptionsExpanded = true }) {
@@ -757,7 +798,8 @@ private fun FrameEditContent(
                         },
                         onClick = {
                             pictureOptionsExpanded = false
-                            // TODO
+                            val uri = pictureTempFileProvider()
+                            takePicture.launch(uri)
                         }
                     )
                     DropdownMenuItem(
@@ -794,7 +836,7 @@ private fun FrameEditContent(
                             },
                             onClick = {
                                 pictureOptionsExpanded = false
-                                // TODO
+                                onPictureRotateRight()
                             }
                         )
                         DropdownMenuItem(
@@ -806,7 +848,7 @@ private fun FrameEditContent(
                             },
                             onClick = {
                                 pictureOptionsExpanded = false
-                                // TODO
+                                onPictureRotateLeft()
                             }
                         )
                         DropdownMenuItem(
@@ -822,6 +864,29 @@ private fun FrameEditContent(
                             }
                         )
                     }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                if (pictureBitmap != null) {
+                    val rotation = animateFloatAsState(
+                        targetValue = pictureRotation,
+                        label = "Image rotation",
+                        animationSpec = tween(1000)
+                    )
+                    Image(
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .rotate(rotation.value)
+                            .aspectRatio(1f),
+                        bitmap = pictureBitmap.asImageBitmap(),
+                        contentScale = ContentScale.Fit,
+                        contentDescription = ""
+                    )
                 }
             }
         }

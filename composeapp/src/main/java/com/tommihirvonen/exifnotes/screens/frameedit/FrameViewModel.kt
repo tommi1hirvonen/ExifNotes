@@ -20,6 +20,12 @@ package com.tommihirvonen.exifnotes.screens.frameedit
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -40,13 +46,17 @@ import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.di.location.LocationService
+import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.time.LocalDateTime
 
 @HiltViewModel(assistedFactory = FrameViewModel.Factory::class )
@@ -64,7 +74,8 @@ class FrameViewModel @AssistedInject constructor(
     private val filterRepository: FilterRepository,
     private val lensFilterRepository: LensFilterRepository,
     locationService: LocationService,
-    private val geocoderRequestBuilder: GeocoderRequestBuilder
+    private val geocoderRequestBuilder: GeocoderRequestBuilder,
+    private val complementaryPicturesManager: ComplementaryPicturesManager
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -83,10 +94,19 @@ class FrameViewModel @AssistedInject constructor(
     private val _filters: MutableStateFlow<List<Filter>>
     private val _apertureValues: MutableStateFlow<List<String>>
     private val _isResolvingFormattedAddress = MutableStateFlow(false)
+    private val _pictureBitmap = MutableStateFlow<Bitmap?>(null)
+    private val _pictureRotation = MutableStateFlow(0f)
+
+    private var placeholderPictureFilename: String? = null
 
     init {
         val existingFrame = frameRepository.getFrame(frameId)
         val frame = if (existingFrame != null) {
+            existingFrame.pictureFilename?.let {
+                existingFrame.pictureFileExists = complementaryPicturesManager
+                    .getPictureFile(it)
+                    .exists()
+            }
             existingFrame
         } else {
             val date = LocalDateTime.now()
@@ -136,6 +156,7 @@ class FrameViewModel @AssistedInject constructor(
                 _isResolvingFormattedAddress.value = false
             }
         }
+        loadPictureBitmap()
     }
 
     private val _lenses = MutableStateFlow(
@@ -149,6 +170,8 @@ class FrameViewModel @AssistedInject constructor(
     val filters = _filters.asStateFlow()
     val apertureValues = _apertureValues.asStateFlow()
     val isResolvingFormattedAddress = _isResolvingFormattedAddress.asStateFlow()
+    val pictureBitmap = _pictureBitmap.asStateFlow()
+    val pictureRotation = _pictureRotation.asStateFlow()
 
     val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
         ?: Camera.defaultShutterSpeedValues(context).toList()
@@ -259,11 +282,72 @@ class FrameViewModel @AssistedInject constructor(
         )
     }
 
+    fun validate(): Boolean = true
+
     fun clearComplementaryPicture() {
-        _frame.value = _frame.value.copy(pictureFilename = null)
+        _frame.value = _frame.value.copy(pictureFilename = null, pictureFileExists = false)
+        _pictureBitmap.value = null
     }
 
-    fun validate(): Boolean = true
+    fun createNewPictureFile(): Uri {
+        val pictureFile = complementaryPicturesManager.createNewPictureFile()
+        placeholderPictureFilename = pictureFile.name
+        //Android Nougat requires that the file is given via FileProvider
+        val photoUri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(
+                context,
+                context.applicationContext.packageName + ".provider", pictureFile
+            )
+        } else {
+            Uri.fromFile(pictureFile)
+        }
+        return photoUri
+    }
+
+    fun commitPlaceholderPictureFile() {
+        val filename = placeholderPictureFilename
+        placeholderPictureFilename = null
+        if (filename == null) {
+            return
+        }
+        _frame.value = _frame.value.copy(pictureFilename = filename, pictureFileExists = true)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    complementaryPicturesManager.compressPictureFile(filename)
+                    loadPictureBitmap()
+                } catch (e: IOException) {
+                    // TODO
+                }
+            }
+        }
+    }
+
+    fun rotatePictureRight() {
+        val filename = _frame.value.pictureFilename
+        if (filename.isNullOrEmpty()) {
+            return
+        }
+        try {
+            complementaryPicturesManager.rotatePictureRight(filename)
+            _pictureRotation.value += 90f
+        } catch (e: IOException) {
+            // TODO
+        }
+    }
+
+    fun rotatePictureLeft() {
+        val filename = _frame.value.pictureFilename
+        if (filename.isNullOrEmpty()) {
+            return
+        }
+        try {
+            complementaryPicturesManager.rotatePictureLeft(filename)
+            _pictureRotation.value -= 90f
+        } catch (e: IOException) {
+            // TODO
+        }
+    }
 
     private fun getFilters(lens: Lens?): List<Filter> =
         lens?.let(filterRepository::getLinkedFilters)
@@ -274,4 +358,36 @@ class FrameViewModel @AssistedInject constructor(
         lens?.apertureValues(context)?.toList()
             ?: _lens.value?.apertureValues(context)?.toList()
             ?: Lens.defaultApertureValues(context).toList()
+
+    private fun loadPictureBitmap() {
+        val filename = _frame.value.pictureFilename
+        if (filename.isNullOrEmpty()) {
+            return
+        }
+        val pictureFile = complementaryPicturesManager.getPictureFile(filename)
+        if (!pictureFile.exists()) {
+            return
+        }
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val rotation = try {
+                    val exifInterface = ExifInterface(pictureFile.absolutePath)
+                    val orientation = exifInterface.getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL
+                    )
+                    when (orientation) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                        else -> 0f
+                    }
+                } catch (e: Exception) {
+                    0f
+                }
+                _pictureRotation.value = rotation
+                _pictureBitmap.value = BitmapFactory.decodeFile(pictureFile.absolutePath)
+            }
+        }
+    }
 }
