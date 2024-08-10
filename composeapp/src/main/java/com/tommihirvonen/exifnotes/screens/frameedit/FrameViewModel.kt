@@ -56,6 +56,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.time.LocalDateTime
 
@@ -323,6 +325,34 @@ class FrameViewModel @AssistedInject constructor(
         }
     }
 
+    fun setPictureFromUri(uri: Uri) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val pictureFile = complementaryPicturesManager.createNewPictureFile()
+                try {
+                    // Get the compressed bitmap from the Uri.
+                    val pictureBitmap = complementaryPicturesManager
+                        .getCompressedBitmap(uri) ?: return@withContext
+                    try {
+                        // Save the compressed bitmap to the placeholder file.
+                        complementaryPicturesManager.saveBitmapToFile(pictureBitmap, pictureFile)
+                        // Update the member reference and set the complementary picture.
+                        _frame.value = _frame.value.copy(
+                            pictureFilename = pictureFile.name,
+                            pictureFileExists = true
+                        )
+                        _pictureBitmap.value = pictureBitmap
+                        _pictureRotation.value = getPictureRotation(pictureFile)
+                    } catch (e: IOException) {
+                        // TODO
+                    }
+                } catch (e: FileNotFoundException) {
+                    // TODO
+                }
+            }
+        }
+    }
+
     fun rotatePictureRight() {
         val filename = _frame.value.pictureFilename
         if (filename.isNullOrEmpty()) {
@@ -370,24 +400,26 @@ class FrameViewModel @AssistedInject constructor(
         }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                val rotation = try {
-                    val exifInterface = ExifInterface(pictureFile.absolutePath)
-                    val orientation = exifInterface.getAttributeInt(
-                        ExifInterface.TAG_ORIENTATION,
-                        ExifInterface.ORIENTATION_NORMAL
-                    )
-                    when (orientation) {
-                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-                        else -> 0f
-                    }
-                } catch (e: Exception) {
-                    0f
-                }
-                _pictureRotation.value = rotation
+                _pictureRotation.value = getPictureRotation(pictureFile)
                 _pictureBitmap.value = BitmapFactory.decodeFile(pictureFile.absolutePath)
             }
         }
     }
+
+    private fun getPictureRotation(file: File) =
+        try {
+            val exifInterface = ExifInterface(file.absolutePath)
+            val orientation = exifInterface.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                else -> 0f
+            }
+        } catch (e: Exception) {
+            0f
+        }
 }

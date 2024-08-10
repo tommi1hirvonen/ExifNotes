@@ -175,6 +175,7 @@ private fun FrameEditScreen(
         pictureRotation = pictureRotation.value,
         pictureTempFileProvider = frameViewModel::createNewPictureFile,
         onPictureTempFileCommit = frameViewModel::commitPlaceholderPictureFile,
+        onPictureSelected = frameViewModel::setPictureFromUri,
         onCountChange = frameViewModel::setCount,
         onDateChange = frameViewModel::setDate,
         onNoteChange = frameViewModel::setNote,
@@ -220,6 +221,7 @@ private fun FrameEditContentPreview() {
         pictureRotation = 0f,
         pictureTempFileProvider = { Uri.fromFile(File("")) },
         onPictureTempFileCommit = {},
+        onPictureSelected = {},
         onCountChange = {},
         onDateChange = {},
         onNoteChange = {},
@@ -259,6 +261,7 @@ private fun FrameEditContent(
     pictureRotation: Float,
     pictureTempFileProvider: () -> Uri,
     onPictureTempFileCommit: () -> Unit,
+    onPictureSelected: (Uri) -> Unit,
     onCountChange: (Int) -> Unit,
     onDateChange: (LocalDateTime) -> Unit,
     onNoteChange: (String) -> Unit,
@@ -304,10 +307,17 @@ private fun FrameEditContent(
             ?: ""
     }
     val takePicture = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
+        contract = ActivityResultContracts.TakePicture()
     ) { result ->
         if (result) {
             onPictureTempFileCommit()
+        }
+    }
+    val selectPicture = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { resultUri ->
+        if (resultUri != null) {
+            onPictureSelected(resultUri)
         }
     }
     Scaffold(
@@ -811,7 +821,7 @@ private fun FrameEditContent(
                         },
                         onClick = {
                             pictureOptionsExpanded = false
-                            // TODO
+                            selectPicture.launch("image/*")
                         }
                     )
                     if (frame.pictureFilename != null) {
