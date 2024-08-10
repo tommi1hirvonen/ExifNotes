@@ -151,7 +151,7 @@ fun App(onFinish: () -> Unit) {
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
                     onNavigateToFilterEdit = { /*TODO*/ },
-                    onNavigateToLensEdit = { /*TODO*/ }
+                    onNavigateToLensEdit = { navController.navigate(route = FrameLensEdit(lensId = -1)) }
                 )
             }
             composable<LocationPick> { backStackEntry ->
@@ -308,7 +308,17 @@ fun App(onFinish: () -> Unit) {
                 InterchangeableLensEditScreen(
                     lensId =  lens.lensId,
                     onNavigateUp = { navController.navigateUp() },
-                    gearViewModel = gearViewModel
+                    submitHandler = gearViewModel::submitLens
+                )
+            }
+            composable<FrameLensEdit> { backStackEntry ->
+                val lensEdit = backStackEntry.toRoute<FrameLensEdit>()
+                val frameEntry = remember(backStackEntry) { navController.getBackStackEntry<FrameEdit>() }
+                val frameViewModel = hiltViewModel<FrameViewModel>(frameEntry)
+                InterchangeableLensEditScreen(
+                    lensId = lensEdit.lensId,
+                    onNavigateUp = { navController.navigateUp() },
+                    submitHandler = frameViewModel::submitLens
                 )
             }
             dialog<FilterEdit> { backStackEntry ->
@@ -403,6 +413,9 @@ private data class FramesRollEdit(val rollId: Long)
 private data class FrameEdit(
     val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int
 )
+
+@Serializable
+private data class FrameLensEdit(val lensId: Long)
 
 @Serializable
 private object LocationPick

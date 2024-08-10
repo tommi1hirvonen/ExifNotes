@@ -30,6 +30,7 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
+import com.tommihirvonen.exifnotes.data.repositories.CameraLensRepository
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
@@ -56,8 +57,9 @@ class FrameViewModel @AssistedInject constructor(
     private val application: Application,
     frameRepository: FrameRepository,
     rollRepository: RollRepository,
-    lensRepository: LensRepository,
+    private val lensRepository: LensRepository,
     private val cameraRepository: CameraRepository,
+    private val cameraLensRepository: CameraLensRepository,
     private val filterRepository: FilterRepository,
     locationService: LocationService,
     private val geocoderRequestBuilder: GeocoderRequestBuilder
@@ -131,17 +133,20 @@ class FrameViewModel @AssistedInject constructor(
         }
     }
 
+    private val _lenses = MutableStateFlow(
+        _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
+            ?: lensRepository.lenses
+    )
     private val _filters = MutableStateFlow(getFilters(_lens.value))
     private val _apertureValues = MutableStateFlow(getApertureValues(_lens.value))
 
     val frame = _frame.asStateFlow()
     val lens = _lens.asStateFlow()
+    val lenses = _lenses.asStateFlow()
     val filters = _filters.asStateFlow()
     val apertureValues = _apertureValues.asStateFlow()
     val isResolvingFormattedAddress = _isResolvingFormattedAddress.asStateFlow()
 
-    val lenses = _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
-        ?: lensRepository.lenses
     val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
         ?: Camera.defaultShutterSpeedValues(context).toList()
     val exposureCompValues = _frame.value.roll.camera?.exposureCompValues(context)?.toList()
@@ -190,6 +195,17 @@ class FrameViewModel @AssistedInject constructor(
 
     fun setLightSource(value: LightSource) {
         _frame.value = _frame.value.copy(lightSource = value)
+    }
+
+    fun submitLens(lens: Lens) {
+        if (lensRepository.updateLens(lens) == 0) {
+            lensRepository.addLens(lens)
+        }
+        _frame.value.roll.camera?.let { camera ->
+            cameraLensRepository.addCameraLensLink(camera, lens)
+        }
+        _lenses.value = _lenses.value.plus(lens).sorted()
+        setLens(lens)
     }
 
     fun setLens(value: Lens?) {

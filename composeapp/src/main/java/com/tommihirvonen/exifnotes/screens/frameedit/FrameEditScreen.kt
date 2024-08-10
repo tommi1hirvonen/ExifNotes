@@ -164,6 +164,7 @@ private fun FrameEditScreen(
 ) {
     val frame = frameViewModel.frame.collectAsState()
     val lens = frameViewModel.lens.collectAsState()
+    val lenses = frameViewModel.lenses.collectAsState()
     val apertureValues = frameViewModel.apertureValues.collectAsState()
     val filters = frameViewModel.filters.collectAsState()
     val isResolvingAddress = frameViewModel.isResolvingFormattedAddress.collectAsState()
@@ -172,7 +173,7 @@ private fun FrameEditScreen(
         lens = lens.value,
         apertureValues = apertureValues.value,
         shutterValues = frameViewModel.shutterValues,
-        lenses = frameViewModel.lenses,
+        lenses = lenses.value,
         filters = filters.value,
         exposureCompValues = frameViewModel.exposureCompValues,
         isResolvingAddress = isResolvingAddress.value,

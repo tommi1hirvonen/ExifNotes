@@ -76,7 +76,6 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.screens.DropdownButton
-import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
 @Composable
@@ -129,7 +128,7 @@ fun FixedLensEditScreen(
 fun InterchangeableLensEditScreen(
     lensId: Long,
     onNavigateUp: () -> Unit,
-    gearViewModel: GearViewModel,
+    submitHandler: (Lens) -> Unit,
     lensViewModel: InterchangeableLensViewModel = hiltViewModel { factory: InterchangeableLensViewModel.Factory ->
         factory.create(lensId)
     }
@@ -165,7 +164,7 @@ fun InterchangeableLensEditScreen(
         onNavigateUp = onNavigateUp,
         onSubmit = {
             if (lensViewModel.validate()) {
-                gearViewModel.submitLens(lensViewModel.lens.value)
+                submitHandler(lensViewModel.lens.value)
                 onNavigateUp()
             }
         }
