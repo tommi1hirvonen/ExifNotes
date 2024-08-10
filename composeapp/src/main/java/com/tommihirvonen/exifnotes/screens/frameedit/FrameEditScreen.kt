@@ -99,6 +99,8 @@ fun FrameEditScreen(
     frameId: Long,
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
+    onNavigateToFilterEdit: () -> Unit,
+    onNavigateToLensEdit: () -> Unit,
     rollsMapViewModel: RollsMapViewModel
 ) {
     FrameEditScreen(
@@ -108,7 +110,9 @@ fun FrameEditScreen(
         frameCount = -1,
         onNavigateUp = onNavigateUp,
         onNavigateToLocationPick = onNavigateToLocationPick,
-        onSubmit = { frame ->
+        onAddFilter = onNavigateToFilterEdit,
+        onAddLens = onNavigateToLensEdit,
+        onSubmit = { frame: Frame ->
             rollsMapViewModel.submitFrame(frame)
             onNavigateUp()
         }
@@ -123,6 +127,8 @@ fun FrameEditScreen(
     frameCount: Int,
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
+    onNavigateToFilterEdit: () -> Unit,
+    onNavigateToLensEdit: () -> Unit,
     framesViewModel: FramesViewModel
 ) {
     FrameEditScreen(
@@ -132,6 +138,8 @@ fun FrameEditScreen(
         frameCount = frameCount,
         onNavigateUp = onNavigateUp,
         onNavigateToLocationPick = onNavigateToLocationPick,
+        onAddFilter = onNavigateToFilterEdit,
+        onAddLens = onNavigateToLensEdit,
         onSubmit = { frame ->
             framesViewModel.submitFrame(frame)
             onNavigateUp()
@@ -146,6 +154,8 @@ private fun FrameEditScreen(
     previousFrameId: Long,
     frameCount: Int,
     onNavigateUp: () -> Unit,
+    onAddFilter: () -> Unit,
+    onAddLens: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onSubmit: (Frame) -> Unit,
     frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
@@ -181,6 +191,8 @@ private fun FrameEditScreen(
         onLocationClick = onNavigateToLocationPick,
         onLocationClear = { frameViewModel.setLocation(null, null) },
         onNavigateUp = onNavigateUp,
+        onAddFilter = onAddFilter,
+        onAddLens = onAddLens,
         onSubmit = {
             if (frameViewModel.validate()) {
                 onSubmit(frameViewModel.frame.value)
@@ -217,6 +229,8 @@ private fun FrameEditContentPreview() {
         onLocationClick = {},
         onLocationClear = {},
         onNavigateUp = {},
+        onAddFilter = {},
+        onAddLens = {},
         onSubmit = {}
     )
 }
@@ -247,6 +261,8 @@ private fun FrameEditContent(
     onLocationClick: () -> Unit,
     onLocationClear: () -> Unit,
     onNavigateUp: () -> Unit,
+    onAddFilter: () -> Unit,
+    onAddLens: () -> Unit,
     onSubmit: () -> Unit
 ) {
     val context = LocalContext.current
@@ -517,7 +533,7 @@ private fun FrameEditContent(
                                 Icon(Icons.Outlined.Clear, "")
                             }
                         } else {
-                            FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                            FilledTonalIconButton(onClick = onAddLens) {
                                 Icon(Icons.Outlined.Add, "")
                             }
                         }
@@ -544,7 +560,7 @@ private fun FrameEditContent(
                 Box(
                     modifier = Modifier.padding(vertical = 4.dp)
                 ) {
-                    FilledTonalIconButton(onClick = { /*TODO*/ }) {
+                    FilledTonalIconButton(onClick = onAddFilter) {
                         Icon(Icons.Outlined.Add, "")
                     }
                 }

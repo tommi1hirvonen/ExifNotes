@@ -149,7 +149,9 @@ fun App(onFinish: () -> Unit) {
                     frameCount = frameEdit.frameCount,
                     framesViewModel = framesViewModel,
                     onNavigateUp = { navController.navigateUp() },
-                    onNavigateToLocationPick = { navController.navigate(route = LocationPick) }
+                    onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
+                    onNavigateToFilterEdit = { /*TODO*/ },
+                    onNavigateToLensEdit = { /*TODO*/ }
                 )
             }
             composable<LocationPick> { backStackEntry ->
@@ -226,6 +228,8 @@ fun App(onFinish: () -> Unit) {
                     frameId = frameEdit.frameId,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
+                    onNavigateToFilterEdit = { /*TODO*/ },
+                    onNavigateToLensEdit = { /*TODO*/ },
                     rollsMapViewModel = rollsMapViewModel
                 )
             }
