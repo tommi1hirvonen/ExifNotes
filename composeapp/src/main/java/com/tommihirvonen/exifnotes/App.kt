@@ -234,8 +234,12 @@ fun App(onFinish: () -> Unit) {
                     frameId = frameEdit.frameId,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
-                    onNavigateToFilterEdit = { /*TODO*/ },
-                    onNavigateToLensEdit = { /*TODO*/ },
+                    onNavigateToFilterEdit = {
+                        navController.navigate(route = FrameFilterEdit(filterId = -1))
+                    },
+                    onNavigateToLensEdit = {
+                        navController.navigate(route = FrameLensEdit(lensId = -1))
+                    },
                     submitHandler = rollsMapViewModel::submitFrame
                 )
             }
@@ -319,8 +323,14 @@ fun App(onFinish: () -> Unit) {
             }
             composable<FrameLensEdit> { backStackEntry ->
                 val lensEdit = backStackEntry.toRoute<FrameLensEdit>()
-                val frameEntry = remember(backStackEntry) { navController.getBackStackEntry<FrameEdit>() }
-                val frameViewModel = hiltViewModel<FrameViewModel>(frameEntry)
+                val frameEditEntry = remember(backStackEntry) {
+                    try {
+                        navController.getBackStackEntry<FrameEdit>()
+                    } catch (e: IllegalArgumentException) {
+                        navController.getBackStackEntry<RollsMapFrameEdit>()
+                    }
+                }
+                val frameViewModel = hiltViewModel<FrameViewModel>(frameEditEntry)
                 InterchangeableLensEditScreen(
                     lensId = lensEdit.lensId,
                     onNavigateUp = { navController.navigateUp() },
@@ -339,8 +349,14 @@ fun App(onFinish: () -> Unit) {
             }
             dialog<FrameFilterEdit> { backStackEntry ->
                 val filter = backStackEntry.toRoute<FrameFilterEdit>()
-                val frameEntry = remember(backStackEntry) { navController.getBackStackEntry<FrameEdit>() }
-                val frameViewModel = hiltViewModel<FrameViewModel>(frameEntry)
+                val frameEditEntry = remember(backStackEntry) {
+                    try {
+                        navController.getBackStackEntry<FrameEdit>()
+                    } catch (e: IllegalArgumentException) {
+                        navController.getBackStackEntry<RollsMapFrameEdit>()
+                    }
+                }
+                val frameViewModel = hiltViewModel<FrameViewModel>(frameEditEntry)
                 FilterEditScreen(
                     filterId = filter.filterId,
                     onDismiss = { navController.navigateUp() },
