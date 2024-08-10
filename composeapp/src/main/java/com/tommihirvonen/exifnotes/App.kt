@@ -266,7 +266,7 @@ fun App(onFinish: () -> Unit) {
                     cameraId = camera.cameraId,
                     onNavigateUp = { navController.navigateUp() },
                     onEditFixedLens = { navController.navigate(route = FixedLensEdit) },
-                    gearViewModel = gearViewModel
+                    submitHandler = gearViewModel::submitCamera
                 )
             }
             composable<RollCameraEdit> { backStackEntry ->
@@ -277,8 +277,8 @@ fun App(onFinish: () -> Unit) {
                     cameraId = camera.cameraId,
                     onNavigateUp = { navController.navigateUp() },
                     onEditFixedLens = { navController.navigate(route = FixedLensEdit) },
-                    afterSubmit = { c ->
-                        rollViewModel.setCamera(c)
+                    submitHandler = { c ->
+                        rollViewModel.submitCamera(c)
                         mainViewModel.loadAll()
                     }
                 )

@@ -70,7 +70,6 @@ import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Increment
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.screens.DropdownButton
-import com.tommihirvonen.exifnotes.screens.gear.GearViewModel
 import com.tommihirvonen.exifnotes.util.copy
 
 @Composable
@@ -78,27 +77,10 @@ fun CameraEditScreen(
     cameraId: Long,
     onNavigateUp: () -> Unit,
     onEditFixedLens: () -> Unit,
-    afterSubmit: (Camera) -> Unit
-) {
-    CameraEditScreen(
-        cameraId = cameraId,
-        onNavigateUp = onNavigateUp,
-        onEditFixedLens = onEditFixedLens,
-        afterSubmit = afterSubmit,
-        gearViewModel = hiltViewModel()
-    )
-}
-
-@Composable
-fun CameraEditScreen(
-    cameraId: Long,
-    onNavigateUp: () -> Unit,
-    onEditFixedLens: () -> Unit,
-    gearViewModel: GearViewModel,
+    submitHandler: (Camera) -> Unit,
     cameraViewModel: CameraViewModel = hiltViewModel { factory: CameraViewModel.Factory ->
         factory.create(cameraId)
-    },
-    afterSubmit: (Camera) -> Unit = {}
+    }
 ) {
     val camera = cameraViewModel.camera.collectAsState()
     val shutterValues = cameraViewModel.shutterValues.collectAsState()
@@ -128,8 +110,7 @@ fun CameraEditScreen(
         onClearFixedLens = { cameraViewModel.setLens(null) },
         onSubmit = {
             if (cameraViewModel.validate()) {
-                gearViewModel.submitCamera(cameraViewModel.camera.value)
-                afterSubmit(cameraViewModel.camera.value)
+                submitHandler(cameraViewModel.camera.value)
                 onNavigateUp()
             }
         }

@@ -41,7 +41,7 @@ class RollViewModel @AssistedInject constructor (
     @Assisted rollId: Long,
     application: Application,
     rollRepository: RollRepository,
-    cameraRepository: CameraRepository
+    private val cameraRepository: CameraRepository
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -77,6 +77,13 @@ class RollViewModel @AssistedInject constructor (
             iso = iso,
             name = name
         )
+    }
+
+    fun submitCamera(camera: Camera) {
+        if (cameraRepository.updateCamera(camera) == 0) {
+            cameraRepository.addCamera(camera)
+        }
+        setCamera(camera)
     }
 
     fun setCamera(camera: Camera?) {
