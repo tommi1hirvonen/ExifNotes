@@ -29,6 +29,7 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
@@ -47,6 +48,7 @@ import com.tommihirvonen.exifnotes.di.geocoder.GeocoderRequestBuilder
 import com.tommihirvonen.exifnotes.di.geocoder.GeocoderResponse
 import com.tommihirvonen.exifnotes.di.location.LocationService
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
+import com.tommihirvonen.exifnotes.util.SnackbarMessage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -98,6 +100,7 @@ class FrameViewModel @AssistedInject constructor(
     private val _isResolvingFormattedAddress = MutableStateFlow(false)
     private val _pictureBitmap = MutableStateFlow<Bitmap?>(null)
     private val _pictureRotation = MutableStateFlow(0f)
+    private val _snackbarMessage = MutableStateFlow(SnackbarMessage())
 
     private var placeholderPictureFilename: String? = null
 
@@ -174,6 +177,7 @@ class FrameViewModel @AssistedInject constructor(
     val isResolvingFormattedAddress = _isResolvingFormattedAddress.asStateFlow()
     val pictureBitmap = _pictureBitmap.asStateFlow()
     val pictureRotation = _pictureRotation.asStateFlow()
+    val snackbarMessage = _snackbarMessage.asStateFlow()
 
     val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
         ?: Camera.defaultShutterSpeedValues(context).toList()
@@ -319,7 +323,9 @@ class FrameViewModel @AssistedInject constructor(
                     complementaryPicturesManager.compressPictureFile(filename)
                     loadPictureBitmap()
                 } catch (e: IOException) {
-                    // TODO
+                    _snackbarMessage.value = SnackbarMessage(
+                        message = context.resources.getString(R.string.ErrorCompressingComplementaryPicture)
+                    )
                 }
             }
         }
@@ -344,10 +350,14 @@ class FrameViewModel @AssistedInject constructor(
                         _pictureBitmap.value = pictureBitmap
                         _pictureRotation.value = getPictureRotation(pictureFile)
                     } catch (e: IOException) {
-                        // TODO
+                        _snackbarMessage.value = SnackbarMessage(
+                            message = context.resources.getString(R.string.ErrorSavingSelectedPicture)
+                        )
                     }
                 } catch (e: FileNotFoundException) {
-                    // TODO
+                    _snackbarMessage.value = SnackbarMessage(
+                        message = context.resources.getString(R.string.ErrorLocatingSelectedPicture)
+                    )
                 }
             }
         }
@@ -356,9 +366,13 @@ class FrameViewModel @AssistedInject constructor(
     fun addPictureToGallery() {
         try {
             complementaryPicturesManager.addPictureToGallery(_frame.value.pictureFilename)
-            // TODO
+            _snackbarMessage.value = SnackbarMessage(
+                message = context.resources.getString(R.string.PictureAddedToGallery)
+            )
         } catch (e: Exception) {
-            // TODO
+            _snackbarMessage.value = SnackbarMessage(
+                message = context.resources.getString(R.string.ErrorAddingPictureToGallery)
+            )
         }
     }
 
@@ -371,7 +385,9 @@ class FrameViewModel @AssistedInject constructor(
             complementaryPicturesManager.rotatePictureRight(filename)
             _pictureRotation.value += 90f
         } catch (e: IOException) {
-            // TODO
+            _snackbarMessage.value = SnackbarMessage(
+                message = context.resources.getString(R.string.ErrorWhileEditingPicturesExifData)
+            )
         }
     }
 
@@ -384,7 +400,9 @@ class FrameViewModel @AssistedInject constructor(
             complementaryPicturesManager.rotatePictureLeft(filename)
             _pictureRotation.value -= 90f
         } catch (e: IOException) {
-            // TODO
+            _snackbarMessage.value = SnackbarMessage(
+                message = context.resources.getString(R.string.ErrorWhileEditingPicturesExifData)
+            )
         }
     }
 

@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.frameedit
 
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -71,17 +72,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,9 +109,11 @@ import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
+import com.tommihirvonen.exifnotes.util.SnackbarMessage
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import com.tommihirvonen.exifnotes.util.readableCoordinates
+import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDateTime
 import kotlin.math.roundToInt
@@ -162,6 +169,7 @@ private fun FrameEditScreen(
     val isResolvingAddress = frameViewModel.isResolvingFormattedAddress.collectAsState()
     val pictureBitmap = frameViewModel.pictureBitmap.collectAsState()
     val pictureRotation = frameViewModel.pictureRotation.collectAsState()
+    val snackbarMessage = frameViewModel.snackbarMessage.collectAsState()
     FrameEditContent(
         frame = frame.value,
         lens = lens.value,
@@ -201,7 +209,8 @@ private fun FrameEditScreen(
             if (frameViewModel.validate()) {
                 onSubmit(frameViewModel.frame.value)
             }
-        }
+        },
+        snackbarMessage = snackbarMessage.value
     )
 }
 
@@ -244,7 +253,8 @@ private fun FrameEditContentPreview() {
         onNavigateUp = {},
         onAddFilter = {},
         onAddLens = {},
-        onSubmit = {}
+        onSubmit = {},
+        snackbarMessage = SnackbarMessage()
     )
 }
 
@@ -285,10 +295,13 @@ private fun FrameEditContent(
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
     onAddLens: () -> Unit,
-    onSubmit: () -> Unit
+    onSubmit: () -> Unit,
+    snackbarMessage: SnackbarMessage
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     var countExpanded by remember { mutableStateOf(false) }
     var apertureExpanded by remember { mutableStateOf(false) }
     var shutterExpanded by remember { mutableStateOf(false) }
@@ -323,8 +336,14 @@ private fun FrameEditContent(
             onPictureSelected(resultUri)
         }
     }
+    LaunchedEffect(snackbarMessage) {
+        if (snackbarMessage.message.isNotEmpty()) {
+            snackbarHostState.showSnackbar(snackbarMessage.message)
+        }
+    }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             val title = if (frame.id <= 0)
                 stringResource(R.string.AddNewFrame)
@@ -802,6 +821,7 @@ private fun FrameEditContent(
                     expanded = pictureOptionsExpanded,
                     onDismissRequest = { pictureOptionsExpanded = false }
                 ) {
+                    val cameraErrorMessage = stringResource(R.string.NoCameraFeatureWasFound)
                     DropdownMenuItem(
                         text = {
                             Text(stringResource(R.string.TakeNewComplementaryPicture))
@@ -811,8 +831,14 @@ private fun FrameEditContent(
                         },
                         onClick = {
                             pictureOptionsExpanded = false
-                            val uri = pictureTempFileProvider()
-                            takePicture.launch(uri)
+                            if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(cameraErrorMessage)
+                                }
+                            } else {
+                                val uri = pictureTempFileProvider()
+                                takePicture.launch(uri)
+                            }
                         }
                     )
                     DropdownMenuItem(
