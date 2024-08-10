@@ -86,8 +86,6 @@ import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
-import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
-import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import com.tommihirvonen.exifnotes.util.readableCoordinates
@@ -97,39 +95,14 @@ import kotlin.math.roundToInt
 @Composable
 fun FrameEditScreen(
     frameId: Long,
+    rollId: Long = -1,
+    previousFrameId: Long = -1,
+    frameCount: Int = -1,
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onNavigateToFilterEdit: () -> Unit,
     onNavigateToLensEdit: () -> Unit,
-    rollsMapViewModel: RollsMapViewModel
-) {
-    FrameEditScreen(
-        rollId = -1,
-        frameId = frameId,
-        previousFrameId = -1,
-        frameCount = -1,
-        onNavigateUp = onNavigateUp,
-        onNavigateToLocationPick = onNavigateToLocationPick,
-        onAddFilter = onNavigateToFilterEdit,
-        onAddLens = onNavigateToLensEdit,
-        onSubmit = { frame: Frame ->
-            rollsMapViewModel.submitFrame(frame)
-            onNavigateUp()
-        }
-    )
-}
-
-@Composable
-fun FrameEditScreen(
-    rollId: Long,
-    frameId: Long,
-    previousFrameId: Long,
-    frameCount: Int,
-    onNavigateUp: () -> Unit,
-    onNavigateToLocationPick: () -> Unit,
-    onNavigateToFilterEdit: () -> Unit,
-    onNavigateToLensEdit: () -> Unit,
-    framesViewModel: FramesViewModel
+    submitHandler: (Frame) -> Unit
 ) {
     FrameEditScreen(
         rollId = rollId,
@@ -141,7 +114,7 @@ fun FrameEditScreen(
         onAddFilter = onNavigateToFilterEdit,
         onAddLens = onNavigateToLensEdit,
         onSubmit = { frame ->
-            framesViewModel.submitFrame(frame)
+            submitHandler(frame)
             onNavigateUp()
         }
     )

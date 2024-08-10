@@ -147,11 +147,11 @@ fun App(onFinish: () -> Unit) {
                     frameId = frameEdit.frameId,
                     previousFrameId = frameEdit.previousFrameId,
                     frameCount = frameEdit.frameCount,
-                    framesViewModel = framesViewModel,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
                     onNavigateToFilterEdit = { /*TODO*/ },
-                    onNavigateToLensEdit = { navController.navigate(route = FrameLensEdit(lensId = -1)) }
+                    onNavigateToLensEdit = { navController.navigate(route = FrameLensEdit(lensId = -1)) },
+                    submitHandler = framesViewModel::submitFrame
                 )
             }
             composable<LocationPick> { backStackEntry ->
@@ -230,7 +230,7 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
                     onNavigateToFilterEdit = { /*TODO*/ },
                     onNavigateToLensEdit = { /*TODO*/ },
-                    rollsMapViewModel = rollsMapViewModel
+                    submitHandler = rollsMapViewModel::submitFrame
                 )
             }
             composable<Gear> {
