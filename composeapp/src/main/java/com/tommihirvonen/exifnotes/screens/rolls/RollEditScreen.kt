@@ -72,9 +72,7 @@ import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
-import com.tommihirvonen.exifnotes.screens.frames.FramesViewModel
 import com.tommihirvonen.exifnotes.screens.gear.filmstocks.SelectFilmStockDialog
-import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import java.time.LocalDateTime
@@ -85,36 +83,10 @@ fun RollEditScreen(
     onNavigateUp: () -> Unit,
     onEditFilmStock: (FilmStock?) -> Unit,
     onEditCamera: (Camera?) -> Unit,
-    mainViewModel: MainViewModel,
-    framesViewModel: FramesViewModel,
+    submitHandler: (Roll) -> Unit,
     rollViewModel: RollViewModel = hiltViewModel { factory: RollViewModel.Factory ->
         factory.create(rollId)
     }
-) {
-    RollEditScreen(
-        rollId = rollId,
-        onNavigateUp = onNavigateUp,
-        onEditFilmStock = onEditFilmStock,
-        onEditCamera = onEditCamera,
-        mainViewModel = mainViewModel,
-        rollViewModel = rollViewModel,
-        afterSubmit = {
-            framesViewModel.setRoll(rollViewModel.roll.value)
-        }
-    )
-}
-
-@Composable
-fun RollEditScreen(
-    rollId: Long,
-    onNavigateUp: () -> Unit,
-    onEditFilmStock: (FilmStock?) -> Unit,
-    onEditCamera: (Camera?) -> Unit,
-    mainViewModel: MainViewModel,
-    rollViewModel: RollViewModel = hiltViewModel { factory: RollViewModel.Factory ->
-        factory.create(rollId)
-    },
-    afterSubmit: () -> Unit = {}
 ) {
     val cameras = rollViewModel.cameras.collectAsState()
     val roll = rollViewModel.roll.collectAsState()
@@ -140,8 +112,7 @@ fun RollEditScreen(
         onEditCamera = onEditCamera,
         onSubmit = {
             if (rollViewModel.validate()) {
-                mainViewModel.submitRoll(rollViewModel.roll.value)
-                afterSubmit()
+                submitHandler(rollViewModel.roll.value)
                 onNavigateUp()
             }
         }

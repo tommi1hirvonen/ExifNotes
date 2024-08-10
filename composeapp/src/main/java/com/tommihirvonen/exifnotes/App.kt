@@ -112,7 +112,7 @@ fun App(onFinish: () -> Unit) {
                         val route = RollCameraEdit(cameraId = camera?.id ?: -1)
                         navController.navigate(route = route)
                     },
-                    mainViewModel = mainViewModel
+                    submitHandler = mainViewModel::submitRoll
                 )
             }
             composable<Frames> { backStackEntry ->
@@ -206,8 +206,10 @@ fun App(onFinish: () -> Unit) {
                         val route = RollCameraEdit(cameraId = camera?.id ?: -1)
                         navController.navigate(route = route)
                     },
-                    mainViewModel = mainViewModel,
-                    framesViewModel = framesViewModel
+                    submitHandler = { roll ->
+                        mainViewModel.submitRoll(roll)
+                        framesViewModel.setRoll(roll)
+                    }
                 )
             }
             composable<RollsMap> {
