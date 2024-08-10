@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.location
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -153,9 +154,9 @@ fun LocationPickScreen(
             }
             locationPickViewModel.onToggleExpanded()
         },
-        onPlacesSearchRequested = { placeId ->
+        onPlacesSearchRequested = { prediction ->
             scope.launch {
-                locationPickViewModel.submitPlaceId(placeId, cameraPositionState)
+                locationPickViewModel.submitPrediction(prediction, cameraPositionState)
             }
             locationPickViewModel.onToggleExpanded()
         },
@@ -217,7 +218,7 @@ fun LocationPickScreenContent(
     onLocationChange: (LatLng) -> Unit,
     onSearchTextChange: (String) -> Unit,
     onQuerySearchRequested: (String) -> Unit,
-    onPlacesSearchRequested: (String) -> Unit,
+    onPlacesSearchRequested: (AutocompletePrediction) -> Unit,
     onToggleSearchExpanded: () -> Unit,
     onMyLocationClick: () -> Unit,
     onMapTypeChange: (MapType) -> Unit
@@ -226,10 +227,16 @@ fun LocationPickScreenContent(
     var mapTypeExpanded by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
+            val searchBarPadding by animateDpAsState(
+                targetValue = if (searchExpanded) 0.dp else 16.dp,
+                label = "Search bar padding"
+            )
+            val placeholder = searchText.ifEmpty { stringResource(R.string.SearchWEllipsis) }
             SearchBar(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.SearchWEllipsis)) },
+                    .fillMaxWidth()
+                    .padding(searchBarPadding),
+                placeholder = { Text(placeholder) },
                 leadingIcon = {
                     IconButton(
                         onClick = {
@@ -265,7 +272,9 @@ fun LocationPickScreenContent(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                LazyColumn {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     items(
                         items = suggestions,
                         key = { it.placeId }
@@ -273,7 +282,7 @@ fun LocationPickScreenContent(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onPlacesSearchRequested(suggestion.placeId) }
+                                .clickable { onPlacesSearchRequested(suggestion) }
                         ) {
                             Column(
                                 modifier = Modifier
@@ -337,11 +346,9 @@ fun LocationPickScreenContent(
         snackbarHost = {
             SnackbarHost(hostState = snackbarState)
         }
-    ) { innerPadding ->
+    ) { padding ->
         Box(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             val mapStyle = if (isDarkTheme) {
                 MapStyleOptions(stringResource(R.string.style_json))
@@ -361,7 +368,12 @@ fun LocationPickScreenContent(
                     myLocationButtonEnabled = false,
                     zoomControlsEnabled = false
                 ),
-                contentPadding = PaddingValues(top = 0.dp, bottom = 80.dp, start = 0.dp, end = 0.dp),
+                contentPadding = PaddingValues(
+                    top = 0.dp,
+                    bottom = 80.dp + padding.calculateBottomPadding(),
+                    start = 0.dp,
+                    end = 0.dp
+                ),
                 onMapClick = { location ->
                     onLocationChange(location)
                 }
@@ -376,7 +388,8 @@ fun LocationPickScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .padding(16.dp)
+                    .padding(bottom = padding.calculateBottomPadding())
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                     .height(60.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
             ) {

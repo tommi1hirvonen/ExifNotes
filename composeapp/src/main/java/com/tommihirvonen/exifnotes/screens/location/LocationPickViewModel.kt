@@ -172,9 +172,6 @@ class LocationPickViewModel @AssistedInject constructor(
 
     fun onToggleExpanded() {
         _searchExpanded.value = !_searchExpanded.value
-        if (!_searchExpanded.value) {
-            onSearchTextChange("", null)
-        }
     }
 
     fun setMyLocation(cameraPositionState: CameraPositionState) {
@@ -213,11 +210,12 @@ class LocationPickViewModel @AssistedInject constructor(
         _isLoadingAddress.value = false
     }
 
-    suspend fun submitPlaceId(placeId: String, cameraPositionState: CameraPositionState) {
+    suspend fun submitPrediction(prediction: AutocompletePrediction, cameraPositionState: CameraPositionState) {
         _isLoadingAddress.value = true
         _address.value = null
         _errorText.value = null
-        when (val result = geocoderRequestBuilder.fromPlaceId(placeId).getResponse()) {
+        _searchText.value = prediction.getPrimaryText(null).toString()
+        when (val result = geocoderRequestBuilder.fromPlaceId(prediction.placeId).getResponse()) {
             is GeocoderResponse.Success -> {
                 _address.value = result.formattedAddress
                 _location.value = result.location
