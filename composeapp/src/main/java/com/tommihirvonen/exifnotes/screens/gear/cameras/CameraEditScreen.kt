@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -117,7 +118,7 @@ fun CameraEditScreen(
     )
 }
 
-@Preview
+@Preview(widthDp = 800)
 @Composable
 private fun CameraEditContentPreview() {
     val camera = Camera(
@@ -218,268 +219,276 @@ private fun CameraEditContent(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(modifier = Modifier.padding(top = 8.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = camera.make ?: "",
-                    onValueChange = onMakeChange,
-                    label = { Text(stringResource(R.string.Make)) },
-                    supportingText = { Text(stringResource(R.string.Required)) },
-                    isError = makeError
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = camera.model ?: "",
-                    onValueChange = onModelChange,
-                    label = { Text(stringResource(R.string.Model)) },
-                    supportingText = { Text(stringResource(R.string.Required)) },
-                    isError = modelError
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = camera.serialNumber ?: "",
-                    onValueChange = onSerialNumberChange,
-                    label = { Text(stringResource(R.string.SerialNumber)) }
-                )
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.ShutterSpeedIncrements),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                ExposedDropdownMenuBox(
-                    expanded = shutterIncrementsExpanded,
-                    onExpandedChange = { shutterIncrementsExpanded = it }
-                ) {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .widthIn(min = 0.dp, max = 400.dp)
+            ) {
+                Row(modifier = Modifier.padding(top = 8.dp)) {
                     OutlinedTextField(
-                        modifier = Modifier.menuAnchor(),
-                        readOnly = true,
-                        value = camera.shutterIncrements.description(context),
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterIncrementsExpanded)
-                        }
+                        modifier = Modifier.fillMaxWidth(),
+                        value = camera.make ?: "",
+                        onValueChange = onMakeChange,
+                        label = { Text(stringResource(R.string.Make)) },
+                        supportingText = { Text(stringResource(R.string.Required)) },
+                        isError = makeError
                     )
-                    ExposedDropdownMenu(
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = camera.model ?: "",
+                        onValueChange = onModelChange,
+                        label = { Text(stringResource(R.string.Model)) },
+                        supportingText = { Text(stringResource(R.string.Required)) },
+                        isError = modelError
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = camera.serialNumber ?: "",
+                        onValueChange = onSerialNumberChange,
+                        label = { Text(stringResource(R.string.SerialNumber)) }
+                    )
+                }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.ShutterSpeedIncrements),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
                         expanded = shutterIncrementsExpanded,
-                        onDismissRequest = { shutterIncrementsExpanded = false }
-                    ) {
-                        Increment.entries.forEach { increment ->
-                            DropdownMenuItem(
-                                text = { Text(increment.description(context)) },
-                                onClick = {
-                                    onShutterIncrementsChange(increment)
-                                    shutterIncrementsExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-            Row(
-                modifier = Modifier.padding(top = 16.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Column(modifier = Modifier.weight(0.5f)) {
-                    Text(
-                        text = stringResource(R.string.From),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = minShutterExpanded,
-                        onExpandedChange = { minShutterExpanded = it }
+                        onExpandedChange = { shutterIncrementsExpanded = it }
                     ) {
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = camera.minShutter ?: "",
-                            isError = shutterRangeError.isNotEmpty(),
+                            value = camera.shutterIncrements.description(context),
                             onValueChange = {},
                             trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = minShutterExpanded)
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterIncrementsExpanded)
                             }
                         )
                         ExposedDropdownMenu(
+                            expanded = shutterIncrementsExpanded,
+                            onDismissRequest = { shutterIncrementsExpanded = false }
+                        ) {
+                            Increment.entries.forEach { increment ->
+                                DropdownMenuItem(
+                                    text = { Text(increment.description(context)) },
+                                    onClick = {
+                                        onShutterIncrementsChange(increment)
+                                        shutterIncrementsExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Column(modifier = Modifier.weight(0.5f)) {
+                        Text(
+                            text = stringResource(R.string.From),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
                             expanded = minShutterExpanded,
-                            onDismissRequest = { minShutterExpanded = false }
+                            onExpandedChange = { minShutterExpanded = it }
                         ) {
-                            shutterValues.forEach { value ->
-                                DropdownMenuItem(
-                                    text = { Text(value) },
-                                    onClick = {
-                                        onSetMinShutter(value)
-                                        minShutterExpanded = false
-                                    }
-                                )
+                            OutlinedTextField(
+                                modifier = Modifier.menuAnchor(),
+                                readOnly = true,
+                                value = camera.minShutter ?: "",
+                                isError = shutterRangeError.isNotEmpty(),
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = minShutterExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = minShutterExpanded,
+                                onDismissRequest = { minShutterExpanded = false }
+                            ) {
+                                shutterValues.forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value) },
+                                        onClick = {
+                                            onSetMinShutter(value)
+                                            minShutterExpanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(0.5f)) {
+                        Text(
+                            text = stringResource(R.string.To),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
+                            expanded = maxShutterExpanded,
+                            onExpandedChange = { maxShutterExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier.menuAnchor(),
+                                readOnly = true,
+                                value = camera.maxShutter ?: "",
+                                isError = shutterRangeError.isNotEmpty(),
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = maxShutterExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = maxShutterExpanded,
+                                onDismissRequest = { maxShutterExpanded = false }
+                            ) {
+                                shutterValues.forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value) },
+                                        onClick = {
+                                            onSetMaxShutter(value)
+                                            maxShutterExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = onClearShutterRange) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(0.5f)) {
+                if (shutterRangeError.isNotEmpty()) {
                     Text(
-                        text = stringResource(R.string.To),
+                        text = shutterRangeError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.ExposureCompensationIncrements),
                         style = MaterialTheme.typography.bodySmall
                     )
                     ExposedDropdownMenuBox(
-                        expanded = maxShutterExpanded,
-                        onExpandedChange = { maxShutterExpanded = it }
+                        expanded = exposureCompIncrementsExpanded,
+                        onExpandedChange = { exposureCompIncrementsExpanded = it }
                     ) {
                         OutlinedTextField(
                             modifier = Modifier.menuAnchor(),
                             readOnly = true,
-                            value = camera.maxShutter ?: "",
-                            isError = shutterRangeError.isNotEmpty(),
+                            value = camera.exposureCompIncrements.description(context),
                             onValueChange = {},
                             trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = maxShutterExpanded)
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompIncrementsExpanded)
                             }
                         )
                         ExposedDropdownMenu(
-                            expanded = maxShutterExpanded,
-                            onDismissRequest = { maxShutterExpanded = false }
+                            expanded = exposureCompIncrementsExpanded,
+                            onDismissRequest = { exposureCompIncrementsExpanded = false }
                         ) {
-                            shutterValues.forEach { value ->
+                            PartialIncrement.entries.forEach { increment ->
                                 DropdownMenuItem(
-                                    text = { Text(value) },
+                                    text = { Text(increment.description(context)) },
                                     onClick = {
-                                        onSetMaxShutter(value)
-                                        maxShutterExpanded = false
+                                        onSetExposureCompIncrements(increment)
+                                        exposureCompIncrementsExpanded = false
                                     }
                                 )
                             }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                    FilledTonalIconButton(onClick = onClearShutterRange) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            if (shutterRangeError.isNotEmpty()) {
-                Text(
-                    text = shutterRangeError,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.ExposureCompensationIncrements),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                ExposedDropdownMenuBox(
-                    expanded = exposureCompIncrementsExpanded,
-                    onExpandedChange = { exposureCompIncrementsExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.menuAnchor(),
-                        readOnly = true,
-                        value = camera.exposureCompIncrements.description(context),
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompIncrementsExpanded)
-                        }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FixedLens),
+                        style = MaterialTheme.typography.bodySmall
                     )
-                    ExposedDropdownMenu(
-                        expanded = exposureCompIncrementsExpanded,
-                        onDismissRequest = { exposureCompIncrementsExpanded = false }
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = fixedLensSummary,
+                        onClick = onEditFixedLens
+                    )
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                     ) {
-                        PartialIncrement.entries.forEach { increment ->
-                            DropdownMenuItem(
-                                text = { Text(increment.description(context)) },
-                                onClick = {
-                                    onSetExposureCompIncrements(increment)
-                                    exposureCompIncrementsExpanded = false
-                                }
-                            )
+                        FilledTonalIconButton(onClick = onClearFixedLens) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { showFixedLensInfo = true }) {
+                            Icon(Icons.Outlined.Info, "")
                         }
                     }
                 }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.FixedLens),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DropdownButton(
-                    modifier = Modifier.weight(1f),
-                    text = fixedLensSummary,
-                    onClick = onEditFixedLens
-                )
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                ) {
-                    FilledTonalIconButton(onClick = onClearFixedLens) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { showFixedLensInfo = true }) {
-                        Icon(Icons.Outlined.Info, "")
-                    }
-                }
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.DefaultFormat),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                ExposedDropdownMenuBox(
-                    expanded = formatExpanded,
-                    onExpandedChange = { formatExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.menuAnchor(),
-                        readOnly = true,
-                        value = camera.format.description(context),
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
-                        }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.DefaultFormat),
+                        style = MaterialTheme.typography.bodySmall
                     )
-                    ExposedDropdownMenu(
+                    ExposedDropdownMenuBox(
                         expanded = formatExpanded,
-                        onDismissRequest = { formatExpanded = false }
+                        onExpandedChange = { formatExpanded = it }
                     ) {
-                        Format.entries.forEach { format ->
-                            DropdownMenuItem(
-                                text = { Text(format.description(context)) },
-                                onClick = {
-                                    onSetFormat(format)
-                                    formatExpanded = false
-                                }
-                            )
+                        OutlinedTextField(
+                            modifier = Modifier.menuAnchor(),
+                            readOnly = true,
+                            value = camera.format.description(context),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = formatExpanded,
+                            onDismissRequest = { formatExpanded = false }
+                        ) {
+                            Format.entries.forEach { format ->
+                                DropdownMenuItem(
+                                    text = { Text(format.description(context)) },
+                                    onClick = {
+                                        onSetFormat(format)
+                                        formatExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
-            if (showFixedLensInfo) {
-                AlertDialog(
-                    text = { Text(stringResource(R.string.FixedLensHelp)) },
-                    onDismissRequest = { showFixedLensInfo = false },
-                    confirmButton = {
-                        TextButton(onClick = { showFixedLensInfo = false }) {
-                            Text(stringResource(R.string.Close))
+                if (showFixedLensInfo) {
+                    AlertDialog(
+                        text = { Text(stringResource(R.string.FixedLensHelp)) },
+                        onDismissRequest = { showFixedLensInfo = false },
+                        confirmButton = {
+                            TextButton(onClick = { showFixedLensInfo = false }) {
+                                Text(stringResource(R.string.Close))
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

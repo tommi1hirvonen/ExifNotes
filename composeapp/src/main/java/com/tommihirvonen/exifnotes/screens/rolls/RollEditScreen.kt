@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -119,7 +120,7 @@ fun RollEditScreen(
     )
 }
 
-@Preview
+@Preview(widthDp = 800)
 @Composable
 private fun RollEditContentPreview() {
     val roll = Roll(
@@ -220,269 +221,279 @@ private fun RollEditContent(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(modifier = Modifier.padding(top = 8.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = roll.name ?: "",
-                    onValueChange = onNameChange,
-                    label = { Text(stringResource(R.string.Name)) },
-                    supportingText = { Text(stringResource(R.string.Required)) },
-                    isError = nameError
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.FilmStock),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val filmStockText = roll.filmStock?.name ?: stringResource(R.string.ClickToSet)
-                DropdownButton(
-                    modifier = Modifier.weight(1f),
-                    text = filmStockText,
-                    onClick = { showFilmStockDialog = true }
-                )
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
-                ) {
-                    if (roll.filmStock != null) {
-                        FilledTonalIconButton(onClick = { onFilmStockChange(null) }) {
-                            Icon(Icons.Outlined.Clear, "")
-                        }
-                    } else {
-                        FilledTonalIconButton(onClick = { onEditFilmStock(null) }) {
-                            Icon(Icons.Outlined.Add, "")
-                        }
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.LoadedOn),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DateTimeButtonCombo(
-                    modifier = Modifier.weight(1f, fill = false),
-                    dateTime = roll.date,
-                    onDateTimeSet = onDateChange
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .alpha(0f)) {
-                    IconButton(onClick = { }) { }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.UnloadedOn),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DateTimeButtonCombo(
-                    modifier = Modifier.weight(1f, fill = false),
-                    dateTime = roll.unloaded,
-                    onDateTimeSet = onUnloadedChange
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                    FilledTonalIconButton(onClick = { onUnloadedChange(null) }) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.DevelopedOn),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DateTimeButtonCombo(
-                    modifier = Modifier.weight(1f, fill = false),
-                    dateTime = roll.developed,
-                    onDateTimeSet = onDevelopedChange
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                    FilledTonalIconButton(onClick = { onDevelopedChange(null) }) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.Camera),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ExposedDropdownMenuBox(
-                    modifier = Modifier.weight(1f),
-                    expanded = camerasExpanded,
-                    onExpandedChange = { camerasExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth(),
-                        readOnly = true,
-                        value = cameraName,
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = camerasExpanded)
-                        }
-                    )
-                    ExposedDropdownMenu(
-                        expanded = camerasExpanded,
-                        onDismissRequest = { camerasExpanded = false }
-                    ) {
-                        camerasWithUniqueNames.forEach { (cam, cameraName) ->
-                            DropdownMenuItem(
-                                text = { Text(cameraName) },
-                                onClick = {
-                                    onCameraChange(cam)
-                                    camerasExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    if (roll.camera != null) {
-                        FilledTonalIconButton(onClick = { onCameraChange(null) }) {
-                            Icon(Icons.Outlined.Clear, "")
-                        }
-                    } else {
-                        FilledTonalIconButton(onClick = { onEditCamera(null) }) {
-                            Icon(Icons.Outlined.Add, "")
-                        }
-                    }
-                }
-            }
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                verticalAlignment = Alignment.Top
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .widthIn(min = 0.dp, max = 400.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.ISO),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                Row(modifier = Modifier.padding(top = 8.dp)) {
                     OutlinedTextField(
-                        value = roll.iso.toString(),
-                        onValueChange = onIsoChange,
+                        modifier = Modifier.fillMaxWidth(),
+                        value = roll.name ?: "",
+                        onValueChange = onNameChange,
+                        label = { Text(stringResource(R.string.Name)) },
                         supportingText = { Text(stringResource(R.string.Required)) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        )
+                        isError = nameError
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Column(modifier = Modifier.weight(1f)) {
+                Row(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
-                        text = stringResource(R.string.PushPull),
+                        text = stringResource(R.string.FilmStock),
                         style = MaterialTheme.typography.bodySmall
                     )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val filmStockText = roll.filmStock?.name ?: stringResource(R.string.ClickToSet)
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = filmStockText,
+                        onClick = { showFilmStockDialog = true }
+                    )
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
+                    ) {
+                        if (roll.filmStock != null) {
+                            FilledTonalIconButton(onClick = { onFilmStockChange(null) }) {
+                                Icon(Icons.Outlined.Clear, "")
+                            }
+                        } else {
+                            FilledTonalIconButton(onClick = { onEditFilmStock(null) }) {
+                                Icon(Icons.Outlined.Add, "")
+                            }
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.LoadedOn),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DateTimeButtonCombo(
+                        modifier = Modifier.weight(1f, fill = false),
+                        dateTime = roll.date,
+                        onDateTimeSet = onDateChange
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .alpha(0f)
+                    ) {
+                        IconButton(onClick = { }) { }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.UnloadedOn),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DateTimeButtonCombo(
+                        modifier = Modifier.weight(1f, fill = false),
+                        dateTime = roll.unloaded,
+                        onDateTimeSet = onUnloadedChange
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = { onUnloadedChange(null) }) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.DevelopedOn),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DateTimeButtonCombo(
+                        modifier = Modifier.weight(1f, fill = false),
+                        dateTime = roll.developed,
+                        onDateTimeSet = onDevelopedChange
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = { onDevelopedChange(null) }) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Camera),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     ExposedDropdownMenuBox(
-                        expanded = pushPullExpanded,
-                        onExpandedChange = { pushPullExpanded = it }
+                        modifier = Modifier.weight(1f),
+                        expanded = camerasExpanded,
+                        onExpandedChange = { camerasExpanded = it }
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
                                 .menuAnchor()
                                 .fillMaxWidth(),
                             readOnly = true,
-                            value = roll.pushPull ?: "",
+                            value = cameraName,
                             onValueChange = {},
                             trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = pushPullExpanded)
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = camerasExpanded)
                             }
                         )
                         ExposedDropdownMenu(
-                            expanded = pushPullExpanded,
-                            onDismissRequest = { pushPullExpanded = false }
+                            expanded = camerasExpanded,
+                            onDismissRequest = { camerasExpanded = false }
                         ) {
-                            pushPullValues.forEach { v ->
+                            camerasWithUniqueNames.forEach { (cam, cameraName) ->
                                 DropdownMenuItem(
-                                    text = { Text(v) },
+                                    text = { Text(cameraName) },
                                     onClick = {
-                                        onPushPullChange(v)
-                                        pushPullExpanded = false
+                                        onCameraChange(cam)
+                                        camerasExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        if (roll.camera != null) {
+                            FilledTonalIconButton(onClick = { onCameraChange(null) }) {
+                                Icon(Icons.Outlined.Clear, "")
+                            }
+                        } else {
+                            FilledTonalIconButton(onClick = { onEditCamera(null) }) {
+                                Icon(Icons.Outlined.Add, "")
+                            }
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.ISO),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        OutlinedTextField(
+                            value = roll.iso.toString(),
+                            onValueChange = onIsoChange,
+                            supportingText = { Text(stringResource(R.string.Required)) },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number
+                            )
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.PushPull),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
+                            expanded = pushPullExpanded,
+                            onExpandedChange = { pushPullExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                readOnly = true,
+                                value = roll.pushPull ?: "",
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = pushPullExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = pushPullExpanded,
+                                onDismissRequest = { pushPullExpanded = false }
+                            ) {
+                                pushPullValues.forEach { v ->
+                                    DropdownMenuItem(
+                                        text = { Text(v) },
+                                        onClick = {
+                                            onPushPullChange(v)
+                                            pushPullExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Format),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = formatExpanded,
+                        onExpandedChange = { formatExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            value = roll.format.description(context),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = formatExpanded,
+                            onDismissRequest = { formatExpanded = false }
+                        ) {
+                            Format.entries.forEach { format ->
+                                DropdownMenuItem(
+                                    text = { Text(format.description(context)) },
+                                    onClick = {
+                                        onFormatChange(format)
+                                        formatExpanded = false
                                     }
                                 )
                             }
                         }
                     }
                 }
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.Format),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                ExposedDropdownMenuBox(
-                    expanded = formatExpanded,
-                    onExpandedChange = { formatExpanded = it }
-                ) {
+                Row(modifier = Modifier.padding(top = 16.dp)) {
                     OutlinedTextField(
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth(),
-                        readOnly = true,
-                        value = roll.format.description(context),
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = formatExpanded)
-                        }
+                        modifier = Modifier.fillMaxWidth(),
+                        value = roll.note ?: "",
+                        onValueChange = onNoteChange,
+                        label = { Text(stringResource(R.string.DescriptionOrNote)) }
                     )
-                    ExposedDropdownMenu(
-                        expanded = formatExpanded,
-                        onDismissRequest = { formatExpanded = false }
-                    ) {
-                        Format.entries.forEach { format ->
-                            DropdownMenuItem(
-                                text = { Text(format.description(context)) },
-                                onClick = {
-                                    onFormatChange(format)
-                                    formatExpanded = false
-                                }
-                            )
-                        }
-                    }
                 }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = roll.note ?: "",
-                    onValueChange = onNoteChange,
-                    label = { Text(stringResource(R.string.DescriptionOrNote)) }
-                )
             }
         }
     }

@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -214,7 +215,7 @@ private fun FrameEditScreen(
     )
 }
 
-@Preview
+@Preview(widthDp = 800)
 @Composable
 private fun FrameEditContentPreview() {
     val frame = Frame(count = 5, date = LocalDateTime.now())
@@ -377,555 +378,563 @@ private fun FrameEditContent(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.FrameCount),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                ExposedDropdownMenuBox(
-                    expanded = countExpanded,
-                    onExpandedChange = { countExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .menuAnchor(),
-                        readOnly = true,
-                        value = frame.count.toString(),
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = countExpanded)
-                        }
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .widthIn(min = 0.dp, max = 400.dp)
+            ) {
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FrameCount),
+                        style = MaterialTheme.typography.bodySmall
                     )
-                    ExposedDropdownMenu(
+                    ExposedDropdownMenuBox(
                         expanded = countExpanded,
-                        onDismissRequest = { countExpanded = false }
+                        onExpandedChange = { countExpanded = it }
                     ) {
-                        (0..100).forEach { count ->
-                            DropdownMenuItem(
-                                text = { Text(count.toString()) },
-                                onClick = {
-                                    onCountChange(count)
-                                    countExpanded = false
-                                }
-                            )
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor(),
+                            readOnly = true,
+                            value = frame.count.toString(),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = countExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = countExpanded,
+                            onDismissRequest = { countExpanded = false }
+                        ) {
+                            (0..100).forEach { count ->
+                                DropdownMenuItem(
+                                    text = { Text(count.toString()) },
+                                    onClick = {
+                                        onCountChange(count)
+                                        countExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.Date),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DateTimeButtonCombo(
-                    dateTime = frame.date,
-                    onDateTimeSet = onDateChange
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.Aperture),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ExposedDropdownMenuBox(
-                    modifier = Modifier.weight(1f),
-                    expanded = apertureExpanded,
-                    onExpandedChange = { apertureExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .menuAnchor(),
-                        readOnly = true,
-                        value = frame.aperture ?: "",
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureExpanded)
-                        }
-                    )
-                    ExposedDropdownMenu(
-                        expanded = apertureExpanded,
-                        onDismissRequest = { apertureExpanded = false }
-                    ) {
-                        apertureValues.forEach { value ->
-                            DropdownMenuItem(
-                                text = { Text(value) },
-                                onClick = {
-                                    onApertureChange(value)
-                                    apertureExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { showCustomApertureDialog = true }) {
-                        Icon(Icons.Outlined.Edit, "")
-                    }
-                }
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { onApertureChange(null) }) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.ShutterSpeed),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ExposedDropdownMenuBox(
-                    modifier = Modifier.weight(1f),
-                    expanded = shutterExpanded,
-                    onExpandedChange = { shutterExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier
-                            .menuAnchor(),
-                        readOnly = true,
-                        value = frame.shutter ?: "",
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterExpanded)
-                        }
-                    )
-                    ExposedDropdownMenu(
-                        expanded = shutterExpanded,
-                        onDismissRequest = { shutterExpanded = false }
-                    ) {
-                        shutterValues.forEach { value ->
-                            DropdownMenuItem(
-                                text = { Text(value) },
-                                onClick = {
-                                    onShutterChange(value)
-                                    shutterExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { showCustomShutterDialog = true }) {
-                        Icon(Icons.Outlined.Edit, "")
-                    }
-                }
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { onShutterChange(null) }) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            if (frame.roll.camera?.isNotFixedLens != false) {
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
-                        text = stringResource(R.string.Lens),
+                        text = stringResource(R.string.Date),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DateTimeButtonCombo(
+                        dateTime = frame.date,
+                        onDateTimeSet = onDateChange
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Aperture),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ExposedDropdownMenuBox(
                         modifier = Modifier.weight(1f),
-                        expanded = lensesExpanded,
-                        onExpandedChange = { lensesExpanded = it }
+                        expanded = apertureExpanded,
+                        onExpandedChange = { apertureExpanded = it }
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
+                                .menuAnchor(),
                             readOnly = true,
-                            value = lensName,
+                            value = frame.aperture ?: "",
                             onValueChange = {},
                             trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = lensesExpanded)
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureExpanded)
                             }
                         )
                         ExposedDropdownMenu(
-                            expanded = lensesExpanded,
-                            onDismissRequest = { lensesExpanded = false }
+                            expanded = apertureExpanded,
+                            onDismissRequest = { apertureExpanded = false }
                         ) {
-                            lensesWithUniqueNames.forEach { (lens, lensName) ->
+                            apertureValues.forEach { value ->
                                 DropdownMenuItem(
-                                    text = { Text(lensName) },
+                                    text = { Text(value) },
                                     onClick = {
-                                        onLensChange(lens)
-                                        lensesExpanded = false
+                                        onApertureChange(value)
+                                        apertureExpanded = false
                                     }
                                 )
                             }
                         }
                     }
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { showCustomApertureDialog = true }) {
+                            Icon(Icons.Outlined.Edit, "")
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { onApertureChange(null) }) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.ShutterSpeed),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ExposedDropdownMenuBox(
+                        modifier = Modifier.weight(1f),
+                        expanded = shutterExpanded,
+                        onExpandedChange = { shutterExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .menuAnchor(),
+                            readOnly = true,
+                            value = frame.shutter ?: "",
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = shutterExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = shutterExpanded,
+                            onDismissRequest = { shutterExpanded = false }
+                        ) {
+                            shutterValues.forEach { value ->
+                                DropdownMenuItem(
+                                    text = { Text(value) },
+                                    onClick = {
+                                        onShutterChange(value)
+                                        shutterExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { showCustomShutterDialog = true }) {
+                            Icon(Icons.Outlined.Edit, "")
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { onShutterChange(null) }) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
+                }
+                if (frame.roll.camera?.isNotFixedLens != false) {
+                    Row(modifier = Modifier.padding(top = 16.dp)) {
+                        Text(
+                            text = stringResource(R.string.Lens),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ExposedDropdownMenuBox(
+                            modifier = Modifier.weight(1f),
+                            expanded = lensesExpanded,
+                            onExpandedChange = { lensesExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                readOnly = true,
+                                value = lensName,
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = lensesExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = lensesExpanded,
+                                onDismissRequest = { lensesExpanded = false }
+                            ) {
+                                lensesWithUniqueNames.forEach { (lens, lensName) ->
+                                    DropdownMenuItem(
+                                        text = { Text(lensName) },
+                                        onClick = {
+                                            onLensChange(lens)
+                                            lensesExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        ) {
+                            if (frame.lens != null) {
+                                FilledTonalIconButton(onClick = { onLensChange(null) }) {
+                                    Icon(Icons.Outlined.Clear, "")
+                                }
+                            } else {
+                                FilledTonalIconButton(onClick = onAddLens) {
+                                    Icon(Icons.Outlined.Add, "")
+                                }
+                            }
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FilterOrFilters),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val filtersText = frame.filters.joinToString(separator = "\n") { "-${it.name}" }
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = filtersText,
+                        maxLines = Int.MAX_VALUE,
+                        onClick = { showFiltersDialog = true }
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier.padding(vertical = 4.dp)
                     ) {
-                        if (frame.lens != null) {
-                            FilledTonalIconButton(onClick = { onLensChange(null) }) {
-                                Icon(Icons.Outlined.Clear, "")
-                            }
-                        } else {
-                            FilledTonalIconButton(onClick = onAddLens) {
-                                Icon(Icons.Outlined.Add, "")
-                            }
+                        FilledTonalIconButton(onClick = onAddFilter) {
+                            Icon(Icons.Outlined.Add, "")
                         }
                     }
                 }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.FilterOrFilters),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val filtersText = frame.filters.joinToString(separator = "\n") { "-${it.name}" }
-                DropdownButton(
-                    modifier = Modifier.weight(1f),
-                    text = filtersText,
-                    maxLines = Int.MAX_VALUE,
-                    onClick = { showFiltersDialog = true }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    FilledTonalIconButton(onClick = onAddFilter) {
-                        Icon(Icons.Outlined.Add, "")
-                    }
-                }
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.FocalLengthSingleLine),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                DropdownButton(
-                    text = frame.focalLength.toString(),
-                    onClick = { showFocalLengthDialog = true }
-                )
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.Location),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                val locationText = frame.formattedAddress?.ifEmpty { null }
-                    ?: frame.location?.readableCoordinates
-                        ?.replace("N ", "N\n")
-                        ?.replace("S ", "S\n")
-                Box(
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                        .weight(1f)
-                ) {
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FocalLengthSingleLine),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                     DropdownButton(
-                        text = locationText ?: "",
-                        maxLines = 2,
-                        onClick = onLocationClick
+                        text = frame.focalLength.toString(),
+                        onClick = { showFocalLengthDialog = true }
                     )
-                    if (isResolvingAddress) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .padding(horizontal = 55.dp)
-                                .size(30.dp)
-                        )
-                    }
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Box {
-                    FilledTonalIconButton(onClick = onLocationClear) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
-                        text = stringResource(R.string.ExposureComp),
+                        text = stringResource(R.string.Location),
                         style = MaterialTheme.typography.bodySmall
                     )
-                    ExposedDropdownMenuBox(
-                        expanded = exposureCompExpanded,
-                        onExpandedChange = { exposureCompExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .menuAnchor(),
-                            readOnly = true,
-                            value = frame.exposureComp ?: "",
-                            onValueChange = {},
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompExpanded)
-                            }
-                        )
-                        ExposedDropdownMenu(
-                            expanded = exposureCompExpanded,
-                            onDismissRequest = { exposureCompExpanded = false }
-                        ) {
-                            exposureCompValues.forEach { value ->
-                                DropdownMenuItem(
-                                    text = { Text(value) },
-                                    onClick = {
-                                        onExposureCompChange(value)
-                                        exposureCompExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
                 }
-                Spacer(modifier = Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.NoOfExposuresSingleLine),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = noOfExposuresExpanded,
-                        onExpandedChange = { noOfExposuresExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .menuAnchor(),
-                            readOnly = true,
-                            value = frame.noOfExposures.toString(),
-                            onValueChange = {},
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = noOfExposuresExpanded)
-                            }
-                        )
-                        ExposedDropdownMenu(
-                            expanded = noOfExposuresExpanded,
-                            onDismissRequest = { noOfExposuresExpanded = false }
-                        ) {
-                            (1..10).forEach { value ->
-                                DropdownMenuItem(
-                                    text = { Text(value.toString()) },
-                                    onClick = {
-                                        onNoOfExposuresChange(value)
-                                        noOfExposuresExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.Flash),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    val locationText = frame.formattedAddress?.ifEmpty { null }
+                        ?: frame.location?.readableCoordinates
+                            ?.replace("N ", "N\n")
+                            ?.replace("S ", "S\n")
                     Box(
                         modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(end = 32.dp)
+                            .padding(vertical = 4.dp)
+                            .weight(1f)
                     ) {
-                        Checkbox(
-                            checked = frame.flashUsed,
-                            onCheckedChange = onFlashChange
+                        DropdownButton(
+                            text = locationText ?: "",
+                            maxLines = 2,
+                            onClick = onLocationClick
                         )
+                        if (isResolvingAddress) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(horizontal = 55.dp)
+                                    .size(30.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box {
+                        FilledTonalIconButton(onClick = onLocationClear) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.LightSource),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = lightSourceExpanded,
-                        onExpandedChange = { lightSourceExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier
-                                .menuAnchor(),
-                            readOnly = true,
-                            value = frame.lightSource.description(context) ?: "",
-                            onValueChange = {},
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = lightSourceExpanded)
-                            }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.ExposureComp),
+                            style = MaterialTheme.typography.bodySmall
                         )
-                        ExposedDropdownMenu(
-                            expanded = lightSourceExpanded,
-                            onDismissRequest = { lightSourceExpanded = false }
+                        ExposedDropdownMenuBox(
+                            expanded = exposureCompExpanded,
+                            onExpandedChange = { exposureCompExpanded = it }
                         ) {
-                            LightSource.entries.forEach { value ->
-                                DropdownMenuItem(
-                                    text = { Text(value.description(context) ?: "") },
-                                    onClick = {
-                                        onLightSourceChange(value)
-                                        lightSourceExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = frame.note ?: "",
-                    onValueChange = onNoteChange,
-                    label = { Text(stringResource(R.string.DescriptionOrNote)) }
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                FilledTonalButton(onClick = { pictureOptionsExpanded = true }) {
-                    Icon(Icons.Outlined.MoreHoriz, "")
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(stringResource(R.string.Options))
-                }
-                DropdownMenu(
-                    expanded = pictureOptionsExpanded,
-                    onDismissRequest = { pictureOptionsExpanded = false }
-                ) {
-                    val cameraErrorMessage = stringResource(R.string.NoCameraFeatureWasFound)
-                    DropdownMenuItem(
-                        text = {
-                            Text(stringResource(R.string.TakeNewComplementaryPicture))
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Outlined.CameraAlt, "")
-                        },
-                        onClick = {
-                            pictureOptionsExpanded = false
-                            if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(cameraErrorMessage)
+                            OutlinedTextField(
+                                modifier = Modifier
+                                    .menuAnchor(),
+                                readOnly = true,
+                                value = frame.exposureComp ?: "",
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = exposureCompExpanded)
                                 }
-                            } else {
-                                val uri = pictureTempFileProvider()
-                                takePicture.launch(uri)
+                            )
+                            ExposedDropdownMenu(
+                                expanded = exposureCompExpanded,
+                                onDismissRequest = { exposureCompExpanded = false }
+                            ) {
+                                exposureCompValues.forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value) },
+                                        onClick = {
+                                            onExposureCompChange(value)
+                                            exposureCompExpanded = false
+                                        }
+                                    )
+                                }
                             }
                         }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(stringResource(R.string.SelectPictureFromGallery))
-                        },
-                        leadingIcon = {
-                            Icon(Icons.Outlined.InsertPhoto, "")
-                        },
-                        onClick = {
-                            pictureOptionsExpanded = false
-                            selectPicture.launch("image/*")
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.NoOfExposuresSingleLine),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
+                            expanded = noOfExposuresExpanded,
+                            onExpandedChange = { noOfExposuresExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier
+                                    .menuAnchor(),
+                                readOnly = true,
+                                value = frame.noOfExposures.toString(),
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = noOfExposuresExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = noOfExposuresExpanded,
+                                onDismissRequest = { noOfExposuresExpanded = false }
+                            ) {
+                                (1..10).forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value.toString()) },
+                                        onClick = {
+                                            onNoOfExposuresChange(value)
+                                            noOfExposuresExpanded = false
+                                        }
+                                    )
+                                }
+                            }
                         }
-                    )
-                    if (frame.pictureFilename != null) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(stringResource(R.string.AddPictureToGallery))
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Outlined.AddPhotoAlternate, "")
-                            },
-                            onClick = {
-                                pictureOptionsExpanded = false
-                                onAddPictureToGallery()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(stringResource(R.string.RotateRight90Degrees))
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Outlined.Rotate90DegreesCw, "")
-                            },
-                            onClick = {
-                                pictureOptionsExpanded = false
-                                onPictureRotateRight()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(stringResource(R.string.RotateLeft90Degrees))
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Outlined.Rotate90DegreesCcw, "")
-                            },
-                            onClick = {
-                                pictureOptionsExpanded = false
-                                onPictureRotateLeft()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(stringResource(R.string.Clear))
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Outlined.Clear, "")
-                            },
-                            onClick = {
-                                pictureOptionsExpanded = false
-                                onPictureClear()
-                            }
-                        )
                     }
                 }
-            }
-            Row(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                if (pictureBitmap != null) {
-                    val rotation = animateFloatAsState(
-                        targetValue = pictureRotation,
-                        label = "Image rotation",
-                        animationSpec = tween(1000)
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.Flash),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .padding(end = 32.dp)
+                        ) {
+                            Checkbox(
+                                checked = frame.flashUsed,
+                                onCheckedChange = onFlashChange
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.LightSource),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
+                            expanded = lightSourceExpanded,
+                            onExpandedChange = { lightSourceExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier
+                                    .menuAnchor(),
+                                readOnly = true,
+                                value = frame.lightSource.description(context) ?: "",
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = lightSourceExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = lightSourceExpanded,
+                                onDismissRequest = { lightSourceExpanded = false }
+                            ) {
+                                LightSource.entries.forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value.description(context) ?: "") },
+                                        onClick = {
+                                            onLightSourceChange(value)
+                                            lightSourceExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = frame.note ?: "",
+                        onValueChange = onNoteChange,
+                        label = { Text(stringResource(R.string.DescriptionOrNote)) }
                     )
-                    Image(
-                        modifier = Modifier
-                            .weight(1f, fill = false)
-                            .rotate(rotation.value)
-                            .aspectRatio(1f),
-                        bitmap = pictureBitmap.asImageBitmap(),
-                        contentScale = ContentScale.Fit,
-                        contentDescription = ""
-                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    FilledTonalButton(onClick = { pictureOptionsExpanded = true }) {
+                        Icon(Icons.Outlined.MoreHoriz, "")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(stringResource(R.string.Options))
+                    }
+                    DropdownMenu(
+                        expanded = pictureOptionsExpanded,
+                        onDismissRequest = { pictureOptionsExpanded = false }
+                    ) {
+                        val cameraErrorMessage = stringResource(R.string.NoCameraFeatureWasFound)
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.TakeNewComplementaryPicture))
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.CameraAlt, "")
+                            },
+                            onClick = {
+                                pictureOptionsExpanded = false
+                                if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(cameraErrorMessage)
+                                    }
+                                } else {
+                                    val uri = pictureTempFileProvider()
+                                    takePicture.launch(uri)
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.SelectPictureFromGallery))
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Outlined.InsertPhoto, "")
+                            },
+                            onClick = {
+                                pictureOptionsExpanded = false
+                                selectPicture.launch("image/*")
+                            }
+                        )
+                        if (frame.pictureFilename != null) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(R.string.AddPictureToGallery))
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.AddPhotoAlternate, "")
+                                },
+                                onClick = {
+                                    pictureOptionsExpanded = false
+                                    onAddPictureToGallery()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(R.string.RotateRight90Degrees))
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.Rotate90DegreesCw, "")
+                                },
+                                onClick = {
+                                    pictureOptionsExpanded = false
+                                    onPictureRotateRight()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(R.string.RotateLeft90Degrees))
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.Rotate90DegreesCcw, "")
+                                },
+                                onClick = {
+                                    pictureOptionsExpanded = false
+                                    onPictureRotateLeft()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(R.string.Clear))
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.Clear, "")
+                                },
+                                onClick = {
+                                    pictureOptionsExpanded = false
+                                    onPictureClear()
+                                }
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (pictureBitmap != null) {
+                        val rotation = animateFloatAsState(
+                            targetValue = pictureRotation,
+                            label = "Image rotation",
+                            animationSpec = tween(1000)
+                        )
+                        Image(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .rotate(rotation.value)
+                                .aspectRatio(1f),
+                            bitmap = pictureBitmap.asImageBitmap(),
+                            contentScale = ContentScale.Fit,
+                            contentDescription = ""
+                        )
+                    }
                 }
             }
         }

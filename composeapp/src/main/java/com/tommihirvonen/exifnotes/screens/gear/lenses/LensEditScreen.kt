@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -171,7 +172,7 @@ fun InterchangeableLensEditScreen(
     )
 }
 
-@Preview
+@Preview(widthDp = 800)
 @Composable
 private fun LensEditContentPreview() {
     val lens = Lens(
@@ -274,247 +275,255 @@ private fun LensEditContent(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (!isFixedLens) {
-                Row(modifier = Modifier.padding(top = 8.dp)) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = lens.make ?: "",
-                        onValueChange = onMakeChange,
-                        label = { Text(stringResource(R.string.Make)) },
-                        supportingText = { Text(stringResource(R.string.Required)) },
-                        isError = makeError
-                    )
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+                    .widthIn(min = 0.dp, max = 400.dp)
+            ) {
+                if (!isFixedLens) {
+                    Row(modifier = Modifier.padding(top = 8.dp)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = lens.make ?: "",
+                            onValueChange = onMakeChange,
+                            label = { Text(stringResource(R.string.Make)) },
+                            supportingText = { Text(stringResource(R.string.Required)) },
+                            isError = makeError
+                        )
+                    }
+                    Row(modifier = Modifier.padding(top = 16.dp)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = lens.model ?: "",
+                            onValueChange = onModelChange,
+                            label = { Text(stringResource(R.string.Model)) },
+                            supportingText = { Text(stringResource(R.string.Required)) },
+                            isError = modelError
+                        )
+                    }
+                    Row(modifier = Modifier.padding(top = 16.dp)) {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = lens.serialNumber ?: "",
+                            onValueChange = onSerialNumberChange,
+                            label = { Text(stringResource(R.string.SerialNumber)) }
+                        )
+                    }
                 }
-                Row(modifier = Modifier.padding(top = 16.dp)) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = lens.model ?: "",
-                        onValueChange = onModelChange,
-                        label = { Text(stringResource(R.string.Model)) },
-                        supportingText = { Text(stringResource(R.string.Required)) },
-                        isError = modelError
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.ApertureIncrements),
+                        style = MaterialTheme.typography.bodySmall
                     )
-                }
-                Row(modifier = Modifier.padding(top = 16.dp)) {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = lens.serialNumber ?: "",
-                        onValueChange = onSerialNumberChange,
-                        label = { Text(stringResource(R.string.SerialNumber)) }
-                    )
-                }
-            }
-            Column(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.ApertureIncrements),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                ExposedDropdownMenuBox(
-                    expanded = apertureIncrementsExpanded,
-                    onExpandedChange = { apertureIncrementsExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        modifier = Modifier.menuAnchor(),
-                        readOnly = true,
-                        value = lens.apertureIncrements.description(context),
-                        onValueChange = {},
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureIncrementsExpanded)
-                        }
-                    )
-                    ExposedDropdownMenu(
+                    ExposedDropdownMenuBox(
                         expanded = apertureIncrementsExpanded,
-                        onDismissRequest = { apertureIncrementsExpanded = false }
+                        onExpandedChange = { apertureIncrementsExpanded = it }
                     ) {
-                        Increment.entries.forEach { increment ->
-                            DropdownMenuItem(
-                                text = { Text(increment.description(context)) },
-                                onClick = {
-                                    onApertureIncrementsChange(increment)
-                                    apertureIncrementsExpanded = false
+                        OutlinedTextField(
+                            modifier = Modifier.menuAnchor(),
+                            readOnly = true,
+                            value = lens.apertureIncrements.description(context),
+                            onValueChange = {},
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = apertureIncrementsExpanded)
+                            }
+                        )
+                        ExposedDropdownMenu(
+                            expanded = apertureIncrementsExpanded,
+                            onDismissRequest = { apertureIncrementsExpanded = false }
+                        ) {
+                            Increment.entries.forEach { increment ->
+                                DropdownMenuItem(
+                                    text = { Text(increment.description(context)) },
+                                    onClick = {
+                                        onApertureIncrementsChange(increment)
+                                        apertureIncrementsExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.ApertureRange),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Column(modifier = Modifier.weight(0.5f)) {
+                        Text(
+                            text = stringResource(R.string.From),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
+                            expanded = maxApertureExpanded,
+                            onExpandedChange = { maxApertureExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier.menuAnchor(),
+                                readOnly = true,
+                                value = lens.maxAperture ?: "",
+                                isError = apertureRangeError.isNotEmpty(),
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = maxApertureExpanded)
                                 }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = maxApertureExpanded,
+                                onDismissRequest = { maxApertureExpanded = false }
+                            ) {
+                                apertureValues.forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value) },
+                                        onClick = {
+                                            onSetMaxAperture(value)
+                                            maxApertureExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(0.5f)) {
+                        Text(
+                            text = stringResource(R.string.To),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        ExposedDropdownMenuBox(
+                            expanded = minApertureExpanded,
+                            onExpandedChange = { minApertureExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                modifier = Modifier.menuAnchor(),
+                                readOnly = true,
+                                value = lens.minAperture ?: "",
+                                isError = apertureRangeError.isNotEmpty(),
+                                onValueChange = {},
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = minApertureExpanded)
+                                }
+                            )
+                            ExposedDropdownMenu(
+                                expanded = minApertureExpanded,
+                                onDismissRequest = { minApertureExpanded = false }
+                            ) {
+                                apertureValues.forEach { value ->
+                                    DropdownMenuItem(
+                                        text = { Text(value) },
+                                        onClick = {
+                                            onSetMinAperture(value)
+                                            minApertureExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = onClearApertureRange) {
+                            Icon(Icons.Outlined.Clear, "")
+                        }
+                    }
+                }
+                if (apertureRangeError.isNotEmpty()) {
+                    Text(
+                        text = apertureRangeError,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.CustomApertureValues),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = lens.customApertureValues.sorted().distinct().joinToString(),
+                        onClick = { showRemoveCustomApertureValuesDialog = true }
+                    )
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { showAddCustomApertureValueDialog = true }) {
+                            Icon(Icons.Outlined.Add, "")
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    ) {
+                        FilledTonalIconButton(onClick = { showCustomApertureValuesInfo = true }) {
+                            Icon(Icons.Outlined.Info, "")
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FocalLengthRange),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Column(modifier = Modifier.weight(0.5f)) {
+                        Text(
+                            text = stringResource(R.string.From),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        OutlinedTextField(
+                            value = lens.minFocalLength.toString(),
+                            isError = minFocalLengthError.isNotEmpty(),
+                            onValueChange = onSetMinFocalLength,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number
+                            )
+                        )
+                        if (minFocalLengthError.isNotEmpty()) {
+                            Text(
+                                text = minFocalLengthError,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
                             )
                         }
                     }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.ApertureRange),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                modifier = Modifier.padding(top = 16.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Column(modifier = Modifier.weight(0.5f)) {
-                    Text(
-                        text = stringResource(R.string.From),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = maxApertureExpanded,
-                        onExpandedChange = { maxApertureExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier.menuAnchor(),
-                            readOnly = true,
-                            value = lens.maxAperture ?: "",
-                            isError = apertureRangeError.isNotEmpty(),
-                            onValueChange = {},
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = maxApertureExpanded)
-                            }
-                        )
-                        ExposedDropdownMenu(
-                            expanded = maxApertureExpanded,
-                            onDismissRequest = { maxApertureExpanded = false }
-                        ) {
-                            apertureValues.forEach { value ->
-                                DropdownMenuItem(
-                                    text = { Text(value) },
-                                    onClick = {
-                                        onSetMaxAperture(value)
-                                        maxApertureExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(0.5f)) {
-                    Text(
-                        text = stringResource(R.string.To),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    ExposedDropdownMenuBox(
-                        expanded = minApertureExpanded,
-                        onExpandedChange = { minApertureExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier.menuAnchor(),
-                            readOnly = true,
-                            value = lens.minAperture ?: "",
-                            isError = apertureRangeError.isNotEmpty(),
-                            onValueChange = {},
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = minApertureExpanded)
-                            }
-                        )
-                        ExposedDropdownMenu(
-                            expanded = minApertureExpanded,
-                            onDismissRequest = { minApertureExpanded = false }
-                        ) {
-                            apertureValues.forEach { value ->
-                                DropdownMenuItem(
-                                    text = { Text(value) },
-                                    onClick = {
-                                        onSetMinAperture(value)
-                                        minApertureExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                    FilledTonalIconButton(onClick = onClearApertureRange) {
-                        Icon(Icons.Outlined.Clear, "")
-                    }
-                }
-            }
-            if (apertureRangeError.isNotEmpty()) {
-                Text(
-                    text = apertureRangeError,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.CustomApertureValues),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                modifier = Modifier.padding(top = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DropdownButton(
-                    modifier = Modifier.weight(1f),
-                    text = lens.customApertureValues.sorted().distinct().joinToString(),
-                    onClick = { showRemoveCustomApertureValuesDialog = true }
-                )
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { showAddCustomApertureValueDialog = true }) {
-                        Icon(Icons.Outlined.Add, "")
-                    }
-                }
-                Box(
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    FilledTonalIconButton(onClick = { showCustomApertureValuesInfo = true }) {
-                        Icon(Icons.Outlined.Info, "")
-                    }
-                }
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Text(
-                    text = stringResource(R.string.FocalLengthRange),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(modifier = Modifier.padding(top = 16.dp)) {
-                Column(modifier = Modifier.weight(0.5f)) {
-                    Text(
-                        text = stringResource(R.string.From),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    OutlinedTextField(
-                        value = lens.minFocalLength.toString(),
-                        isError = minFocalLengthError.isNotEmpty(),
-                        onValueChange = onSetMinFocalLength,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number
-                        )
-                    )
-                    if (minFocalLengthError.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(0.5f)) {
                         Text(
-                            text = minFocalLengthError,
-                            color = MaterialTheme.colorScheme.error,
+                            text = stringResource(R.string.To),
                             style = MaterialTheme.typography.bodySmall
                         )
-                    }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(0.5f)) {
-                    Text(
-                        text = stringResource(R.string.To),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    OutlinedTextField(
-                        value = lens.maxFocalLength.toString(),
-                        isError = maxFocalLengthError.isNotEmpty(),
-                        onValueChange = onSetMaxFocalLength,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number
+                        OutlinedTextField(
+                            value = lens.maxFocalLength.toString(),
+                            isError = maxFocalLengthError.isNotEmpty(),
+                            onValueChange = onSetMaxFocalLength,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                keyboardType = KeyboardType.Number
+                            )
                         )
-                    )
-                    if (maxFocalLengthError.isNotEmpty()) {
-                        Text(
-                            text = maxFocalLengthError,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        if (maxFocalLengthError.isNotEmpty()) {
+                            Text(
+                                text = maxFocalLengthError,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
             }

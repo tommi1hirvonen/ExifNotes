@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -495,7 +496,7 @@ fun FramesScreen(
     }
 }
 
-@Preview
+@Preview(widthDp = 800)
 @Composable
 private fun FramesContentPreview() {
     val roll = Roll(name = "Test roll")
@@ -623,7 +624,8 @@ private fun FramesContent(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (frames.data.isEmpty()) {
                     item {
@@ -646,6 +648,7 @@ private fun FramesContent(
                     key = { it.id }
                 ) { frame ->
                     FrameCard(
+                        modifier = Modifier.widthIn(500.dp, 500.dp),
                         frame = frame,
                         selected = selectedFrames.any { it.id == frame.id },
                         onClick = {

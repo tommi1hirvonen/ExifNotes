@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -67,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
@@ -170,7 +172,7 @@ fun LocationPickScreen(
     )
 }
 
-@Preview
+@Preview(widthDp = 800)
 @Composable
 private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
@@ -231,71 +233,80 @@ fun LocationPickScreenContent(
                 targetValue = if (searchExpanded) 0.dp else 16.dp,
                 label = "Search bar padding"
             )
+            val searchBarWidth by animateDpAsState(
+                targetValue = if (searchExpanded) Dp.Infinity else 450.dp,
+                label = "Search bar width"
+            )
             val placeholder = searchText.ifEmpty { stringResource(R.string.SearchWEllipsis) }
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(searchBarPadding),
-                placeholder = { Text(placeholder) },
-                leadingIcon = {
-                    IconButton(
-                        onClick = {
-                            if (!searchExpanded) {
-                                onNavigateUp()
-                            } else {
-                                onToggleSearchExpanded()
-                            }
-                        }
-                    ) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
-                    }
-                },
-                trailingIcon = {
-                    if (searchText.isNotEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                SearchBar(
+                    modifier = Modifier
+                        .widthIn(searchBarWidth, searchBarWidth)
+                        .padding(searchBarPadding),
+                    placeholder = { Text(placeholder) },
+                    leadingIcon = {
                         IconButton(
                             onClick = {
-                                onSearchTextChange("")
+                                if (!searchExpanded) {
+                                    onNavigateUp()
+                                } else {
+                                    onToggleSearchExpanded()
+                                }
                             }
                         ) {
-                            Icon(Icons.Outlined.Clear, "")
+                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
                         }
-                    }
-                },
-                query = searchText,
-                onQueryChange = onSearchTextChange,
-                onSearch = onQuerySearchRequested,
-                active = searchExpanded,
-                onActiveChange = { onToggleSearchExpanded() }
-            ) {
-                if (isQueryingSuggestions) {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(
-                        items = suggestions,
-                        key = { it.placeId }
-                    ) { suggestion ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onPlacesSearchRequested(suggestion) }
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(8.dp)
+                    },
+                    trailingIcon = {
+                        if (searchText.isNotEmpty()) {
+                            IconButton(
+                                onClick = {
+                                    onSearchTextChange("")
+                                }
                             ) {
-                                Text(
-                                    text = suggestion.getPrimaryText(null).toString(),
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                Text(
-                                    text = suggestion.getSecondaryText(null).toString(),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
+                                Icon(Icons.Outlined.Clear, "")
+                            }
+                        }
+                    },
+                    query = searchText,
+                    onQueryChange = onSearchTextChange,
+                    onSearch = onQuerySearchRequested,
+                    active = searchExpanded,
+                    onActiveChange = { onToggleSearchExpanded() }
+                ) {
+                    if (isQueryingSuggestions) {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(
+                            items = suggestions,
+                            key = { it.placeId }
+                        ) { suggestion ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onPlacesSearchRequested(suggestion) }
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                ) {
+                                    Text(
+                                        text = suggestion.getPrimaryText(null).toString(),
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                    Text(
+                                        text = suggestion.getSecondaryText(null).toString(),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
                     }
@@ -386,11 +397,11 @@ fun LocationPickScreenContent(
             }
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .padding(bottom = padding.calculateBottomPadding())
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    .height(60.dp),
+                    .height(60.dp)
+                    .widthIn(400.dp, 400.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
             ) {
                 Box(

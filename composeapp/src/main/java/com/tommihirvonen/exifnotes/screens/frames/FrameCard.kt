@@ -114,6 +114,7 @@ private fun FrameCardPreview() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FrameCard(
+    modifier: Modifier = Modifier,
     frame: Frame,
     selected: Boolean,
     onClick: () -> Unit,
@@ -130,7 +131,7 @@ fun FrameCard(
         label = "cardBackgroundColor",
         animationSpec = tween(durationMillis = 400)
     )
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = modifier) {
         val cardShape = RoundedCornerShape(12.dp)
         Card(
             modifier = Modifier
