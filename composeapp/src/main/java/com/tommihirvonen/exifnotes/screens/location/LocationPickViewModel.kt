@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = LocationPickViewModel.Factory::class)
 class LocationPickViewModel @AssistedInject constructor(
-    @Assisted frame: Frame,
+    @Assisted frame: Frame?,
     private val application: Application,
     private val geocoderRequestBuilder: GeocoderRequestBuilder,
     private val locationService: LocationService
@@ -64,7 +64,7 @@ class LocationPickViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(frame: Frame): LocationPickViewModel
+        fun create(frame: Frame?): LocationPickViewModel
     }
 
     companion object {
@@ -102,10 +102,10 @@ class LocationPickViewModel @AssistedInject constructor(
     private val _isLoadingAddress = MutableStateFlow(false)
     val isLoadingAddress = _isLoadingAddress.asStateFlow()
 
-    private val _location = MutableStateFlow(frame.location)
+    private val _location = MutableStateFlow(frame?.location)
     val location = _location.asStateFlow()
 
-    private val _address = MutableStateFlow(frame.formattedAddress)
+    private val _address = MutableStateFlow(frame?.formattedAddress)
     val address = _address.asStateFlow()
 
     private val _searchExpanded = MutableStateFlow(false)

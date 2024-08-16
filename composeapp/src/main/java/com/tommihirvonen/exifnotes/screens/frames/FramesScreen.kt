@@ -97,6 +97,7 @@ fun FramesScreen(
     onEditRoll: (Roll) -> Unit,
     onEditFrame: (Frame?, Frame?, Int) -> Unit,
     onNavigateToMap: (Roll) -> Unit,
+    onNavigateToLocationPick: () -> Unit,
     mainViewModel: MainViewModel,
     framesViewModel: FramesViewModel = hiltViewModel { factory: FramesViewModel.Factory ->
         factory.create(rollId)
@@ -285,7 +286,7 @@ fun FramesScreen(
                     FramesBatchEditOption.Filters -> { showFiltersDialog = true }
                     FramesBatchEditOption.FocalLength -> { showFocalLengthDialog = true }
                     FramesBatchEditOption.ExposureCompensation -> { showExposureCompDialog = true }
-                    FramesBatchEditOption.Location -> TODO()
+                    FramesBatchEditOption.Location -> onNavigateToLocationPick()
                     FramesBatchEditOption.LightSource -> { showLightSourceDialog = true }
                     FramesBatchEditOption.ReverseFrameCounts -> {
                         // Create a list of frame counts in reversed order

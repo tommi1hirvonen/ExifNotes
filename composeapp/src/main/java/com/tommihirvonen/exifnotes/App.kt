@@ -135,6 +135,9 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToMap = { _ ->
                         navController.navigate(route = FramesMap)
                     },
+                    onNavigateToLocationPick = {
+                        navController.navigate(route = BatchLocationPick)
+                    },
                     onNavigateUp = { navController.navigateUp() }
                 )
             }
@@ -177,6 +180,24 @@ fun App(onFinish: () -> Unit) {
                     themeViewModel = themeViewModel
                 )
             }
+            composable<BatchLocationPick> { backStackEntry ->
+                val framesEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry<Frames>()
+                }
+                val framesViewModel = hiltViewModel<FramesViewModel>(framesEntry)
+                LocationPickScreen(
+                    frame = null,
+                    onNavigateUp = { navController.navigateUp() },
+                    onLocationConfirm = { latLng, address ->
+                        framesViewModel.selectedFrames.value.forEach {
+                            it.location = latLng
+                            it.formattedAddress = address
+                            framesViewModel.submitFrame(it)
+                        }
+                        navController.navigateUp()
+                    },
+                    themeViewModel = themeViewModel
+                ) }
             composable<FramesMap> { backStackEntry ->
                 val framesEntry = remember(backStackEntry) { navController.getBackStackEntry<Frames>() }
                 val framesViewModel = hiltViewModel<FramesViewModel>(framesEntry)
@@ -437,6 +458,9 @@ private data class RollEdit(val rollId: Long)
 
 @Serializable
 private data class Frames(val rollId: Long)
+
+@Serializable
+private object BatchLocationPick
 
 @Serializable
 private data class FramesRollEdit(val rollId: Long)

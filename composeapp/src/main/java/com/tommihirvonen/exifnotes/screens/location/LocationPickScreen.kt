@@ -90,7 +90,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LocationPickScreen(
-    frame: Frame,
+    frame: Frame?,
     onNavigateUp: () -> Unit,
     onLocationConfirm: (LatLng?, String?) -> Unit,
     themeViewModel: ThemeViewModel,
