@@ -290,12 +290,15 @@ fun FramesScreen(
                     FramesBatchEditOption.ReverseFrameCounts -> {
                         // Create a list of frame counts in reversed order
                         val frameCountsReversed = selectedFrames.value
+                            .sortedBy { it.count }
                             .map(Frame::count)
                             .reversed()
-                        selectedFrames.value.zip(frameCountsReversed) { frame, count ->
-                            frame.count = count
-                            framesViewModel.submitFrame(frame)
-                        }
+                        selectedFrames.value
+                            .sortedBy { it.count }
+                            .zip(frameCountsReversed) { frame, count ->
+                                frame.count = count
+                                framesViewModel.submitFrame(frame)
+                            }
                     }
                 }
             }
@@ -305,6 +308,7 @@ fun FramesScreen(
         FrameCountsDialog(
             onDismiss = { showFrameCountsDialog = false },
             onConfirm = { value ->
+                showFrameCountsDialog = false
                 selectedFrames.value.forEach {
                     it.count += value
                     framesViewModel.submitFrame(it)
@@ -328,7 +332,7 @@ fun FramesScreen(
                 is24Hour = is24HourFormat
             )
         }
-        var showDatePicker by remember { mutableStateOf(false) }
+        var showDatePicker by remember { mutableStateOf(true) }
         var showTimePicker by remember { mutableStateOf(false) }
         if (showDatePicker) {
             DatePickerDialog(
@@ -399,6 +403,7 @@ fun FramesScreen(
         CustomApertureDialog(
             onDismiss = { showApertureDialog = false },
             onConfirm = { value ->
+                showApertureDialog = false
                 selectedFrames.value.forEach {
                     it.aperture = value
                     framesViewModel.submitFrame(it)
@@ -434,6 +439,7 @@ fun FramesScreen(
             sortItemsBy = { it.name },
             onDismiss = { showFiltersDialog = false },
             onConfirm = { filters ->
+                showFiltersDialog = false
                 selectedFrames.value.forEach {
                     it.filters = filters
                     framesViewModel.submitFrame(it)
@@ -445,6 +451,7 @@ fun FramesScreen(
         FocalLengthDialog(
             onDismiss = { showFocalLengthDialog = false },
             onConfirm = { value ->
+                showFocalLengthDialog = false
                 selectedFrames.value.forEach {
                     it.focalLength = value
                     framesViewModel.submitFrame(it)
@@ -639,7 +646,7 @@ private fun FramesContent(
                 ) { frame ->
                     FrameCard(
                         frame = frame,
-                        selected = selectedFrames.contains(frame),
+                        selected = selectedFrames.any { it.id == frame.id },
                         onClick = {
                             if (actionModeEnabled) {
                                 toggleFrameSelection(frame)
@@ -747,7 +754,7 @@ fun FrameCountsDialog(
                     modifier = Modifier.width(100.dp),
                     value = value,
                     onValueChange = {
-                        value = if (it.isEmpty()) {
+                        value = if (it.isEmpty() || it == "-") {
                             it
                         } else {
                             when (it.toIntOrNull()) {
