@@ -31,7 +31,10 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.sorted
+import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
+import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
+import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.export.RollExportHelper
 import com.tommihirvonen.exifnotes.di.export.RollExportOption
@@ -54,6 +57,9 @@ class FramesViewModel @AssistedInject constructor(
     @Assisted private val rollId: Long,
     private val rollRepository: RollRepository,
     private val frameRepository: FrameRepository,
+    private val cameraRepository: CameraRepository,
+    private val lensRepository: LensRepository,
+    private val filterRepository: FilterRepository,
     private val complementaryPicturesManager: ComplementaryPicturesManager,
     private val rollShareIntentBuilder: RollShareIntentBuilder,
     private val rollExportHelper: RollExportHelper,
@@ -78,6 +84,10 @@ class FramesViewModel @AssistedInject constructor(
     val frames get() = _frames.asStateFlow()
     val selectedFrames get() = _selectedFrames.asStateFlow()
     val frameSortMode get() = _frameSortMode.asStateFlow()
+
+    val lenses get() = roll.value.camera?.let(cameraRepository::getLinkedLenses)
+        ?: lensRepository.lenses
+    val filters get() = filterRepository.filters
 
     private val _roll = MutableStateFlow(Roll())
     private val _frames = MutableStateFlow<LoadState<List<Frame>>>(LoadState.InProgress())

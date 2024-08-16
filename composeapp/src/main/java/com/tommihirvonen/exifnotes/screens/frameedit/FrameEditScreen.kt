@@ -976,7 +976,7 @@ private fun FrameEditContent(
 
 @Preview
 @Composable
-private fun CustomApertureDialog(
+fun CustomApertureDialog(
     onDismiss: () -> Unit = {},
     onConfirm: (String) -> Unit = {}
 ) {

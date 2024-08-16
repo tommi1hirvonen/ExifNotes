@@ -40,6 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.EditCalendar
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
@@ -317,6 +318,48 @@ fun <TValue, TSort : Comparable<TSort>> SingleChoiceDialog(
             }
         }
     }
+}
+
+@Composable
+fun <TValue> SimpleItemsDialog(
+    title: @Composable () -> Unit = {},
+    items: List<TValue>,
+    itemText: @Composable (TValue) -> Unit,
+    onDismiss: () -> Unit,
+    onSelected: (TValue) -> Unit
+) {
+    AlertDialog(
+        title = title,
+        text = {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                items(items) { item ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelected(item) }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            itemText(item)
+                        }
+                    }
+                }
+            }
+        },
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Cancel))
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

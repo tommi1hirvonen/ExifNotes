@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.frames
 
+import android.text.format.DateFormat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -35,7 +36,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,6 +49,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -57,23 +63,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
 import com.tommihirvonen.exifnotes.di.export.RollExportOption
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
+import com.tommihirvonen.exifnotes.screens.SimpleItemsDialog
+import com.tommihirvonen.exifnotes.screens.TimePickerDialog
+import com.tommihirvonen.exifnotes.screens.frameedit.CustomApertureDialog
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.LoadState
+import com.tommihirvonen.exifnotes.util.epochMilliseconds
+import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.time.LocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FramesScreen(
     rollId: Long,
@@ -97,6 +114,7 @@ fun FramesScreen(
 
     var showLabels by remember { mutableStateOf(false) }
     var exportOptions by remember { mutableStateOf(emptyList<RollExportOption>()) }
+    var showBatchEditDialog by remember { mutableStateOf(false) }
     var showCopyDialog by remember { mutableStateOf(false) }
 
     val exportSuccessText = stringResource(R.string.ExportedFilesSuccessfully)
@@ -155,7 +173,7 @@ fun FramesScreen(
         onDelete = {
             selectedFrames.value.forEach(framesViewModel::deleteFrame)
         },
-        onEdit = { /*TODO*/ },
+        onEdit = { showBatchEditDialog = true },
         onCopy = { showCopyDialog = true },
         onNavigateUp = onNavigateUp,
         snackbarHostState = snackbarHostState
@@ -227,6 +245,242 @@ fun FramesScreen(
                             keyboardType = KeyboardType.Number
                         )
                     )
+                }
+            }
+        )
+    }
+
+    var showFrameCountsDialog by remember { mutableStateOf(false) }
+    var showDateTimeDialog by remember { mutableStateOf(false) }
+    var showLensDialog by remember { mutableStateOf(false) }
+    var showApertureDialog by remember { mutableStateOf(false) }
+    var showShutterDialog by remember { mutableStateOf(false) }
+    var showFiltersDialog by remember { mutableStateOf(false) }
+    var showFocalLengthDialog by remember { mutableStateOf(false) }
+    var showExposureCompDialog by remember { mutableStateOf(false) }
+    var showLightSourceDialog by remember { mutableStateOf(false) }
+
+    if (showBatchEditDialog) {
+        SimpleItemsDialog(
+            title = {
+                Text(
+                    pluralStringResource(
+                        R.plurals.BatchEditFramesTitle,
+                        selectedFrames.value.size,
+                        selectedFrames.value.size
+                    )
+                )
+            },
+            items = FramesBatchEditOption.entries,
+            itemText = { option -> Text(option.description) },
+            onDismiss = { showBatchEditDialog = false },
+            onSelected = { option ->
+                showBatchEditDialog = false
+                when (option) {
+                    FramesBatchEditOption.FrameCounts -> { showFrameCountsDialog = true }
+                    FramesBatchEditOption.DateAndTime -> { showDateTimeDialog = true }
+                    FramesBatchEditOption.Lens -> { showLensDialog = true }
+                    FramesBatchEditOption.Aperture -> { showApertureDialog = true }
+                    FramesBatchEditOption.ShutterSpeed -> { showShutterDialog = true }
+                    FramesBatchEditOption.Filters -> { showFiltersDialog = true }
+                    FramesBatchEditOption.FocalLength -> { showFocalLengthDialog = true }
+                    FramesBatchEditOption.ExposureCompensation -> { showExposureCompDialog = true }
+                    FramesBatchEditOption.Location -> TODO()
+                    FramesBatchEditOption.LightSource -> { showLightSourceDialog = true }
+                    FramesBatchEditOption.ReverseFrameCounts -> {
+                        // Create a list of frame counts in reversed order
+                        val frameCountsReversed = selectedFrames.value
+                            .map(Frame::count)
+                            .reversed()
+                        selectedFrames.value.zip(frameCountsReversed) { frame, count ->
+                            frame.count = count
+                            framesViewModel.submitFrame(frame)
+                        }
+                    }
+                }
+            }
+        )
+    }
+    if (showFrameCountsDialog) {
+        FrameCountsDialog(
+            onDismiss = { showFrameCountsDialog = false },
+            onConfirm = { value ->
+                selectedFrames.value.forEach {
+                    it.count += value
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showDateTimeDialog) {
+        val currentDateTime = LocalDateTime.now()
+        val dateState = remember {
+            DatePickerState(
+                locale = CalendarLocale.getDefault(),
+                initialSelectedDateMillis = currentDateTime.epochMilliseconds
+            )
+        }
+        val is24HourFormat = DateFormat.is24HourFormat(LocalContext.current)
+        val timeState = remember {
+            TimePickerState(
+                initialHour = currentDateTime.hour,
+                initialMinute = currentDateTime.minute,
+                is24Hour = is24HourFormat
+            )
+        }
+        var showDatePicker by remember { mutableStateOf(false) }
+        var showTimePicker by remember { mutableStateOf(false) }
+        if (showDatePicker) {
+            DatePickerDialog(
+                onDismissRequest = { showDateTimeDialog = false },
+                dismissButton = {
+                    TextButton(onClick = { showDateTimeDialog = false }) {
+                        Text(stringResource(R.string.Cancel))
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDatePicker = false
+                            showTimePicker = true
+                        }
+                    ) {
+                        Text(stringResource(R.string.OK))
+                    }
+                }
+            ) {
+                DatePicker(state = dateState)
+            }
+        }
+        if (showTimePicker) {
+            TimePickerDialog(
+                timePickerState = timeState,
+                onDismiss = { showDateTimeDialog = false },
+                onConfirm = {
+                    showDateTimeDialog = false
+                    val date = dateState.selectedDateMillis?.let(::localDateTimeOrNull)
+                        ?: LocalDateTime.now()
+                    val dateTime = LocalDateTime.of(
+                        date.year,
+                        date.monthValue,
+                        date.dayOfMonth,
+                        timeState.hour,
+                        timeState.minute
+                    )
+                    selectedFrames.value.forEach {
+                        it.date = dateTime
+                        framesViewModel.submitFrame(it)
+                    }
+                }
+            )
+        }
+    }
+    if (showLensDialog) {
+        val noLensText = stringResource(R.string.NoLens)
+        val items = remember {
+            framesViewModel.lenses
+                .mapNonUniqueToNameWithSerial()
+                .plus(null  to noLensText)
+        }
+        SimpleItemsDialog(
+            items = items,
+            itemText = { Text(it.second) },
+            onDismiss = { showLensDialog = false },
+            onSelected = { value ->
+                showLensDialog = false
+                selectedFrames.value.forEach {
+                    it.lens = value.first
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showApertureDialog) {
+        CustomApertureDialog(
+            onDismiss = { showApertureDialog = false },
+            onConfirm = { value ->
+                selectedFrames.value.forEach {
+                    it.aperture = value
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showShutterDialog) {
+        val items = remember {
+            roll.value.camera?.shutterSpeedValues(context)?.withIndex()?.toList()
+                ?: Camera.defaultShutterSpeedValues(context).withIndex().toList()
+        }
+        SimpleItemsDialog(
+            items = items,
+            itemText = { Text(it.value) },
+            onDismiss = { showShutterDialog = false },
+            onSelected = { value ->
+                showShutterDialog = false
+                selectedFrames.value.forEach {
+                    it.shutter = if (value.index == 0) null else value.value
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showFiltersDialog) {
+        val items = remember {
+            framesViewModel.filters.associateWith { false }
+        }
+        MultiChoiceDialog(
+            initialItems = items,
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showFiltersDialog = false },
+            onConfirm = { filters ->
+                selectedFrames.value.forEach {
+                    it.filters = filters
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showFocalLengthDialog) {
+        FocalLengthDialog(
+            onDismiss = { showFocalLengthDialog = false },
+            onConfirm = { value ->
+                selectedFrames.value.forEach {
+                    it.focalLength = value
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showExposureCompDialog) {
+        val items = remember {
+            roll.value.camera?.exposureCompValues(context)?.toList()
+                ?: Camera.defaultExposureCompValues(context).toList()
+        }
+        SimpleItemsDialog(
+            items = items,
+            itemText = { Text(it) },
+            onDismiss = { showExposureCompDialog = false },
+            onSelected = { value ->
+                showExposureCompDialog = false
+                selectedFrames.value.forEach {
+                    it.exposureComp = value
+                    framesViewModel.submitFrame(it)
+                }
+            }
+        )
+    }
+    if (showLightSourceDialog) {
+        val items = remember { LightSource.entries.map { it to it.description(context) } }
+        SimpleItemsDialog(
+            items = items,
+            itemText = { Text(it.second ?: "") },
+            onDismiss = { showLightSourceDialog = false },
+            onSelected = { value ->
+                showLightSourceDialog = false
+                selectedFrames.value.forEach {
+                    it.lightSource = value.first
+                    framesViewModel.submitFrame(it)
                 }
             }
         )
@@ -399,4 +653,114 @@ private fun FramesContent(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun FocalLengthDialog(
+    onDismiss: () -> Unit = {},
+    onConfirm: (Int) -> Unit = {}
+) {
+    var value by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = value.toIntOrNull() != null,
+                onClick = {
+                    if (value.toIntOrNull() != null) {
+                        onConfirm(value.toIntOrNull() ?: 0)
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.OK))
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(stringResource(R.string.EditFocalLength))
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    modifier = Modifier.width(100.dp),
+                    value = value,
+                    onValueChange = {
+                        value = if (it.isEmpty()) {
+                            it
+                        } else {
+                            when (it.toIntOrNull()) {
+                                null -> value
+                                else -> it
+                            }
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+fun FrameCountsDialog(
+    onDismiss: () -> Unit = {},
+    onConfirm: (Int) -> Unit = {}
+) {
+    var value by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = value.toIntOrNull() != null,
+                onClick = {
+                    if (value.toIntOrNull() != null) {
+                        onConfirm(value.toIntOrNull() ?: 0)
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.OK))
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(stringResource(R.string.EditFrameCountsBy))
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    modifier = Modifier.width(100.dp),
+                    value = value,
+                    onValueChange = {
+                        value = if (it.isEmpty()) {
+                            it
+                        } else {
+                            when (it.toIntOrNull()) {
+                                null -> value
+                                else -> it
+                            }
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+        }
+    )
 }
