@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.screens.rolls
+package com.tommihirvonen.exifnotes.screens.rolledit
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

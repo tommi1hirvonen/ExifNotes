@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.screens.rolls
+package com.tommihirvonen.exifnotes.screens.rolledit
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

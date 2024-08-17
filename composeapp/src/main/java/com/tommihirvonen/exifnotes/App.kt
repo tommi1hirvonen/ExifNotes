@@ -50,8 +50,8 @@ import com.tommihirvonen.exifnotes.screens.labels.LabelsScreen
 import com.tommihirvonen.exifnotes.screens.location.LocationPickScreen
 import com.tommihirvonen.exifnotes.screens.main.MainScreen
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
-import com.tommihirvonen.exifnotes.screens.rolls.RollEditScreen
-import com.tommihirvonen.exifnotes.screens.rolls.RollViewModel
+import com.tommihirvonen.exifnotes.screens.rolledit.RollEditScreen
+import com.tommihirvonen.exifnotes.screens.rolledit.RollViewModel
 import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapScreen
 import com.tommihirvonen.exifnotes.screens.rollsmap.RollsMapViewModel
 import com.tommihirvonen.exifnotes.screens.settings.LicenseScreen
