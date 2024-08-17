@@ -36,7 +36,7 @@ class LensTest {
             minFocalLength = 28,
             maxFocalLength = 28,
             serialNumber = "ABC123",
-            apertureIncrements = Increment.HALF
+            apertureIncrements = Increment.Half
         )
         val format = Json { prettyPrint = true }
         val json = format.encodeToString(lens)

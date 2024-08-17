@@ -39,7 +39,7 @@ import java.util.ArrayList
 data class Frame(
     var id: Long = 0,
     @Transient
-    val roll: Roll = Roll(),
+    var roll: Roll = Roll(),
     @EncodeDefault
     var count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -61,9 +61,11 @@ data class Frame(
     var meteringMode: Int = 0, // not used
     var pictureFilename: String? = null,
     @EncodeDefault
-    var lightSource: LightSource = LightSource.UNKNOWN,
+    var lightSource: LightSource = LightSource.Unknown,
     var lens: Lens? = null,
-    var filters: List<Filter> = ArrayList()
+    var filters: List<Filter> = ArrayList(),
+    @Transient
+    var pictureFileExists: Boolean = false
 ) : Parcelable {
 
     constructor(roll1: Roll) : this(roll = roll1)

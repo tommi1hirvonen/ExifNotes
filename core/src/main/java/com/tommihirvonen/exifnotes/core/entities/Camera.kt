@@ -39,9 +39,9 @@ data class Camera(
     var minShutter: String? = null,
     var maxShutter: String? = null,
     @EncodeDefault
-    var shutterIncrements: Increment = Increment.THIRD,
+    var shutterIncrements: Increment = Increment.Third,
     @EncodeDefault
-    var exposureCompIncrements: PartialIncrement = PartialIncrement.THIRD,
+    var exposureCompIncrements: PartialIncrement = PartialIncrement.Third,
     @EncodeDefault
     var format: Format = Format.MM35,
     var lens: Lens? = null,
@@ -53,9 +53,9 @@ data class Camera(
 
     fun shutterSpeedValues(context: Context): Array<String> =
         when (shutterIncrements) {
-            Increment.THIRD -> context.resources.getStringArray(R.array.ShutterValuesThird)
-            Increment.HALF -> context.resources.getStringArray(R.array.ShutterValuesHalf)
-            Increment.FULL -> context.resources.getStringArray(R.array.ShutterValuesFull)
+            Increment.Third -> context.resources.getStringArray(R.array.ShutterValuesThird)
+            Increment.Half -> context.resources.getStringArray(R.array.ShutterValuesHalf)
+            Increment.Full -> context.resources.getStringArray(R.array.ShutterValuesFull)
         }.reversed().let { values ->
             val minIndex = values.indexOfFirst { it == minShutter }
             val maxIndex = values.indexOfFirst { it == maxShutter }
@@ -70,8 +70,8 @@ data class Camera(
 
     fun exposureCompValues(context: Context): Array<String> =
         when (exposureCompIncrements) {
-            PartialIncrement.THIRD -> context.resources.getStringArray(R.array.CompValues)
-            PartialIncrement.HALF -> context.resources.getStringArray(R.array.CompValuesHalf)
+            PartialIncrement.Third -> context.resources.getStringArray(R.array.CompValues)
+            PartialIncrement.Half -> context.resources.getStringArray(R.array.CompValuesHalf)
         }.reversedArray()
 
     companion object {

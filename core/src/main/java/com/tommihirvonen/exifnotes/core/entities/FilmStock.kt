@@ -34,9 +34,9 @@ data class FilmStock(
     override var model: String? = null,
     var iso: Int = 0,
     @EncodeDefault
-    var type: FilmType = FilmType.UNKNOWN,
+    var type: FilmType = FilmType.Unknown,
     @EncodeDefault
-    var process: FilmProcess = FilmProcess.UNKNOWN,
+    var process: FilmProcess = FilmProcess.Unknown,
     @EncodeDefault
     var isPreadded: Boolean = false) : Gear(), Comparable<Gear>
 

@@ -41,7 +41,7 @@ data class Lens(
     var minFocalLength: Int = 0,
     var maxFocalLength: Int = 0,
     @EncodeDefault
-    var apertureIncrements: Increment = Increment.THIRD,
+    var apertureIncrements: Increment = Increment.Third,
     @Transient
     var filterIds: HashSet<Long> = HashSet(),
     @Transient
@@ -51,9 +51,9 @@ data class Lens(
 
     fun apertureValues(context: Context): Array<String> =
         when (apertureIncrements) {
-            Increment.THIRD -> context.resources.getStringArray(R.array.ApertureValuesThird)
-            Increment.HALF -> context.resources.getStringArray(R.array.ApertureValuesHalf)
-            Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull)
+            Increment.Third -> context.resources.getStringArray(R.array.ApertureValuesThird)
+            Increment.Half -> context.resources.getStringArray(R.array.ApertureValuesHalf)
+            Increment.Full -> context.resources.getStringArray(R.array.ApertureValuesFull)
         }
             .reversed()
             .let { values ->

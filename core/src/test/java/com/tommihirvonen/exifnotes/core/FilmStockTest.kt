@@ -33,8 +33,8 @@ class FilmStockTest {
             make = "ILFORD",
             model = "HP5+",
             iso = 400,
-            type = FilmType.BW_NEGATIVE,
-            process = FilmProcess.BW_NEGATIVE,
+            type = FilmType.BWNegative,
+            process = FilmProcess.BWNegative,
             isPreadded = true
         )
         val format = Json { prettyPrint = true }

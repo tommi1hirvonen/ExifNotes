@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.data.repositories
 
 import android.content.ContentValues
+import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.entities.Format
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.RollFilterMode
@@ -32,10 +33,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class RollRepository @Inject constructor(private val database: Database,
-                                         private val cameras: CameraRepository,
-                                         private val labels: LabelRepository,
-                                         private val filmStocks: FilmStockRepository) {
+class RollRepository @Inject constructor(
+    private val database: Database,
+    private val cameras: CameraRepository,
+    private val labels: LabelRepository,
+    private val filmStocks: FilmStockRepository
+) {
 
     fun addRoll(roll: Roll): Long {
         val id = database.insert(TABLE_ROLLS, buildRollContentValues(roll))
@@ -52,6 +55,11 @@ class RollRepository @Inject constructor(private val database: Database,
         }
         return id
     }
+
+    fun getRoll(rollId: Long) = database
+        .from(TABLE_ROLLS)
+        .where { KEY_ROLL_ID eq rollId }
+        .firstOrNull(rollMapper)
 
     fun getRolls(filterMode: RollFilterMode): List<Roll> {
         val predicate: Predicate.() -> Any = {
@@ -72,25 +80,7 @@ class RollRepository @Inject constructor(private val database: Database,
         return database.from(TABLE_ROLLS)
             .where(predicate)
             .orderBy { KEY_ROLL_DATE.desc() }
-            .map { row ->
-                Roll(
-                    id = row.getLong(KEY_ROLL_ID),
-                    name = row.getStringOrNull(KEY_ROLLNAME),
-                    date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
-                    unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
-                    developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::localDateTimeOrNull),
-                    note = row.getStringOrNull(KEY_ROLL_NOTE),
-                    camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(cameras::getCamera),
-                    iso = row.getInt(KEY_ROLL_ISO),
-                    pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
-                    format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
-                    archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
-                    favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
-                    filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock)
-                ).apply {
-                    labels = this@RollRepository.labels.getLabels(this)
-                }
-            }
+            .map(rollMapper)
     }
 
     val rollCounts: RollCounts get() {
@@ -136,9 +126,31 @@ class RollRepository @Inject constructor(private val database: Database,
             .update(contentValues)
     }
 
-    fun getNumberOfFrames(roll: Roll): Int = database
+    fun getNumberOfFrames(rollId: Long): Int = database
         .from(TABLE_FRAMES)
-        .count { KEY_ROLL_ID eq roll.id }
+        .count { KEY_ROLL_ID eq rollId }
+
+    private val rollMapper = { row: Cursor ->
+        val rollId = row.getLong(KEY_ROLL_ID)
+        Roll(
+            id = rollId,
+            name = row.getStringOrNull(KEY_ROLLNAME),
+            date = row.getStringOrNull(KEY_ROLL_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
+            unloaded = row.getStringOrNull(KEY_ROLL_UNLOADED)?.let(::localDateTimeOrNull),
+            developed = row.getStringOrNull(KEY_ROLL_DEVELOPED)?.let(::localDateTimeOrNull),
+            note = row.getStringOrNull(KEY_ROLL_NOTE),
+            camera = row.getLongOrNull(KEY_CAMERA_ID)?.let(cameras::getCamera),
+            iso = row.getInt(KEY_ROLL_ISO),
+            pushPull = row.getStringOrNull(KEY_ROLL_PUSH),
+            format = Format.from(row.getInt(KEY_ROLL_FORMAT)),
+            archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
+            favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
+            filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock),
+            frameCount = getNumberOfFrames(rollId)
+        ).apply {
+            labels = this@RollRepository.labels.getLabels(this)
+        }
+    }
 
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
         put(KEY_ROLLNAME, roll.name)

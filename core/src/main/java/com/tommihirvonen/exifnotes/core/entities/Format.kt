@@ -22,13 +22,17 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class Format {
-    MM35, MEDIUM_FORMAT_120, APS_110, SHEET;
-
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmFormats).getOrNull(ordinal)
+    MM35, MediumFormat120, APS110, Sheet;
 
     companion object {
         fun from(value: Int) =
             entries.firstOrNull { it.ordinal == value } ?: MM35
+    }
+
+    fun description(context: Context) = when (this) {
+        MM35 -> "35 mm"
+        MediumFormat120 -> "120"
+        APS110 -> "110"
+        Sheet -> context.getString(R.string.Sheet)
     }
 }

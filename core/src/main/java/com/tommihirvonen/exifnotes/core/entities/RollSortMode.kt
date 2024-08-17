@@ -19,9 +19,9 @@
 package com.tommihirvonen.exifnotes.core.entities
 
 enum class RollSortMode(value: Int) {
-    DATE(0),
-    NAME(1),
-    CAMERA(2);
+    Date(0),
+    Name(1),
+    Camera(2);
 
     var value: Int = 0
         internal set
@@ -31,10 +31,10 @@ enum class RollSortMode(value: Int) {
     }
 
     val comparator: Comparator<Roll> get() = when (this) {
-        DATE -> compareByDescending { roll ->
+        Date -> compareByDescending { roll ->
             roll.date
         }
-        NAME -> compareByDescending<Roll> { roll ->
+        Name -> compareByDescending<Roll> { roll ->
             val numberPrefixRegex = "^(\\d+).*".toRegex(RegexOption.DOT_MATCHES_ALL)
             val result = numberPrefixRegex.matchEntire(roll.name ?: "")
             val numberPrefix = result?.groups?.get(1)?.value?.toIntOrNull()
@@ -46,22 +46,10 @@ enum class RollSortMode(value: Int) {
         }.thenByDescending { roll ->
             roll.developed ?: roll.unloaded ?: roll.date
         }
-        CAMERA -> compareBy<Roll> { roll ->
+        Camera -> compareBy<Roll> { roll ->
             roll.camera
         }.thenByDescending { roll ->
             roll.developed ?: roll.unloaded ?: roll.date
-        }
-    }
-
-    companion object {
-
-        fun fromValue(value: Int): RollSortMode {
-            return when (value) {
-                0 -> DATE
-                1 -> NAME
-                2 -> CAMERA
-                else -> DATE
-            }
         }
     }
 }

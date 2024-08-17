@@ -43,8 +43,8 @@ class FrameTest {
         make = "ILFORD",
         model = "HP5+",
         iso = 400,
-        type = FilmType.BW_NEGATIVE,
-        process = FilmProcess.BW_NEGATIVE,
+        type = FilmType.BWNegative,
+        process = FilmProcess.BWNegative,
         isPreadded = true
     )
 
@@ -62,8 +62,8 @@ class FrameTest {
             serialNumber = "ABC123",
             minShutter = "1/1000",
             maxShutter = "30",
-            shutterIncrements = Increment.HALF,
-            exposureCompIncrements = PartialIncrement.THIRD,
+            shutterIncrements = Increment.Half,
+            exposureCompIncrements = PartialIncrement.Third,
             format = Format.MM35
         )
         val roll = Roll(
@@ -89,7 +89,7 @@ class FrameTest {
             minFocalLength = 28,
             maxFocalLength = 28,
             serialNumber = "ABC123",
-            apertureIncrements = Increment.HALF
+            apertureIncrements = Increment.Half
         )
         val frame = Frame(
             id = 5,
@@ -105,7 +105,7 @@ class FrameTest {
             exposureComp = "+1/3",
             noOfExposures = 1,
             flashUsed = false,
-            lightSource = LightSource.SUNNY,
+            lightSource = LightSource.Sunny,
             lens = lens,
             filters = filters
         )
@@ -123,8 +123,8 @@ class FrameTest {
             serialNumber = "ABC123",
             minShutter = "1/500",
             maxShutter = "8",
-            shutterIncrements = Increment.HALF,
-            exposureCompIncrements = PartialIncrement.THIRD,
+            shutterIncrements = Increment.Half,
+            exposureCompIncrements = PartialIncrement.Third,
             format = Format.MM35,
             lens = Lens(
                 id = 124,
@@ -132,7 +132,7 @@ class FrameTest {
                 maxAperture = "22",
                 minFocalLength = 38,
                 maxFocalLength = 38,
-                apertureIncrements = Increment.HALF
+                apertureIncrements = Increment.Half
             ),
         )
         val roll = Roll(
@@ -163,7 +163,7 @@ class FrameTest {
             exposureComp = "+1/3",
             noOfExposures = 1,
             flashUsed = false,
-            lightSource = LightSource.SUNNY,
+            lightSource = LightSource.Sunny,
             filters = filters
         )
         val format = Json { prettyPrint = true }

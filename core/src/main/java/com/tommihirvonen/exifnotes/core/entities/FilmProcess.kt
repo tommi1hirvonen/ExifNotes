@@ -22,18 +22,25 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class FilmProcess {
-    UNKNOWN,
-    BW_NEGATIVE,
-    BW_REVERSAL,
+    Unknown,
+    BWNegative,
+    BWReversal,
     C41,
     E6,
     ECN2,
-    INTEGRAL;
+    Integral;
 
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmProcesses).getOrNull(ordinal)
+    fun description(context: Context) = when (this) {
+        Unknown -> context.resources.getString(R.string.Unknown)
+        BWNegative -> context.resources.getString(R.string.BWNegative)
+        BWReversal -> context.resources.getString(R.string.BWReversal)
+        C41 -> "C-41"
+        E6 -> "E-6"
+        ECN2 -> "ECN-2"
+        Integral -> context.resources.getString(R.string.Integral)
+    }
 
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: Unknown
     }
 }

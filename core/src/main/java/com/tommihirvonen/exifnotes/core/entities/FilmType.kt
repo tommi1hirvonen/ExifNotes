@@ -22,20 +22,29 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class FilmType {
-    UNKNOWN,
-    BW_NEGATIVE,
-    BW_REVERSAL,
-    BW_INSTANT,
-    COLOR_NEGATIVE,
-    COLOR_REVERSAL,
-    COLOR_INSTANT,
-    MOTION_PIC_BW_NEGATIVE,
-    MOTION_PIC_COLOR_NEGATIVE;
+    Unknown,
+    BWNegative,
+    BWReversal,
+    BWInstant,
+    ColorNegative,
+    ColorReversal,
+    ColorInstant,
+    MotionPictureBWNegative,
+    MotionPictureColorNegative;
 
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmTypes).getOrNull(ordinal)
+    fun description(context: Context) = when (this) {
+        Unknown -> context.resources.getString(R.string.Unknown)
+        BWNegative -> context.resources.getString(R.string.BWNegative)
+        BWReversal -> context.resources.getString(R.string.BWReversal)
+        BWInstant -> context.resources.getString(R.string.BWInstant)
+        ColorNegative -> context.resources.getString(R.string.ColourNegative)
+        ColorReversal -> context.resources.getString(R.string.ColourReversal)
+        ColorInstant -> context.resources.getString(R.string.ColourInstant)
+        MotionPictureBWNegative -> context.resources.getString(R.string.MotionPictureBWNegative)
+        MotionPictureColorNegative -> context.resources.getString(R.string.MotionPictureColourNegative)
+    }
 
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: Unknown
     }
 }
