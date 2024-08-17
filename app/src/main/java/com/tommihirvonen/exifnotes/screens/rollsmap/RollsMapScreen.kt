@@ -151,15 +151,15 @@ private fun RollsMapContentPreview() {
 @Composable
 private fun RollsMapContent(
     title: String,
-    rolls: List<RollWrapper>,
-    selectedRolls: List<Pair<RollWrapper, Bitmap>>,
+    rolls: List<Roll>,
+    selectedRolls: List<Pair<Roll, Bitmap>>,
     isDarkTheme: Boolean,
     myLocationEnabled: Boolean,
     mapType: MapType,
     onNavigateUp: () -> Unit,
     onMapTypeChange: (MapType) -> Unit,
     onFrameEdit: (Frame) -> Unit,
-    onSelectedRollsChange: (List<RollWrapper>) -> Unit
+    onSelectedRollsChange: (List<Roll>) -> Unit
 ) {
     val context = LocalContext.current
     var mapTypeExpanded by remember { mutableStateOf(false) }
@@ -240,8 +240,8 @@ private fun RollsMapContent(
                 )
             ) {
                 for (pair in selectedRolls) {
-                    val (rollWrapper, marker) = pair
-                    val (roll, frames) = rollWrapper
+                    val (roll, marker) = pair
+                    val frames = roll.frames
                     for (frame in frames) {
                         val location = frame.location ?: continue
                         val markerState = remember(frames) {
@@ -308,10 +308,9 @@ private fun RollsFilterDialogPreview() {
     val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
         drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
     val roll = Roll(name = "Test roll")
-    val wrapper = RollWrapper(roll, emptyList())
     RollsFilterDialog(
-        rolls = listOf(wrapper),
-        selectedRolls = listOf(wrapper to bitmap),
+        rolls = listOf(roll),
+        selectedRolls = listOf(roll to bitmap),
         onDismiss = {},
         onConfirm = {}
     )
@@ -319,10 +318,10 @@ private fun RollsFilterDialogPreview() {
 
 @Composable
 private fun RollsFilterDialog(
-    rolls: List<RollWrapper>,
-    selectedRolls: List<Pair<RollWrapper, Bitmap>>,
+    rolls: List<Roll>,
+    selectedRolls: List<Pair<Roll, Bitmap>>,
     onDismiss: () -> Unit,
-    onConfirm: (List<RollWrapper>) -> Unit
+    onConfirm: (List<Roll>) -> Unit
 ) {
     val items = remember(selectedRolls) {
         rolls.associateWith { roll ->
@@ -333,12 +332,12 @@ private fun RollsFilterDialog(
     }
     val list = remember(selectedRolls) {
         val nonSelected = rolls.filter { roll ->
-            selectedRolls.none { it.first.roll.id == roll.roll.id }
+            selectedRolls.none { it.first.id == roll.id }
         }
         selectedRolls
-            .sortedBy { it.first.roll.name?.lowercase() }
+            .sortedBy { it.first.name?.lowercase() }
             .plus(
-                nonSelected.sortedBy { it.roll.name?.lowercase() }
+                nonSelected.sortedBy { it.name?.lowercase() }
                     .map { it to null }
             )
     }
@@ -374,7 +373,7 @@ private fun RollsFilterDialog(
                                     }
                                 )
                                 Text(
-                                    text = roll.roll.name ?: "",
+                                    text = roll.name ?: "",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }

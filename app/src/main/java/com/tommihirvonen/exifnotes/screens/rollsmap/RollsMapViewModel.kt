@@ -91,10 +91,10 @@ class RollsMapViewModel @AssistedInject constructor(
 
     val mapType = _mapType.asStateFlow()
 
-    private val _allRolls = MutableStateFlow<List<RollWrapper>>(emptyList())
+    private val _allRolls = MutableStateFlow<List<Roll>>(emptyList())
     val allRolls = _allRolls.asStateFlow()
 
-    private val _selectedRolls = MutableStateFlow<List<Pair<RollWrapper, Bitmap>>>(emptyList())
+    private val _selectedRolls = MutableStateFlow<List<Pair<Roll, Bitmap>>>(emptyList())
     val selectedRolls = _selectedRolls.asStateFlow()
 
     fun setMapType(mapType: MapType) {
@@ -104,36 +104,35 @@ class RollsMapViewModel @AssistedInject constructor(
         }
     }
 
-    fun setSelectedRolls(rolls: List<RollWrapper>) {
+    fun setSelectedRolls(rolls: List<Roll>) {
         _selectedRolls.value = rolls
-            .sortedBy { it.roll.name?.lowercase() }
+            .sortedBy { it.name?.lowercase() }
             .mapIndexed { index, roll ->
                 val i = index % markerBitmaps.size
                 roll to markerBitmaps[i]
             }
     }
 
-    fun submitFrame(frame: Frame) {
-        if (frameRepository.updateFrame(frame) == 0) {
-            frameRepository.addFrame(frame)
+    fun submitFrame(value: Frame) {
+        val frame = if (frameRepository.updateFrame(value) == 0) {
+            frameRepository.addFrame(value)
+        } else {
+            value
         }
-        val (roll, prevFrames) = _allRolls.value
-            .firstOrNull { it.roll.id == frame.rollId }
+        val roll = _allRolls.value
+            .firstOrNull { it.id == frame.rollId }
             ?: return
-        val frames = prevFrames.filterNot { it.id == frame.id }.plus(frame)
+        val frames = roll.frames.filterNot { it.id == frame.id }.plus(frame)
+        val copy = roll.copy(frames = frames)
         _allRolls.value = _allRolls.value
-            .filterNot { it.roll.id == roll.id }
-            .plus(
-                RollWrapper(roll, frames)
-            )
+            .filterNot { it.id == roll.id }
+            .plus(copy)
         val (selected, bitmap) = _selectedRolls.value
-            .firstOrNull { it.first.roll.id == roll.id }
+            .firstOrNull { it.first.id == roll.id }
             ?: return
         _selectedRolls.value = _selectedRolls.value
-            .filterNot { it.first.roll.id == selected.roll.id }
-            .plus(
-                RollWrapper(roll, frames) to bitmap
-            )
+            .filterNot { it.first.id == selected.id }
+            .plus(copy to bitmap)
     }
 
     private fun loadData() {
@@ -141,7 +140,7 @@ class RollsMapViewModel @AssistedInject constructor(
             withContext(Dispatchers.IO) {
                 val rolls = initialRolls.map { roll ->
                     val frames = frameRepository.getFrames(roll)
-                    RollWrapper(roll, frames)
+                    roll.copy(frames = frames)
                 }
                 _allRolls.value = rolls
                 _selectedRolls.value = rolls.mapIndexed { index, roll ->
@@ -195,5 +194,3 @@ private fun setBitmapHue(bitmap: Bitmap, hue: Float): Bitmap {
     }
     return bitmap
 }
-
-data class RollWrapper(val roll: Roll, val frames: List<Frame>)
