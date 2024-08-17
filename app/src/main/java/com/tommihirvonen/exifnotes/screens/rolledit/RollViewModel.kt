@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.screens.rolledit
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.Format
@@ -52,7 +51,7 @@ class RollViewModel @AssistedInject constructor (
     }
     
     val pushPullValues = application.applicationContext.resources
-        .getStringArray(R.array.CompValues)
+        .getStringArray(com.tommihirvonen.exifnotes.core.R.array.CompValues)
         .toList()
 
     private val _roll = MutableStateFlow(

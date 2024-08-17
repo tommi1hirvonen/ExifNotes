@@ -124,9 +124,9 @@ abstract class LensViewModel(
     }
 
     private fun getApertureValues(increment: Increment) = when (increment) {
-        Increment.THIRD -> context.resources.getStringArray(R.array.ApertureValuesThird).toList()
-        Increment.HALF -> context.resources.getStringArray(R.array.ApertureValuesHalf).toList()
-        Increment.FULL -> context.resources.getStringArray(R.array.ApertureValuesFull).toList()
+        Increment.THIRD -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ApertureValuesThird).toList()
+        Increment.HALF -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ApertureValuesHalf).toList()
+        Increment.FULL -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ApertureValuesFull).toList()
     }
 
     fun setMinAperture(value: String?) {
