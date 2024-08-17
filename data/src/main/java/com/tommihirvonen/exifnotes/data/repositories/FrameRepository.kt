@@ -42,17 +42,14 @@ class FrameRepository @Inject constructor(
     private val lenses: LensRepository,
     private val rolls: RollRepository
 ) {
-    fun addFrame(frame: Frame): Boolean {
-        val values = buildFrameContentValues(frame)
-        val rowId = database.insert(TABLE_FRAMES, values)
-        frame.id = rowId
-        // Add the filter links, if the frame was inserted successfully.
-        return if (rowId != -1L) {
+    fun addFrame(value: Frame): Frame {
+        val values = buildFrameContentValues(value)
+        val id = database.insert(TABLE_FRAMES, values)
+        val frame = value.copy(id = id)
+        if (id != -1L) {
             frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
-            true
-        } else {
-            false
         }
+        return frame
     }
 
     private fun addFrameFilterLink(frame: Frame, filter: Filter) {
@@ -91,9 +88,10 @@ class FrameRepository @Inject constructor(
     }
 
     private fun frameMapper(roll: Roll) = { row: Cursor ->
+        val id = row.getLong(KEY_FRAME_ID)
         Frame(
             roll = roll,
-            id = row.getLong(KEY_FRAME_ID),
+            id = id,
             count = row.getInt(KEY_COUNT),
             shutter = row.getStringOrNull(KEY_SHUTTER),
             aperture = row.getStringOrNull(KEY_APERTURE),
@@ -110,10 +108,9 @@ class FrameRepository @Inject constructor(
             flashPower = row.getStringOrNull(KEY_FLASH_POWER),
             location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
             date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
-            lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
-        ).apply {
-            filters = this@FrameRepository.filters.getLinkedFilters(this)
-        }
+            lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens),
+            filters = filters.getLinkedFilters(id)
+        )
     }
 
     fun updateFrame(frame: Frame): Int {

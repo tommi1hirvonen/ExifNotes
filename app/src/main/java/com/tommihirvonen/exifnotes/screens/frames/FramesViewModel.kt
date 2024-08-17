@@ -110,9 +110,11 @@ class FramesViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
-    fun submitFrame(frame: Frame) {
-        if (frameRepository.updateFrame(frame) == 0) {
-            frameRepository.addFrame(frame)
+    fun submitFrame(value: Frame) {
+        val frame = if (frameRepository.updateFrame(value) == 0) {
+            frameRepository.addFrame(value)
+        } else {
+            value
         }
         val sortMode = _frameSortMode.value
         framesList = framesList
@@ -124,9 +126,7 @@ class FramesViewModel @AssistedInject constructor(
 
     fun setRoll(roll: Roll) {
         _roll.value = roll
-        for (frame in framesList) {
-            frame.roll = roll
-        }
+        framesList = framesList.map { it.copy(roll = roll) }
     }
 
     fun toggleFrameSelection(frame: Frame) {
@@ -170,16 +170,21 @@ class FramesViewModel @AssistedInject constructor(
                 _roll.value = rollRepository.getRoll(rollId) ?: Roll()
                 framesList = frameRepository
                     .getFrames(roll.value)
+                    .map { frame ->
+                        // For frames which have a complementary picture,
+                        // check whether the picture file actually exists.
+                        // Then we can display an appropriate icon in the UI.
+                        val filename = frame.pictureFilename
+                        if (filename != null) {
+                            val exists = complementaryPicturesManager
+                                .getPictureFile(filename)
+                                .exists()
+                            frame.copy(pictureFileExists = exists)
+                        } else {
+                            frame
+                        }
+                    }
                     .sorted(getApplication(), sortMode)
-                // For frames which have a complementary picture,
-                // check whether the picture file actually exists.
-                // Then we can display an appropriate icon in the UI.
-                for (frame in framesList) {
-                    val pictureFilename = frame.pictureFilename ?: continue
-                    frame.pictureFileExists = complementaryPicturesManager
-                        .getPictureFile(pictureFilename)
-                        .exists()
-                }
                 _frames.value = LoadState.Success(framesList)
             }
         }

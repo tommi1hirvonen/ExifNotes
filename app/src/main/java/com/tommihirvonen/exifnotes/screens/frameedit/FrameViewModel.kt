@@ -108,9 +108,10 @@ class FrameViewModel @AssistedInject constructor(
         val existingFrame = frameRepository.getFrame(frameId)
         val frame = if (existingFrame != null) {
             existingFrame.pictureFilename?.let {
-                existingFrame.pictureFileExists = complementaryPicturesManager
+                val exists = complementaryPicturesManager
                     .getPictureFile(it)
                     .exists()
+                existingFrame.copy(pictureFileExists = exists)
             }
             existingFrame
         } else {

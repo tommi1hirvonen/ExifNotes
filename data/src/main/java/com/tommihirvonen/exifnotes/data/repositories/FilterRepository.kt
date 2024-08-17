@@ -21,7 +21,6 @@ package com.tommihirvonen.exifnotes.data.repositories
 import android.content.ContentValues
 import android.database.Cursor
 import com.tommihirvonen.exifnotes.core.entities.Filter
-import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
 import com.tommihirvonen.exifnotes.data.constants.*
@@ -82,13 +81,13 @@ class FilterRepository @Inject constructor(private val database: Database) {
             .update(contentValues)
     }
 
-    fun getLinkedFilters(frame: Frame) = database
+    internal fun getLinkedFilters(frameId: Long) = database
         .from(TABLE_FILTERS)
         .where {
             KEY_FILTER_ID `in` {
                 from(TABLE_LINK_FRAME_FILTER)
                     .select(KEY_FILTER_ID)
-                    .where { KEY_FRAME_ID eq frame.id }
+                    .where { KEY_FRAME_ID eq frameId }
             }
         }.map { filterMapper(it) { hashSetOf() } }
 

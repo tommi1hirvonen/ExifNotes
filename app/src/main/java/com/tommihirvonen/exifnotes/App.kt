@@ -189,10 +189,13 @@ fun App(onFinish: () -> Unit) {
                     frame = null,
                     onNavigateUp = { navController.navigateUp() },
                     onLocationConfirm = { latLng, address ->
-                        framesViewModel.selectedFrames.value.forEach {
-                            it.location = latLng
-                            it.formattedAddress = address
-                            framesViewModel.submitFrame(it)
+                        framesViewModel.selectedFrames.value.forEach { frame ->
+                            framesViewModel.submitFrame(
+                                frame.copy(
+                                    location = latLng,
+                                    formattedAddress = address
+                                )
+                            )
                         }
                         navController.navigateUp()
                     },

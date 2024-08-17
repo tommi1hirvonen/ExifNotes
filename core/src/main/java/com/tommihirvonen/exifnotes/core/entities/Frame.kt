@@ -37,35 +37,35 @@ import java.util.ArrayList
 @Serializable
 @Keep
 data class Frame(
-    var id: Long = 0,
+    val id: Long = 0,
     @Transient
-    var roll: Roll = Roll(),
+    val roll: Roll = Roll(),
     @EncodeDefault
-    var count: Int = 0,
+    val count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
-    var date: LocalDateTime = LocalDateTime.now(),
-    var shutter: String? = null,
-    var aperture: String? = null,
-    var note: String? = null,
+    val date: LocalDateTime = LocalDateTime.now(),
+    val shutter: String? = null,
+    val aperture: String? = null,
+    val note: String? = null,
     @Serializable(with = LatLngSerializer::class)
-    var location: LatLng? = null,
-    var formattedAddress: String? = null,
-    var focalLength: Int = 0,
-    var exposureComp: String? = null,
+    val location: LatLng? = null,
+    val formattedAddress: String? = null,
+    val focalLength: Int = 0,
+    val exposureComp: String? = null,
     @EncodeDefault
-    var noOfExposures: Int = 1,
+    val noOfExposures: Int = 1,
     @EncodeDefault
-    var flashUsed: Boolean = false,
-    var flashPower: String? = null, // not used
-    var flashComp: String? = null, // not used
-    var meteringMode: Int = 0, // not used
-    var pictureFilename: String? = null,
+    val flashUsed: Boolean = false,
+    val flashPower: String? = null, // not used
+    val flashComp: String? = null, // not used
+    val meteringMode: Int = 0, // not used
+    val pictureFilename: String? = null,
     @EncodeDefault
-    var lightSource: LightSource = LightSource.Unknown,
-    var lens: Lens? = null,
-    var filters: List<Filter> = ArrayList(),
+    val lightSource: LightSource = LightSource.Unknown,
+    val lens: Lens? = null,
+    val filters: List<Filter> = ArrayList(),
     @Transient
-    var pictureFileExists: Boolean = false
+    val pictureFileExists: Boolean = false
 ) : Parcelable {
 
     constructor(roll1: Roll) : this(roll = roll1)

@@ -299,8 +299,7 @@ fun FramesScreen(
                         selectedFrames.value
                             .sortedBy { it.count }
                             .zip(frameCountsReversed) { frame, count ->
-                                frame.count = count
-                                framesViewModel.submitFrame(frame)
+                                framesViewModel.submitFrame(frame.copy(count = count))
                             }
                     }
                 }
@@ -312,9 +311,8 @@ fun FramesScreen(
             onDismiss = { showFrameCountsDialog = false },
             onConfirm = { value ->
                 showFrameCountsDialog = false
-                selectedFrames.value.forEach {
-                    it.count += value
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(count = frame.count + value))
                 }
             }
         )
@@ -374,9 +372,8 @@ fun FramesScreen(
                         timeState.hour,
                         timeState.minute
                     )
-                    selectedFrames.value.forEach {
-                        it.date = dateTime
-                        framesViewModel.submitFrame(it)
+                    selectedFrames.value.forEach { frame ->
+                        framesViewModel.submitFrame(frame.copy(date = dateTime))
                     }
                 }
             )
@@ -395,9 +392,8 @@ fun FramesScreen(
             onDismiss = { showLensDialog = false },
             onSelected = { value ->
                 showLensDialog = false
-                selectedFrames.value.forEach {
-                    it.lens = value.first
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(lens = value.first))
                 }
             }
         )
@@ -407,9 +403,8 @@ fun FramesScreen(
             onDismiss = { showApertureDialog = false },
             onConfirm = { value ->
                 showApertureDialog = false
-                selectedFrames.value.forEach {
-                    it.aperture = value
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(aperture = value))
                 }
             }
         )
@@ -425,9 +420,9 @@ fun FramesScreen(
             onDismiss = { showShutterDialog = false },
             onSelected = { value ->
                 showShutterDialog = false
-                selectedFrames.value.forEach {
-                    it.shutter = if (value.index == 0) null else value.value
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    val shutter = if (value.index == 0) null else value.value
+                    framesViewModel.submitFrame(frame.copy(shutter = shutter))
                 }
             }
         )
@@ -443,9 +438,8 @@ fun FramesScreen(
             onDismiss = { showFiltersDialog = false },
             onConfirm = { filters ->
                 showFiltersDialog = false
-                selectedFrames.value.forEach {
-                    it.filters = filters
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(filters = filters))
                 }
             }
         )
@@ -455,9 +449,8 @@ fun FramesScreen(
             onDismiss = { showFocalLengthDialog = false },
             onConfirm = { value ->
                 showFocalLengthDialog = false
-                selectedFrames.value.forEach {
-                    it.focalLength = value
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(focalLength = value))
                 }
             }
         )
@@ -473,9 +466,8 @@ fun FramesScreen(
             onDismiss = { showExposureCompDialog = false },
             onSelected = { value ->
                 showExposureCompDialog = false
-                selectedFrames.value.forEach {
-                    it.exposureComp = value
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(exposureComp = value))
                 }
             }
         )
@@ -488,9 +480,8 @@ fun FramesScreen(
             onDismiss = { showLightSourceDialog = false },
             onSelected = { value ->
                 showLightSourceDialog = false
-                selectedFrames.value.forEach {
-                    it.lightSource = value
-                    framesViewModel.submitFrame(it)
+                selectedFrames.value.forEach { frame ->
+                    framesViewModel.submitFrame(frame.copy(lightSource = value))
                 }
             }
         )
