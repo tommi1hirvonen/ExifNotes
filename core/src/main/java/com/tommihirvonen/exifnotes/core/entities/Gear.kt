@@ -32,9 +32,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class Gear : Parcelable, Comparable<Gear> {
-    abstract var id: Long
-    abstract var make: String?
-    abstract var model: String?
+    abstract val id: Long
+    abstract val make: String?
+    abstract val model: String?
 
     val name: String get() = "$make $model"
 

@@ -112,9 +112,11 @@ class GearViewModel @Inject constructor(
         mLenses.value = mLenses.value.filterNot { it.id == lens.id }
     }
 
-    fun submitFilter(filter: Filter) {
-        if (filterRepository.updateFilter(filter) == 0) {
-            filterRepository.addFilter(filter)
+    fun submitFilter(value: Filter) {
+        val filter = if (filterRepository.updateFilter(value) == 0) {
+            filterRepository.addFilter(value)
+        } else {
+            value
         }
         replaceFilter(filter)
     }
@@ -149,25 +151,41 @@ class GearViewModel @Inject constructor(
 
     fun addLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {
         lensFilterRepository.addLensFilterLink(filter, lens)
-        filter.lensIds = filter.lensIds.plus(lens.id).toHashSet()
-        lens.filterIds = lens.filterIds.plus(filter.id).toHashSet()
-        replaceFilter(filter)
+        replaceFilter(
+            filter.copy(lensIds = filter.lensIds.plus(lens.id).toHashSet())
+        )
         if (fixedLensCamera != null) {
-            replaceCamera(fixedLensCamera)
+            replaceCamera(
+                fixedLensCamera.copy(
+                    lens = fixedLensCamera.lens?.copy(
+                        filterIds = lens.filterIds.plus(filter.id).toHashSet()
+                    )
+                )
+            )
         } else {
-            replaceLens(lens)
+            replaceLens(
+                lens.copy(filterIds = lens.filterIds.plus(filter.id).toHashSet())
+            )
         }
     }
 
     fun deleteLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {
         lensFilterRepository.deleteLensFilterLink(filter, lens)
-        filter.lensIds = filter.lensIds.minus(lens.id).toHashSet()
-        lens.filterIds = lens.filterIds.minus(filter.id).toHashSet()
-        replaceFilter(filter)
+        replaceFilter(
+            filter.copy(lensIds = filter.lensIds.minus(lens.id).toHashSet())
+        )
         if (fixedLensCamera != null) {
-            replaceCamera(fixedLensCamera)
+            replaceCamera(
+                fixedLensCamera.copy(
+                    lens = fixedLensCamera.lens?.copy(
+                        filterIds = lens.filterIds.minus(filter.id).toHashSet()
+                    )
+                )
+            )
         } else {
-            replaceLens(lens)
+            replaceLens(
+                lens.copy(filterIds = lens.filterIds.minus(filter.id).toHashSet())
+            )
         }
     }
 }

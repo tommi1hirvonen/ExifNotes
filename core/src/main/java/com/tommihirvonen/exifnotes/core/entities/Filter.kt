@@ -27,8 +27,9 @@ import kotlinx.serialization.Transient
 @Serializable
 @Keep
 data class Filter(
-        override var id: Long = 0,
-        override var make: String? = null,
-        override var model: String? = null,
+        override val id: Long = 0,
+        override val make: String? = null,
+        override val model: String? = null,
         @Transient
-        var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear>
+        val lensIds: HashSet<Long> = HashSet()
+) : Gear(), Comparable<Gear>

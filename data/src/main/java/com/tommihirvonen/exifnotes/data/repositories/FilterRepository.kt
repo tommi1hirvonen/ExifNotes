@@ -32,10 +32,9 @@ import javax.inject.Singleton
 @Singleton
 class FilterRepository @Inject constructor(private val database: Database) {
 
-    fun addFilter(filter: Filter): Long {
+    fun addFilter(filter: Filter): Filter {
         val id = database.insert(TABLE_FILTERS, buildFilterContentValues(filter))
-        filter.id = id
-        return id
+        return filter.copy(id = id)
     }
 
     val filters: List<Filter> get() {
@@ -49,7 +48,9 @@ class FilterRepository @Inject constructor(private val database: Database) {
                 KEY_FILTER_MAKE.asc().ignoreCase()
                 KEY_FILTER_MODEL.asc().ignoreCase()
             }
-            .map { filterMapper(it).apply { lensIds = lenses[id]?.toHashSet() ?: HashSet() } }
+            .map {
+                filterMapper(it) { id -> lenses[id]?.toHashSet() ?: HashSet() }
+            }
     }
 
     fun getFilter(filterId: Long): Filter? {
@@ -60,7 +61,7 @@ class FilterRepository @Inject constructor(private val database: Database) {
         return database
             .from(TABLE_FILTERS)
             .where { KEY_FILTER_ID eq filterId }
-            .firstOrNull(filterMapper)?.apply { lensIds = lenses.toHashSet() }
+            .firstOrNull { filterMapper(it) { lenses.toHashSet() } }
     }
 
     fun deleteFilter(filter: Filter): Int = database
@@ -89,7 +90,7 @@ class FilterRepository @Inject constructor(private val database: Database) {
                     .select(KEY_FILTER_ID)
                     .where { KEY_FRAME_ID eq frame.id }
             }
-        }.map(filterMapper)
+        }.map { filterMapper(it) { hashSetOf() } }
 
     fun getLinkedFilters(lens: Lens) = database
         .from(TABLE_FILTERS)
@@ -97,13 +98,15 @@ class FilterRepository @Inject constructor(private val database: Database) {
             KEY_FILTER_ID `in` {
                 from(TABLE_LINK_LENS_FILTER).select(KEY_FILTER_ID).where { KEY_LENS_ID eq lens.id }
             }
-        }.map(filterMapper)
+        }.map { filterMapper(it) { hashSetOf() } }
 
-    private val filterMapper = { cursor: Cursor ->
+    private val filterMapper = { cursor: Cursor, getLensIds: (Long) -> HashSet<Long> ->
+        val id = cursor.getLong(KEY_FILTER_ID)
         Filter(
-            id = cursor.getLong(KEY_FILTER_ID),
+            id = id,
             make = cursor.getStringOrNull(KEY_FILTER_MAKE),
-            model = cursor.getStringOrNull(KEY_FILTER_MODEL)
+            model = cursor.getStringOrNull(KEY_FILTER_MODEL),
+            lensIds = getLensIds(id)
         )
     }
 
