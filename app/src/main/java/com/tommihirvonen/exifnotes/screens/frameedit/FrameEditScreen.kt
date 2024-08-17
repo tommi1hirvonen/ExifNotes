@@ -51,10 +51,18 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FlashOn
+import androidx.compose.material.icons.outlined.Fluorescent
 import androidx.compose.material.icons.outlined.InsertPhoto
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material.icons.outlined.Rotate90DegreesCcw
 import androidx.compose.material.icons.outlined.Rotate90DegreesCw
+import androidx.compose.material.icons.outlined.Tungsten
+import androidx.compose.material.icons.outlined.WbCloudy
+import androidx.compose.material.icons.outlined.WbShade
+import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -93,6 +101,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -113,9 +122,9 @@ import com.tommihirvonen.exifnotes.screens.DropdownButton
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.util.SnackbarMessage
 import com.tommihirvonen.exifnotes.util.copy
+import com.tommihirvonen.exifnotes.util.description
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import com.tommihirvonen.exifnotes.util.readableCoordinates
-import com.tommihirvonen.exifnotes.util.description
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDateTime
@@ -758,7 +767,7 @@ private fun FrameEditContent(
                     }
                 }
                 Row(modifier = Modifier.padding(top = 16.dp)) {
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(0.4f)) {
                         Text(
                             text = stringResource(R.string.Flash),
                             style = MaterialTheme.typography.bodySmall
@@ -775,7 +784,7 @@ private fun FrameEditContent(
                         }
                     }
                     Spacer(modifier = Modifier.width(10.dp))
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(0.6f)) {
                         Text(
                             text = stringResource(R.string.LightSource),
                             style = MaterialTheme.typography.bodySmall
@@ -790,6 +799,13 @@ private fun FrameEditContent(
                                 readOnly = true,
                                 value = frame.lightSource.description,
                                 onValueChange = {},
+                                leadingIcon = {
+                                    Icon(
+                                        modifier = Modifier.size(20.dp),
+                                        imageVector = lightSourceImage(frame.lightSource),
+                                        contentDescription = ""
+                                    )
+                                },
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = lightSourceExpanded)
                                 }
@@ -800,6 +816,7 @@ private fun FrameEditContent(
                             ) {
                                 LightSource.entries.forEach { value ->
                                     DropdownMenuItem(
+                                        leadingIcon = { Icon(lightSourceImage(value), "") },
                                         text = { Text(value.description) },
                                         onClick = {
                                             onLightSourceChange(value)
@@ -1176,4 +1193,15 @@ private fun FocalLengthDialog(
             }
         }
     )
+}
+
+private fun lightSourceImage(lightSource: LightSource): ImageVector = when (lightSource) {
+    LightSource.Unknown -> Icons.Outlined.QuestionMark
+    LightSource.Daylight -> Icons.Outlined.WbTwilight
+    LightSource.Sunny -> Icons.Outlined.WbSunny
+    LightSource.Cloudy -> Icons.Outlined.WbCloudy
+    LightSource.Shade -> Icons.Outlined.WbShade
+    LightSource.Fluorescent -> Icons.Outlined.Fluorescent
+    LightSource.Tungsten -> Icons.Outlined.Tungsten
+    LightSource.Flash -> Icons.Outlined.FlashOn
 }
