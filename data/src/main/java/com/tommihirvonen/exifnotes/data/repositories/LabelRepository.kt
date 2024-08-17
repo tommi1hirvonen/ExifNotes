@@ -40,13 +40,15 @@ class LabelRepository @Inject constructor(private val database: Database) {
         .where { KEY_LABEL_ID eq labelId }
         .firstOrNull(labelMapper)
 
-    fun getLabels(roll: Roll) = database
+    fun getLabels(roll: Roll) = getLabels(roll.id)
+
+    internal fun getLabels(rollId: Long) = database
         .from(TABLE_LABELS)
         .where {
             KEY_LABEL_ID `in` {
                 from(TABLE_LINK_ROLL_LABEL)
                     .select(KEY_LABEL_ID)
-                    .where { KEY_ROLL_ID eq roll.id }
+                    .where { KEY_ROLL_ID eq rollId }
             }
         }
         .orderBy { KEY_LABEL_NAME.asc().ignoreCase() }

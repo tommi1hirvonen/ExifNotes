@@ -114,9 +114,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun submitRoll(roll: Roll) {
-        if (rollRepository.updateRoll(roll) == 0) {
-            rollRepository.addRoll(roll)
+    fun submitRoll(value: Roll) {
+        val roll = if (rollRepository.updateRoll(value) == 0) {
+            rollRepository.addRoll(value)
+        } else {
+            value
         }
         val filterMode = mRollFilterMode.value
         val removeRollFromList = when {

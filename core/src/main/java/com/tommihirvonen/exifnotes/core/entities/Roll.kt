@@ -36,26 +36,26 @@ import java.time.LocalDateTime
 @Serializable
 @Keep
 data class Roll(
-    var id: Long = 0,
-    var name: String? = null,
-    var date: LocalDateTime = LocalDateTime.now(),
-    var unloaded: LocalDateTime? = null,
-    var developed: LocalDateTime? = null,
-    var note: String? = null,
-    var camera: Camera? = null,
-    var iso: Int = 0,
-    var pushPull: String? = null,
+    val id: Long = 0,
+    val name: String? = null,
+    val date: LocalDateTime = LocalDateTime.now(),
+    val unloaded: LocalDateTime? = null,
+    val developed: LocalDateTime? = null,
+    val note: String? = null,
+    val camera: Camera? = null,
+    val iso: Int = 0,
+    val pushPull: String? = null,
     @EncodeDefault
-    var format: Format = Format.MM35,
+    val format: Format = Format.MM35,
     @EncodeDefault
-    var archived: Boolean = false,
-    var filmStock: FilmStock? = null,
+    val archived: Boolean = false,
+    val filmStock: FilmStock? = null,
     @EncodeDefault
-    var favorite: Boolean = false,
-    var labels: List<Label> = emptyList(),
-    var frames: List<Frame> = emptyList(),
+    val favorite: Boolean = false,
+    val labels: List<Label> = emptyList(),
+    val frames: List<Frame> = emptyList(),
     @Transient
-    var frameCount: Int = 0
+    val frameCount: Int = 0
 ) : Parcelable
 
 fun List<Roll>.sorted(sortMode: RollSortMode): List<Roll> = sortedWith(sortMode.comparator)

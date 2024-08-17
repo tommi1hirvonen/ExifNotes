@@ -130,29 +130,25 @@ fun MainScreen(
         },
         onArchive = {
             mainViewModel.selectedRolls.value.forEach { roll ->
-                roll.archived = true
-                mainViewModel.submitRoll(roll)
+                mainViewModel.submitRoll(roll.copy(archived = true))
             }
             mainViewModel.toggleRollSelectionNone()
         },
         onUnarchive = {
             mainViewModel.selectedRolls.value.forEach { roll ->
-                roll.archived = false
-                mainViewModel.submitRoll(roll)
+                mainViewModel.submitRoll(roll.copy(archived = false))
             }
             mainViewModel.toggleRollSelectionNone()
         },
         onFavorite = {
             mainViewModel.selectedRolls.value.forEach { roll ->
-                roll.favorite = true
-                mainViewModel.submitRoll(roll)
+                mainViewModel.submitRoll(roll.copy(favorite = true))
             }
             mainViewModel.toggleRollSelectionNone()
         },
         onUnfavorite = {
             mainViewModel.selectedRolls.value.forEach { roll ->
-                roll.favorite = false
-                mainViewModel.submitRoll(roll)
+                mainViewModel.submitRoll(roll.copy(favorite = false))
             }
             mainViewModel.toggleRollSelectionNone()
         },
@@ -174,8 +170,11 @@ fun MainScreen(
                         .filter { label ->
                             roll.labels.none { it.id == label.id }
                         }
-                    roll.labels = roll.labels.plus(labelsToAdd).sortedBy { it.name }
-                    mainViewModel.submitRoll(roll)
+                    mainViewModel.submitRoll(
+                        roll.copy(
+                            labels = roll.labels.plus(labelsToAdd).sortedBy { it.name }
+                        )
+                    )
                 }
                 if (selectedLabels.isNotEmpty()) {
                     scope.launch { snackbarHostState.showSnackbar(message) }
@@ -199,10 +198,13 @@ fun MainScreen(
             onConfirm = { selectedLabels ->
                 showRemoveLabelsDialog = false
                 for (roll in mainViewModel.selectedRolls.value) {
-                    roll.labels = roll.labels.filterNot { label ->
-                        selectedLabels.any { it.id == label.id }
-                    }
-                    mainViewModel.submitRoll(roll)
+                    mainViewModel.submitRoll(
+                        roll.copy(
+                            labels = roll.labels.filterNot { label ->
+                                selectedLabels.any { it.id == label.id }
+                            }
+                        )
+                    )
                 }
                 if (selectedLabels.isNotEmpty()) {
                     scope.launch { snackbarHostState.showSnackbar(message) }
@@ -219,8 +221,7 @@ fun MainScreen(
             },
             onClearFilmStock = {
                 selectedRolls.value.forEach { roll ->
-                    roll.filmStock = null
-                    mainViewModel.submitRoll(roll)
+                    mainViewModel.submitRoll(roll.copy(filmStock = null))
                 }
                 showBatchEditDialog = false
             },
@@ -237,8 +238,7 @@ fun MainScreen(
             onSelect = { filmStock ->
                 showBatchEditFilmStock = false
                 selectedRolls.value.forEach { roll ->
-                    roll.filmStock = filmStock
-                    mainViewModel.submitRoll(roll)
+                    mainViewModel.submitRoll(roll.copy(filmStock = filmStock))
                 }
             }
         )
@@ -249,8 +249,7 @@ fun MainScreen(
             onConfirm = { value ->
                 showBatchEditISODialog = false
                 selectedRolls.value.forEach { roll ->
-                    roll.iso = value
-                    mainViewModel.submitRoll(roll)
+                    mainViewModel.submitRoll(roll.copy(iso = value))
                 }
             }
         )

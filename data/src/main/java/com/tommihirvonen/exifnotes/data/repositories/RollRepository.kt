@@ -40,9 +40,8 @@ class RollRepository @Inject constructor(
     private val filmStocks: FilmStockRepository
 ) {
 
-    fun addRoll(roll: Roll): Long {
+    fun addRoll(roll: Roll): Roll {
         val id = database.insert(TABLE_ROLLS, buildRollContentValues(roll))
-        roll.id = id
         val labels = roll.labels.map { label ->
             if (label.id == 0L) {
                 labels.addLabel(label)
@@ -57,8 +56,7 @@ class RollRepository @Inject constructor(
             }
             database.insert(TABLE_LINK_ROLL_LABEL, values)
         }
-        roll.labels = labels
-        return id
+        return roll.copy(id = id, labels = labels)
     }
 
     fun getRoll(rollId: Long) = database
@@ -151,10 +149,9 @@ class RollRepository @Inject constructor(
             archived = row.getInt(KEY_ROLL_ARCHIVED) > 0,
             favorite = row.getInt(KEY_ROLL_FAVORITE) > 0,
             filmStock = row.getLongOrNull(KEY_FILM_STOCK_ID)?.let(filmStocks::getFilmStock),
-            frameCount = getNumberOfFrames(rollId)
-        ).apply {
-            labels = this@RollRepository.labels.getLabels(this)
-        }
+            frameCount = getNumberOfFrames(rollId),
+            labels = labels.getLabels(rollId)
+        )
     }
 
     private fun buildRollContentValues(roll: Roll) = ContentValues().apply {
