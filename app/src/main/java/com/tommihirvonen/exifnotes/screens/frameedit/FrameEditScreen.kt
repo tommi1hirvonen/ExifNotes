@@ -106,6 +106,7 @@ import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
+import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
@@ -123,7 +124,7 @@ import kotlin.math.roundToInt
 @Composable
 fun FrameEditScreen(
     frameId: Long,
-    rollId: Long = -1,
+    rollId: Long,
     previousFrameId: Long = -1,
     frameCount: Int = -1,
     onNavigateUp: () -> Unit,
@@ -173,6 +174,7 @@ private fun FrameEditScreen(
     val pictureRotation = frameViewModel.pictureRotation.collectAsState()
     val snackbarMessage = frameViewModel.snackbarMessage.collectAsState()
     FrameEditContent(
+        roll = frameViewModel.roll,
         frame = frame.value,
         lens = lens.value,
         apertureValues = apertureValues.value,
@@ -219,8 +221,9 @@ private fun FrameEditScreen(
 @Preview(widthDp = 800)
 @Composable
 private fun FrameEditContentPreview() {
-    val frame = Frame(count = 5, date = LocalDateTime.now())
+    val frame = Frame(rollId = 0, count = 5, date = LocalDateTime.now())
     FrameEditContent(
+        roll = Roll(),
         frame = frame,
         lens = null,
         apertureValues = emptyList(),
@@ -263,6 +266,7 @@ private fun FrameEditContentPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FrameEditContent(
+    roll: Roll,
     frame: Frame,
     lens: Lens?,
     apertureValues: List<String>,
@@ -547,7 +551,7 @@ private fun FrameEditContent(
                         }
                     }
                 }
-                if (frame.roll.camera?.isNotFixedLens != false) {
+                if (roll.camera?.isNotFixedLens != false) {
                     Row(modifier = Modifier.padding(top = 16.dp)) {
                         Text(
                             text = stringResource(R.string.Lens),

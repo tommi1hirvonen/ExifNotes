@@ -210,7 +210,7 @@ fun App(onFinish: () -> Unit) {
                     onNavigateUp = { navController.navigateUp() },
                     onFrameEdit = { frame ->
                         val route = FrameEdit(
-                            rollId = frame.roll.id,
+                            rollId = frame.rollId,
                             frameId = frame.id,
                             previousFrameId = -1,
                             frameCount = 0
@@ -244,7 +244,9 @@ fun App(onFinish: () -> Unit) {
                 RollsMapScreen(
                     onNavigateUp = { navController.navigateUp() },
                     onFrameEdit = { frame ->
-                        navController.navigate(route = RollsMapFrameEdit(frameId = frame.id))
+                        navController.navigate(
+                            route = RollsMapFrameEdit(rollId = frame.rollId, frameId = frame.id)
+                        )
                     },
                     themeViewModel = themeViewModel,
                     mainViewModel = mainViewModel
@@ -255,6 +257,7 @@ fun App(onFinish: () -> Unit) {
                 val rollsMapEntry = remember(backStackEntry) { navController.getBackStackEntry<RollsMap>() }
                 val rollsMapViewModel = hiltViewModel<RollsMapViewModel>(rollsMapEntry)
                 FrameEditScreen(
+                    rollId = frameEdit.rollId,
                     frameId = frameEdit.frameId,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
@@ -489,7 +492,7 @@ private object FramesMap
 private object RollsMap
 
 @Serializable
-private data class RollsMapFrameEdit(val frameId: Long)
+private data class RollsMapFrameEdit(val rollId: Long, val frameId: Long)
 
 @Serializable
 private object Gear

@@ -38,8 +38,7 @@ import java.util.ArrayList
 @Keep
 data class Frame(
     val id: Long = 0,
-    @Transient
-    val roll: Roll = Roll(),
+    val rollId: Long,
     @EncodeDefault
     val count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -66,10 +65,7 @@ data class Frame(
     val filters: List<Filter> = ArrayList(),
     @Transient
     val pictureFileExists: Boolean = false
-) : Parcelable {
-
-    constructor(roll1: Roll) : this(roll = roll1)
-}
+) : Parcelable
 
 fun List<Frame>.sorted(context: Context, sortMode: FrameSortMode): List<Frame> =
     sortedWith(sortMode.getComparator(context))

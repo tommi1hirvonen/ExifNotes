@@ -92,6 +92,7 @@ class FrameViewModel @AssistedInject constructor(
         ): FrameViewModel
     }
 
+    val roll: Roll
     private val context: Context get() = application.applicationContext
     private val _frame: MutableStateFlow<Frame>
     private val _lens: MutableStateFlow<Lens?>
@@ -121,7 +122,7 @@ class FrameViewModel @AssistedInject constructor(
             val previousFrame = frameRepository.getFrame(previousFrameId)
             if (previousFrame != null) {
                 Frame(
-                    roll = previousFrame.roll,
+                    rollId = previousFrame.rollId,
                     count = frameCount,
                     date = date,
                     noOfExposures = noOfExposures,
@@ -134,9 +135,8 @@ class FrameViewModel @AssistedInject constructor(
                     lightSource = previousFrame.lightSource
                 )
             } else {
-                val roll = rollRepository.getRoll(rollId)
                 Frame(
-                    roll = roll ?: Roll(id = rollId),
+                    rollId = rollId,
                     count = frameCount,
                     date = date,
                     noOfExposures = noOfExposures,
@@ -144,8 +144,9 @@ class FrameViewModel @AssistedInject constructor(
                 )
             }
         }
+        roll = rollRepository.getRoll(rollId) ?: Roll()
         _frame = MutableStateFlow(frame)
-        val lens = frame.roll.camera?.lens ?: frame.lens
+        val lens = roll.camera?.lens ?: frame.lens
         _lens = MutableStateFlow(lens)
         _filters = MutableStateFlow(getFilters(lens))
         _apertureValues = MutableStateFlow(getApertureValues(lens))
@@ -166,7 +167,7 @@ class FrameViewModel @AssistedInject constructor(
     }
 
     private val _lenses = MutableStateFlow(
-        _frame.value.roll.camera?.let(cameraRepository::getLinkedLenses)
+        roll.camera?.let(cameraRepository::getLinkedLenses)
             ?: lensRepository.lenses
     )
 
@@ -180,9 +181,9 @@ class FrameViewModel @AssistedInject constructor(
     val pictureRotation = _pictureRotation.asStateFlow()
     val snackbarMessage = _snackbarMessage.asStateFlow()
 
-    val shutterValues = _frame.value.roll.camera?.shutterSpeedValues(context)?.toList()
+    val shutterValues = roll.camera?.shutterSpeedValues(context)?.toList()
         ?: Camera.defaultShutterSpeedValues(context).toList()
-    val exposureCompValues = _frame.value.roll.camera?.exposureCompValues(context)?.toList()
+    val exposureCompValues = roll.camera?.exposureCompValues(context)?.toList()
         ?: Camera.defaultExposureCompValues(context).toList()
 
     fun setCount(value: Int) {
@@ -236,7 +237,7 @@ class FrameViewModel @AssistedInject constructor(
         } else {
             value
         }
-        _frame.value.roll.camera?.let { camera ->
+        roll.camera?.let { camera ->
             cameraLensRepository.addCameraLensLink(camera, lens)
         }
         _lenses.value = _lenses.value.plus(lens).sorted()

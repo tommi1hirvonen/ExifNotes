@@ -39,8 +39,7 @@ import javax.inject.Singleton
 class FrameRepository @Inject constructor(
     private val database: Database,
     private val filters: FilterRepository,
-    private val lenses: LensRepository,
-    private val rolls: RollRepository
+    private val lenses: LensRepository
 ) {
     fun addFrame(value: Frame): Frame {
         val values = buildFrameContentValues(value)
@@ -71,26 +70,17 @@ class FrameRepository @Inject constructor(
         .from(TABLE_FRAMES)
         .where { KEY_ROLL_ID eq roll.id }
         .orderBy { KEY_COUNT.asc() }
-        .map(frameMapper(roll))
+        .map(frameMapper)
 
-    fun getFrame(frameId: Long): Frame? {
-        val rollId = database
-            .from(TABLE_FRAMES)
-            .where { KEY_FRAME_ID eq frameId }
-            .firstOrNull { row -> row.getLong(KEY_ROLL_ID) }
-            ?: return null
-        val roll = rolls.getRoll(rollId) ?: return null
-        val frame = database
-            .from(TABLE_FRAMES)
-            .where { KEY_FRAME_ID eq frameId }
-            .firstOrNull(frameMapper(roll))
-        return frame
-    }
+    fun getFrame(frameId: Long): Frame? = database
+        .from(TABLE_FRAMES)
+        .where { KEY_FRAME_ID eq frameId }
+        .firstOrNull(frameMapper)
 
-    private fun frameMapper(roll: Roll) = { row: Cursor ->
+    private val frameMapper = { row: Cursor ->
         val id = row.getLong(KEY_FRAME_ID)
         Frame(
-            roll = roll,
+            rollId = row.getLong(KEY_ROLL_ID),
             id = id,
             count = row.getInt(KEY_COUNT),
             shutter = row.getStringOrNull(KEY_SHUTTER),
@@ -143,7 +133,7 @@ class FrameRepository @Inject constructor(
         .map { it.getString(KEY_PICTURE_FILENAME) }
 
     private fun buildFrameContentValues(frame: Frame) = ContentValues().apply {
-        put(KEY_ROLL_ID, frame.roll.id)
+        put(KEY_ROLL_ID, frame.rollId)
         put(KEY_COUNT, frame.count)
         put(KEY_DATE, frame.date.sortableDateTime)
 

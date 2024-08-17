@@ -126,7 +126,6 @@ class FramesViewModel @AssistedInject constructor(
 
     fun setRoll(roll: Roll) {
         _roll.value = roll
-        framesList = framesList.map { it.copy(roll = roll) }
     }
 
     fun toggleFrameSelection(frame: Frame) {

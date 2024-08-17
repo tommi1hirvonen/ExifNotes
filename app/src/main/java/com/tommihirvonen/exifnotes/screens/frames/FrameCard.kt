@@ -76,6 +76,7 @@ import java.time.LocalDateTime
 private fun FrameCardSelectedPreview() {
     val lens = Lens(make = "Canon", model = "FD 28mm f/2.8")
     val frame = Frame(
+        rollId = 0,
         count = 1,
         date = LocalDateTime.of(2024, 1, 1, 14, 30),
         shutter = "1/250",
@@ -96,6 +97,7 @@ private fun FrameCardSelectedPreview() {
 private fun FrameCardPreview() {
     val lens = Lens(make = "Canon", model = "FD 28mm f/2.8")
     val frame = Frame(
+        rollId = 0,
         count = 1,
         date = LocalDateTime.of(2024, 1, 1, 14, 30),
         shutter = "1/250",

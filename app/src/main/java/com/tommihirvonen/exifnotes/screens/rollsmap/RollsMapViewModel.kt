@@ -118,7 +118,7 @@ class RollsMapViewModel @AssistedInject constructor(
             frameRepository.addFrame(frame)
         }
         val (roll, prevFrames) = _allRolls.value
-            .firstOrNull { it.roll.id == frame.roll.id }
+            .firstOrNull { it.roll.id == frame.rollId }
             ?: return
         val frames = prevFrames.filterNot { it.id == frame.id }.plus(frame)
         _allRolls.value = _allRolls.value

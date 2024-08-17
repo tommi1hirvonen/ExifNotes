@@ -493,6 +493,7 @@ fun FramesScreen(
 private fun FramesContentPreview() {
     val roll = Roll(name = "Test roll")
     val frame1 = Frame(
+        rollId = 0,
         id = 1,
         count = 1,
         shutter = "1/250",
@@ -500,6 +501,7 @@ private fun FramesContentPreview() {
         lens = Lens(make = "Canon", model = "FD 28mm f/2.8")
     )
     val frame2 = Frame(
+        rollId = 0,
         id = 2,
         count = 2,
         shutter = "1/1000",
