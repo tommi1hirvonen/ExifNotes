@@ -40,3 +40,4 @@ app/release/
 keystore.properties
 googlemapsapi.properties
 
+.kotlin/sessions/
