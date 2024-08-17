@@ -30,7 +30,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.time.LocalDateTime
-import java.util.ArrayList
 
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
@@ -62,7 +61,7 @@ data class Frame(
     @EncodeDefault
     val lightSource: LightSource = LightSource.Unknown,
     val lens: Lens? = null,
-    val filters: List<Filter> = ArrayList(),
+    val filters: List<Filter> = emptyList(),
     @Transient
     val pictureFileExists: Boolean = false
 ) : Parcelable
