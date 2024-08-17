@@ -22,4 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "ExifNotes"
 include(":data")
 include(":core")
-include(":composeapp")
+include(":app")
