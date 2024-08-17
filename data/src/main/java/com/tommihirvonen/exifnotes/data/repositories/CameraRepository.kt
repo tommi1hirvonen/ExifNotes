@@ -35,21 +35,20 @@ import javax.inject.Singleton
 class CameraRepository @Inject constructor(
     private val database: Database, private val lenses: LensRepository) {
 
-    fun addCamera(camera: Camera): Long {
+    fun addCamera(camera: Camera): Camera {
         val lens = camera.lens?.let {
             lenses.addLens(
                 it.copy(make = camera.make, model = camera.model)
             )
         }
-        camera.lens = lens
-        val cameraId = database.insert(TABLE_CAMERAS, buildCameraContentValues(camera))
-        camera.id = cameraId
-        return cameraId
+        val id = database.insert(TABLE_CAMERAS, buildCameraContentValues(camera.copy(lens = lens)))
+        return camera.copy(id = id, lens = lens)
     }
 
-    private val cameraMapper = { cursor: Cursor ->
-        Camera(
-            id = cursor.getLong(KEY_CAMERA_ID),
+    private fun cameraMapper(cursor: Cursor, lensIds: (Long) -> HashSet<Long>): Camera {
+        val id = cursor.getLong(KEY_CAMERA_ID)
+        return Camera(
+            id = id,
             make = cursor.getStringOrNull(KEY_CAMERA_MAKE),
             model = cursor.getStringOrNull(KEY_CAMERA_MODEL),
             serialNumber = cursor.getStringOrNull(KEY_CAMERA_SERIAL_NO),
@@ -60,7 +59,8 @@ class CameraRepository @Inject constructor(
                 KEY_CAMERA_EXPOSURE_COMP_INCREMENTS
             )),
             format = Format.from(cursor.getInt(KEY_CAMERA_FORMAT)),
-            lens = cursor.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens)
+            lens = cursor.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens),
+            lensIds = lensIds(id)
         )
     }
 
@@ -73,7 +73,7 @@ class CameraRepository @Inject constructor(
             .toHashSet()
         return database.from(TABLE_CAMERAS)
             .where { KEY_CAMERA_ID eq cameraId }
-            .firstOrNull { cameraMapper(it).apply { lensIds = lenses } }
+            .firstOrNull { cameraMapper(it) { lenses } }
     }
 
     val cameras: List<Camera> get() {
@@ -88,9 +88,7 @@ class CameraRepository @Inject constructor(
                 KEY_CAMERA_MODEL.asc().ignoreCase()
             }
             .map {
-                cameraMapper(it).apply {
-                    lensIds = lenses[id]?.toHashSet() ?: HashSet()
-                }
+                cameraMapper(it) { id -> lenses[id]?.toHashSet() ?: HashSet() }
             }
     }
 
@@ -108,7 +106,7 @@ class CameraRepository @Inject constructor(
         .where { KEY_CAMERA_ID eq camera.id }
         .exists()
 
-    fun updateCamera(camera: Camera): Int {
+    fun updateCamera(camera: Camera): Pair<Int, Camera> {
         // Check if the camera previously had a fixed lens.
         val previousLensId = database
             .from(TABLE_CAMERAS)
@@ -122,15 +120,16 @@ class CameraRepository @Inject constructor(
         try {
             // If the camera currently has a fixed lens, update/add it to the database.
             // This needs to be done first since the cameras table references the lenses table.
-            val lens = camera.lens?.copy(make = camera.make, model = camera.model)
-            if (lens != null) {
-                camera.lens = if (lenses.updateLens(lens, database) == 0) {
-                    lenses.addLens(lens, database)
-                } else {
-                    lens
+            val lens = camera.lens
+                ?.copy(make = camera.make, model = camera.model)
+                ?.let { l ->
+                    if (lenses.updateLens(l, database) == 0) {
+                        lenses.addLens(l, database)
+                    } else {
+                        l
+                    }
                 }
-            }
-            val contentValues = buildCameraContentValues(camera)
+            val contentValues = buildCameraContentValues(camera.copy(lens = lens))
             val affectedRows = database
                 .from(TABLE_CAMERAS)
                 .where { KEY_CAMERA_ID eq camera.id }
@@ -138,7 +137,7 @@ class CameraRepository @Inject constructor(
             if (affectedRows == 0) {
                 // If there are no affected rows, then the camera does not yet exist
                 // in the database. Returning here rolls back the transaction.
-                return 0
+                return 0 to camera
             }
 
             // If the camera's current lens is null, delete the old fixed lens from the database.
@@ -149,7 +148,7 @@ class CameraRepository @Inject constructor(
             // Camera and possible fixed lens were updated completely.
             // Commit transaction and return affected row count.
             database.setTransactionSuccessful()
-            return affectedRows
+            return affectedRows to camera.copy(lens = lens)
         } finally {
             database.endTransaction()
         }

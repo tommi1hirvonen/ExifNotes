@@ -32,21 +32,22 @@ import kotlinx.serialization.Transient
 @Serializable
 @Keep
 data class Camera(
-    override var id: Long = 0,
-    override var make: String? = null,
-    override var model: String? = null,
-    var serialNumber: String? = null,
-    var minShutter: String? = null,
-    var maxShutter: String? = null,
+    override val id: Long = 0,
+    override val make: String? = null,
+    override val model: String? = null,
+    val serialNumber: String? = null,
+    val minShutter: String? = null,
+    val maxShutter: String? = null,
     @EncodeDefault
-    var shutterIncrements: Increment = Increment.Third,
+    val shutterIncrements: Increment = Increment.Third,
     @EncodeDefault
-    var exposureCompIncrements: PartialIncrement = PartialIncrement.Third,
+    val exposureCompIncrements: PartialIncrement = PartialIncrement.Third,
     @EncodeDefault
-    var format: Format = Format.MM35,
-    var lens: Lens? = null,
+    val format: Format = Format.MM35,
+    val lens: Lens? = null,
     @Transient
-    var lensIds: HashSet<Long> = HashSet()) : Gear(), Comparable<Gear> {
+    val lensIds: HashSet<Long> = HashSet()
+) : Gear(), Comparable<Gear> {
 
     val isFixedLens get() = lens != null
     val isNotFixedLens get() = lens == null

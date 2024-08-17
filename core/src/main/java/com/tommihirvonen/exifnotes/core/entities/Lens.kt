@@ -47,7 +47,8 @@ data class Lens(
     @Transient
     val cameraIds: HashSet<Long> = HashSet(),
     @Transient
-    val customApertureValues: List<Float> = emptyList()) : Gear(), Comparable<Gear> {
+    val customApertureValues: List<Float> = emptyList()
+) : Gear(), Comparable<Gear> {
 
     fun apertureValues(context: Context): Array<String> =
         when (apertureIncrements) {

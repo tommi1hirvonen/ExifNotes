@@ -87,9 +87,12 @@ class RollViewModel @AssistedInject constructor (
         )
     }
 
-    fun submitCamera(camera: Camera) {
-        if (cameraRepository.updateCamera(camera) == 0) {
-            cameraRepository.addCamera(camera)
+    fun submitCamera(value: Camera) {
+        val (count, existingCamera) = cameraRepository.updateCamera(value)
+        val camera = if (count == 0) {
+            cameraRepository.addCamera(value)
+        } else {
+            existingCamera
         }
         setCamera(camera)
     }
