@@ -26,4 +26,8 @@ import kotlinx.serialization.Serializable
 @Parcelize
 @Serializable
 @Keep
-data class Label(var id: Long = 0, var name: String = "", var rollCount: Int = 0) : Parcelable
+data class Label(
+    val id: Long = 0,
+    val name: String = "",
+    val rollCount: Int = 0
+) : Parcelable

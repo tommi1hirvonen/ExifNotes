@@ -52,11 +52,10 @@ class LabelRepository @Inject constructor(private val database: Database) {
         .orderBy { KEY_LABEL_NAME.asc().ignoreCase() }
         .map(labelMapper)
 
-    fun addLabel(label: Label): Long {
+    fun addLabel(label: Label): Label {
         val values = buildContentValues(label)
         val id = database.insert(TABLE_LABELS, values)
-        label.id = id
-        return id
+        return label.copy(id = id)
     }
 
     fun updateLabel(label: Label): Int {

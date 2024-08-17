@@ -43,16 +43,21 @@ class RollRepository @Inject constructor(
     fun addRoll(roll: Roll): Long {
         val id = database.insert(TABLE_ROLLS, buildRollContentValues(roll))
         roll.id = id
-        for (label in roll.labels) {
+        val labels = roll.labels.map { label ->
             if (label.id == 0L) {
                 labels.addLabel(label)
+            } else {
+                label
             }
+        }
+        for (label in labels) {
             val values = ContentValues().apply {
                 put(KEY_ROLL_ID, id)
                 put(KEY_LABEL_ID, label.id)
             }
             database.insert(TABLE_LINK_ROLL_LABEL, values)
         }
+        roll.labels = labels
         return id
     }
 
@@ -126,7 +131,7 @@ class RollRepository @Inject constructor(
             .update(contentValues)
     }
 
-    fun getNumberOfFrames(rollId: Long): Int = database
+    private fun getNumberOfFrames(rollId: Long): Int = database
         .from(TABLE_FRAMES)
         .count { KEY_ROLL_ID eq rollId }
 

@@ -151,9 +151,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun submitLabel(label: Label) {
-        if (labelRepository.updateLabel(label) == 0) {
-            labelRepository.addLabel(label)
+    fun submitLabel(value: Label) {
+        val label = if (labelRepository.updateLabel(value) == 0) {
+            labelRepository.addLabel(value)
+        } else {
+            value
         }
         val labels = labels.value
             .filter { it.id != label.id }
