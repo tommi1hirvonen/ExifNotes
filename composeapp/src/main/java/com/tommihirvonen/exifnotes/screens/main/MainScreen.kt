@@ -35,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.PermanentNavigationDrawer
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
@@ -75,6 +76,8 @@ fun MainScreen(
     onNavigateToLabels: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val subtitle = mainViewModel.toolbarSubtitle.collectAsState()
     val rolls = mainViewModel.rolls.collectAsState()
     val selectedRolls = mainViewModel.selectedRolls.collectAsState()
@@ -89,6 +92,7 @@ fun MainScreen(
     var showBatchEditFilmStock by remember { mutableStateOf(false) }
 
     MainContent(
+        snackbarHostState = snackbarHostState,
         rollCounts = rollCounts.value,
         labels = labels.value,
         rollFilterMode = rollFilterMode.value,
@@ -151,6 +155,7 @@ fun MainScreen(
         onRemoveLabels = { showRemoveLabelsDialog = true }
     )
     if (showAddLabelsDialog) {
+        val message = stringResource(R.string.LabelsAdded)
         MultiChoiceDialog(
             title = stringResource(R.string.AddLabels),
             initialItems = labels.value.associateWith { false },
@@ -167,6 +172,9 @@ fun MainScreen(
                     roll.labels = roll.labels.plus(labelsToAdd).sortedBy { it.name }
                     mainViewModel.submitRoll(roll)
                 }
+                if (selectedLabels.isNotEmpty()) {
+                    scope.launch { snackbarHostState.showSnackbar(message) }
+                }
             }
         )
     }
@@ -176,6 +184,7 @@ fun MainScreen(
                 roll.labels.any { it.id == label.id }
             }
         }
+        val message = stringResource(R.string.LabelsRemoved)
         MultiChoiceDialog(
             title = stringResource(R.string.RemoveLabels),
             initialItems = filteredLabels.associateWith { false },
@@ -189,6 +198,9 @@ fun MainScreen(
                         selectedLabels.any { it.id == label.id }
                     }
                     mainViewModel.submitRoll(roll)
+                }
+                if (selectedLabels.isNotEmpty()) {
+                    scope.launch { snackbarHostState.showSnackbar(message) }
                 }
             }
         )
@@ -305,6 +317,7 @@ private fun MainContentPreview() {
     )
     val rolls = LoadState.Success(listOf(roll, roll.copy(id = 2)))
     MainContent(
+        snackbarHostState = SnackbarHostState(),
         rollCounts = RollCounts(active = 2, archived = 2, favorites = 1),
         labels = emptyList(),
         rollFilterMode = RollFilterMode.Active,
@@ -336,6 +349,7 @@ private fun MainContentPreview() {
 
 @Composable
 private fun MainContent(
+    snackbarHostState: SnackbarHostState,
     rollCounts: RollCounts,
     labels: List<Label>,
     rollFilterMode: RollFilterMode,
@@ -395,6 +409,7 @@ private fun MainContent(
         }
         val mainContent = @Composable {
             MainContent(
+                snackbarHostState = snackbarHostState,
                 subtitle = subtitle,
                 rolls = rolls,
                 selectedRolls = selectedRolls,

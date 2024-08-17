@@ -44,7 +44,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,6 +79,7 @@ private fun MainContentPreview() {
     )
     val rolls = LoadState.Success(listOf(roll))
     MainContent(
+        snackbarHostState = SnackbarHostState(),
         subtitle = "Active rolls",
         rolls = rolls,
         selectedRolls = hashSetOf(),
@@ -124,6 +124,7 @@ private fun MainContentActionModePreview() {
     val rolls = LoadState.Success(listOf(roll))
     val selectedRolls = hashSetOf(roll)
     MainContent(
+        snackbarHostState = SnackbarHostState(),
         subtitle = "Active rolls",
         rolls = rolls,
         selectedRolls = selectedRolls,
@@ -148,6 +149,7 @@ private fun MainContentActionModePreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(
+    snackbarHostState: SnackbarHostState,
     subtitle: String,
     rolls: LoadState<List<Roll>>,
     selectedRolls: HashSet<Roll>,
@@ -168,7 +170,6 @@ fun MainContent(
     onRemoveLabels: () -> Unit,
     navigationIcon: @Composable () -> Unit = {}
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
@@ -209,25 +210,25 @@ fun MainContent(
                     onArchive = {
                         onArchive()
                         scope.launch {
-                            snackBarHostState.showSnackbar(messageRollsArchived)
+                            snackbarHostState.showSnackbar(messageRollsArchived)
                         }
                     },
                     onUnarchive = {
                         onUnarchive()
                         scope.launch {
-                            snackBarHostState.showSnackbar(messageRollsUnarchived)
+                            snackbarHostState.showSnackbar(messageRollsUnarchived)
                         }
                     },
                     onFavorite = {
                         onFavorite()
                         scope.launch {
-                            snackBarHostState.showSnackbar(messageRollsAddedToFavorites)
+                            snackbarHostState.showSnackbar(messageRollsAddedToFavorites)
                         }
                     },
                     onUnfavorite = {
                         onUnfavorite()
                         scope.launch {
-                            snackBarHostState.showSnackbar(messageRollsRemovedFromFavorites)
+                            snackbarHostState.showSnackbar(messageRollsRemovedFromFavorites)
                         }
                     },
                     onAddLabels = onAddLabels,
@@ -244,7 +245,7 @@ fun MainContent(
             )
         },
         floatingActionButtonPosition = FabPosition.End,
-        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
         if (rolls is LoadState.InProgress) {
             Column(
