@@ -32,22 +32,22 @@ import kotlinx.serialization.Transient
 @Serializable
 @Keep
 data class Lens(
-    override var id: Long = 0,
-    override var make: String? = null,
-    override var model: String? = null,
-    var serialNumber: String? = null,
-    var minAperture: String? = null,
-    var maxAperture: String? = null,
-    var minFocalLength: Int = 0,
-    var maxFocalLength: Int = 0,
+    override val id: Long = 0,
+    override val make: String? = null,
+    override val model: String? = null,
+    val serialNumber: String? = null,
+    val minAperture: String? = null,
+    val maxAperture: String? = null,
+    val minFocalLength: Int = 0,
+    val maxFocalLength: Int = 0,
     @EncodeDefault
-    var apertureIncrements: Increment = Increment.Third,
+    val apertureIncrements: Increment = Increment.Third,
     @Transient
-    var filterIds: HashSet<Long> = HashSet(),
+    val filterIds: HashSet<Long> = HashSet(),
     @Transient
-    var cameraIds: HashSet<Long> = HashSet(),
+    val cameraIds: HashSet<Long> = HashSet(),
     @Transient
-    var customApertureValues: List<Float> = emptyList()) : Gear(), Comparable<Gear> {
+    val customApertureValues: List<Float> = emptyList()) : Gear(), Comparable<Gear> {
 
     fun apertureValues(context: Context): Array<String> =
         when (apertureIncrements) {

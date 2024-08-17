@@ -100,13 +100,13 @@ class FilterRepository @Inject constructor(private val database: Database) {
             }
         }.map { filterMapper(it) { hashSetOf() } }
 
-    private val filterMapper = { cursor: Cursor, getLensIds: (Long) -> HashSet<Long> ->
+    private fun filterMapper(cursor: Cursor, lensIds: (Long) -> HashSet<Long>): Filter {
         val id = cursor.getLong(KEY_FILTER_ID)
-        Filter(
+        return Filter(
             id = id,
             make = cursor.getStringOrNull(KEY_FILTER_MAKE),
             model = cursor.getStringOrNull(KEY_FILTER_MODEL),
-            lensIds = getLensIds(id)
+            lensIds = lensIds(id)
         )
     }
 

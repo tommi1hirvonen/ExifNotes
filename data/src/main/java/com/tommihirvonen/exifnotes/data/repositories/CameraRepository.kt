@@ -36,12 +36,12 @@ class CameraRepository @Inject constructor(
     private val database: Database, private val lenses: LensRepository) {
 
     fun addCamera(camera: Camera): Long {
-        camera.lens?.let { lens ->
-            lens.make = camera.make
-            lens.model = camera.model
-            val lensId = lenses.addLens(lens)
-            lens.id = lensId
+        val lens = camera.lens?.let {
+            lenses.addLens(
+                it.copy(make = camera.make, model = camera.model)
+            )
         }
+        camera.lens = lens
         val cameraId = database.insert(TABLE_CAMERAS, buildCameraContentValues(camera))
         camera.id = cameraId
         return cameraId
@@ -122,11 +122,12 @@ class CameraRepository @Inject constructor(
         try {
             // If the camera currently has a fixed lens, update/add it to the database.
             // This needs to be done first since the cameras table references the lenses table.
-            camera.lens?.let { lens ->
-                lens.make = camera.make
-                lens.model = camera.model
-                if (lenses.updateLens(lens, database) == 0) {
+            val lens = camera.lens?.copy(make = camera.make, model = camera.model)
+            if (lens != null) {
+                camera.lens = if (lenses.updateLens(lens, database) == 0) {
                     lenses.addLens(lens, database)
+                } else {
+                    lens
                 }
             }
             val contentValues = buildCameraContentValues(camera)

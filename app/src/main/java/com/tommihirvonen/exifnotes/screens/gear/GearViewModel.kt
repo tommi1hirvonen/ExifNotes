@@ -93,9 +93,11 @@ class GearViewModel @Inject constructor(
         mCameras.value = LoadState.Success(cameraList)
     }
 
-    fun submitLens(lens: Lens) {
-        if (lensRepository.updateLens(lens) == 0) {
-            lensRepository.addLens(lens)
+    fun submitLens(value: Lens) {
+        val lens = if (lensRepository.updateLens(value) == 0) {
+            lensRepository.addLens(value)
+        } else {
+            value
         }
         replaceLens(lens)
     }
@@ -135,18 +137,22 @@ class GearViewModel @Inject constructor(
 
     fun addCameraLensLink(camera: Camera, lens: Lens) {
         cameraLensRepository.addCameraLensLink(camera, lens)
-        camera.lensIds = camera.lensIds.plus(lens.id).toHashSet()
-        lens.cameraIds = lens.cameraIds.plus(camera.id).toHashSet()
-        replaceCamera(camera)
-        replaceLens(lens)
+        replaceCamera(
+            camera.copy(lensIds = camera.lensIds.plus(lens.id).toHashSet())
+        )
+        replaceLens(
+            lens.copy(cameraIds = lens.cameraIds.plus(camera.id).toHashSet())
+        )
     }
 
     fun deleteCameraLensLink(camera: Camera, lens: Lens) {
         cameraLensRepository.deleteCameraLensLink(camera, lens)
-        camera.lensIds = camera.lensIds.minus(lens.id).toHashSet()
-        lens.cameraIds = lens.cameraIds.minus(camera.id).toHashSet()
-        replaceCamera(camera)
-        replaceLens(lens)
+        replaceCamera(
+            camera.copy(lensIds = camera.lensIds.minus(lens.id).toHashSet())
+        )
+        replaceLens(
+            lens.copy(cameraIds = lens.cameraIds.minus(camera.id).toHashSet())
+        )
     }
 
     fun addLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {

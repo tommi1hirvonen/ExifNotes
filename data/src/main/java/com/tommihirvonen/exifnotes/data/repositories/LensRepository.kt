@@ -34,11 +34,10 @@ import javax.inject.Singleton
 @Singleton
 class LensRepository @Inject constructor(private val database: Database) {
 
-    fun addLens(lens: Lens, database: SQLiteDatabase? = null): Long {
+    fun addLens(lens: Lens, database: SQLiteDatabase? = null): Lens {
         val db = database ?: this.database.writableDatabase
         val id = db.insert(TABLE_LENSES, buildLensContentValues(lens))
-        lens.id = id
-        return id
+        return lens.copy(id = id)
     }
 
     fun getLens(lensId: Long): Lens? {
@@ -55,16 +54,22 @@ class LensRepository @Inject constructor(private val database: Database) {
         return database.from(TABLE_LENSES)
             .where { KEY_LENS_ID eq lensId }
             .firstOrNull {
-                lensMapper(it).apply {
-                    filterIds = filters
-                    cameraIds = cameras
-                }
+                lensMapper(
+                    row = it,
+                    filterIds = { filters },
+                    cameraIds = { cameras }
+                )
             }
     }
 
-    private val lensMapper = { row: Cursor ->
-        Lens(
-            id = row.getLong(KEY_LENS_ID),
+    private fun lensMapper(
+        row: Cursor,
+        filterIds: (Long) -> HashSet<Long>,
+        cameraIds: (Long) -> HashSet<Long>
+    ): Lens {
+        val id = row.getLong(KEY_LENS_ID)
+        return Lens(
+            id = id,
             make = row.getString(KEY_LENS_MAKE),
             model = row.getString(KEY_LENS_MODEL),
             serialNumber = row.getStringOrNull(KEY_LENS_SERIAL_NO),
@@ -75,7 +80,9 @@ class LensRepository @Inject constructor(private val database: Database) {
             apertureIncrements = row.getInt(KEY_LENS_APERTURE_INCREMENTS).let(Increment::from),
             customApertureValues = row.getStringOrNull(KEY_LENS_CUSTOM_APERTURE_VALUES)
                 ?.let(Json::decodeFromString)
-                ?: emptyList()
+                ?: emptyList(),
+            filterIds = filterIds(id),
+            cameraIds = cameraIds(id)
         )
     }
 
@@ -97,10 +104,11 @@ class LensRepository @Inject constructor(private val database: Database) {
                 KEY_LENS_MODEL.asc().ignoreCase()
             }
             .map {
-                lensMapper(it).apply {
-                    filterIds = filters[id]?.toHashSet() ?: HashSet()
-                    cameraIds = cameras[id]?.toHashSet() ?: HashSet()
-                }
+                lensMapper(
+                    row = it,
+                    filterIds = { id -> filters[id]?.toHashSet() ?: HashSet() },
+                    cameraIds = { id -> cameras[id]?.toHashSet() ?: HashSet() }
+                )
             }
     }
 
