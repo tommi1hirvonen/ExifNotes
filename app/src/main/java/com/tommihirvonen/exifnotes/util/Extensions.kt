@@ -54,6 +54,7 @@ import com.tommihirvonen.exifnotes.core.entities.Coordinates
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmType
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.LightSource
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -181,6 +182,8 @@ fun textResource(@StringRes id: Int): CharSequence = LocalContext.current.resour
 val FilmType.description: String? @Composable get() = description(LocalContext.current)
 
 val FilmProcess.description: String? @Composable get() = description(LocalContext.current)
+
+val LightSource.description: String @Composable get() = description(LocalContext.current)
 
 @Composable
 fun PaddingValues.copy(

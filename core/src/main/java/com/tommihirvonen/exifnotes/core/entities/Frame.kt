@@ -61,7 +61,7 @@ data class Frame(
     var meteringMode: Int = 0, // not used
     var pictureFilename: String? = null,
     @EncodeDefault
-    var lightSource: LightSource = LightSource.UNKNOWN,
+    var lightSource: LightSource = LightSource.Unknown,
     var lens: Lens? = null,
     var filters: List<Filter> = ArrayList(),
     @Transient

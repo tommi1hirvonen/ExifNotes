@@ -170,14 +170,14 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
                 .append("Fired").append(quote).append(space)
             // Light source
             val lightSource: String = when (frame.lightSource) {
-                LightSource.DAYLIGHT -> "Daylight"
-                LightSource.SUNNY -> "Fine Weather"
-                LightSource.CLOUDY -> "Cloudy"
-                LightSource.SHADE -> "Shade"
-                LightSource.FLUORESCENT -> "Fluorescent"
-                LightSource.TUNGSTEN -> "Tungsten"
-                LightSource.FLASH -> "Flash"
-                LightSource.UNKNOWN -> "Unknown" // Unknown
+                LightSource.Daylight -> "Daylight"
+                LightSource.Sunny -> "Fine Weather"
+                LightSource.Cloudy -> "Cloudy"
+                LightSource.Shade -> "Shade"
+                LightSource.Fluorescent -> "Fluorescent"
+                LightSource.Tungsten -> "Tungsten"
+                LightSource.Flash -> "Flash"
+                LightSource.Unknown -> "Unknown" // Unknown
             }
             stringBuilder.append(lightSourceTag).append(quote)
                 .append(lightSource).append(quote).append(space)

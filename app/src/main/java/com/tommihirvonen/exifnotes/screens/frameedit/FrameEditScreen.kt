@@ -114,6 +114,7 @@ import com.tommihirvonen.exifnotes.util.SnackbarMessage
 import com.tommihirvonen.exifnotes.util.copy
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import com.tommihirvonen.exifnotes.util.readableCoordinates
+import com.tommihirvonen.exifnotes.util.description
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDateTime
@@ -783,7 +784,7 @@ private fun FrameEditContent(
                                 modifier = Modifier
                                     .menuAnchor(),
                                 readOnly = true,
-                                value = frame.lightSource.description(context) ?: "",
+                                value = frame.lightSource.description,
                                 onValueChange = {},
                                 trailingIcon = {
                                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = lightSourceExpanded)
@@ -795,7 +796,7 @@ private fun FrameEditContent(
                             ) {
                                 LightSource.entries.forEach { value ->
                                     DropdownMenuItem(
-                                        text = { Text(value.description(context) ?: "") },
+                                        text = { Text(value.description) },
                                         onClick = {
                                             onLightSourceChange(value)
                                             lightSourceExpanded = false

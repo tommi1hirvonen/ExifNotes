@@ -22,19 +22,27 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class LightSource {
-    UNKNOWN,
-    DAYLIGHT,
-    SUNNY,
-    CLOUDY,
-    SHADE,
-    FLUORESCENT,
-    TUNGSTEN,
-    FLASH;
+    Unknown,
+    Daylight,
+    Sunny,
+    Cloudy,
+    Shade,
+    Fluorescent,
+    Tungsten,
+    Flash;
 
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.LightSource).getOrNull(ordinal)
+    fun description(context: Context) = when (this) {
+        Unknown -> context.resources.getString(R.string.Unknown)
+        Daylight -> context.resources.getString(R.string.Daylight)
+        Sunny -> context.resources.getString(R.string.Sunny)
+        Cloudy -> context.resources.getString(R.string.Cloudy)
+        Shade -> context.resources.getString(R.string.Shade)
+        Fluorescent -> context.resources.getString(R.string.Fluorescent)
+        Tungsten -> context.resources.getString(R.string.Tungsten)
+        Flash -> context.resources.getString(R.string.Flash)
+    }
 
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: UNKNOWN
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: Unknown
     }
 }

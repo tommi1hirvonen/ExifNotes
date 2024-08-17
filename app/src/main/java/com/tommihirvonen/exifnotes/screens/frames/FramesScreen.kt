@@ -85,6 +85,7 @@ import com.tommihirvonen.exifnotes.screens.TimePickerDialog
 import com.tommihirvonen.exifnotes.screens.frameedit.CustomApertureDialog
 import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.util.LoadState
+import com.tommihirvonen.exifnotes.util.description
 import com.tommihirvonen.exifnotes.util.epochMilliseconds
 import com.tommihirvonen.exifnotes.util.mapNonUniqueToNameWithSerial
 import kotlinx.coroutines.launch
@@ -480,15 +481,15 @@ fun FramesScreen(
         )
     }
     if (showLightSourceDialog) {
-        val items = remember { LightSource.entries.map { it to it.description(context) } }
+        val items = remember { LightSource.entries }
         SimpleItemsDialog(
             items = items,
-            itemText = { Text(it.second ?: "") },
+            itemText = { Text(it.description) },
             onDismiss = { showLightSourceDialog = false },
             onSelected = { value ->
                 showLightSourceDialog = false
                 selectedFrames.value.forEach {
-                    it.lightSource = value.first
+                    it.lightSource = value
                     framesViewModel.submitFrame(it)
                 }
             }

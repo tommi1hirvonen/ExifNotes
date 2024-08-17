@@ -105,7 +105,7 @@ class FrameTest {
             exposureComp = "+1/3",
             noOfExposures = 1,
             flashUsed = false,
-            lightSource = LightSource.SUNNY,
+            lightSource = LightSource.Sunny,
             lens = lens,
             filters = filters
         )
@@ -163,7 +163,7 @@ class FrameTest {
             exposureComp = "+1/3",
             noOfExposures = 1,
             flashUsed = false,
-            lightSource = LightSource.SUNNY,
+            lightSource = LightSource.Sunny,
             filters = filters
         )
         val format = Json { prettyPrint = true }
