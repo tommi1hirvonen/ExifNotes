@@ -7,8 +7,8 @@ plugins {
     alias(libs.plugins.android.hilt)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
-    alias(libs.plugins.jetbrains.kotlin.kapt)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -122,7 +122,7 @@ dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.hilt)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -133,9 +133,4 @@ dependencies {
     coreLibraryDesugaring(libs.android.tools.desugar)
     implementation(project(":data"))
     implementation(project(":core"))
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
 }
