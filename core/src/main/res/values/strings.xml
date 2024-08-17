@@ -20,6 +20,10 @@
     <string name="NoValue">&lt;empty&gt;</string>
     <string name="Sheet">Sheet</string>
 
+    <string name="All">All</string>
+    <string name="PreAdded">Pre-added</string>
+    <string name="UserAdded">User added</string>
+
     <string name="BWNegative">B&amp;W negative</string>
     <string name="BWReversal">B&amp;W reversal</string>
     <string name="BWInstant">B&amp;W instant (integral)</string>

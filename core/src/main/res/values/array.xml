@@ -386,10 +386,4 @@
         <item>45</item>
         <item>64</item>
     </string-array>
-
-    <string-array name="FilmStocksFilterMode">
-        <item>All</item>
-        <item>Preadded</item>
-        <item>User added</item>
-    </string-array>
 </resources>

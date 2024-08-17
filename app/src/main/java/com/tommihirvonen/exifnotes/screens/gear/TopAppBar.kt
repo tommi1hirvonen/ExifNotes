@@ -213,7 +213,7 @@ private fun FilterDropdownMenu(
         MultiChoiceDialog(
             title = stringResource(R.string.FilmType),
             initialItems = FilmType.entries.associateWith { filmStockFilters.types.contains(it) },
-            itemText = { it.description(context) ?: "" },
+            itemText = { it.description(context) },
             sortItemsBy = { it.ordinal },
             onDismiss = { showTypeDialog = false },
             onConfirm = { values ->
@@ -227,7 +227,7 @@ private fun FilterDropdownMenu(
         MultiChoiceDialog(
             title = stringResource(R.string.FilmProcess),
             initialItems = FilmProcess.entries.associateWith { filmStockFilters.processes.contains(it) },
-            itemText = { it.description(context) ?: "" },
+            itemText = { it.description(context) },
             sortItemsBy = { it.ordinal },
             onDismiss = { showProcessDialog = false },
             onConfirm = { values ->
@@ -241,7 +241,7 @@ private fun FilterDropdownMenu(
         SingleChoiceDialog(
             items = FilmStockFilterMode.entries,
             initialSelection = filmStockFilters.filterMode,
-            itemText = { it.description(context) ?: "" },
+            itemText = { it.description(context) },
             sortItemsBy = { it.ordinal },
             onDismiss = { showAddedByDialog = false },
             onConfirm = { value ->

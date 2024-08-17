@@ -22,12 +22,15 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class FilmStockFilterMode {
-    ALL, PREADDED, USER_ADDED;
+    All, PreAdded, UserAdded;
 
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: ALL
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: All
     }
 
-    fun description(context: Context) =
-        context.resources.getStringArray(R.array.FilmStocksFilterMode).getOrNull(ordinal)
+    fun description(context: Context) = when (this) {
+        All -> context.resources.getString(R.string.All)
+        PreAdded -> context.resources.getString(R.string.PreAdded)
+        UserAdded -> context.resources.getString(R.string.UserAdded)
+    }
 }

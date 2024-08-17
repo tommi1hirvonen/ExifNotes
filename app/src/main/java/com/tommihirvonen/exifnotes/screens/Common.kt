@@ -242,7 +242,7 @@ fun MultiChoiceDialog(
 private fun SingleChoiceDialogPreview() {
     SingleChoiceDialog(
         items = FilmStockFilterMode.entries,
-        initialSelection = FilmStockFilterMode.ALL,
+        initialSelection = FilmStockFilterMode.All,
         itemText = { it.toString() },
         sortItemsBy = { it.ordinal },
         onDismiss = { },

@@ -130,15 +130,15 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
 
     private val addedByFilter = { fs: FilmStock ->
         when (filterSet.filterMode) {
-            FilmStockFilterMode.ALL -> true
-            FilmStockFilterMode.PREADDED -> fs.isPreadded
-            FilmStockFilterMode.USER_ADDED -> !fs.isPreadded
+            FilmStockFilterMode.All -> true
+            FilmStockFilterMode.PreAdded -> fs.isPreadded
+            FilmStockFilterMode.UserAdded -> !fs.isPreadded
         }
     }
 }
 
 data class FilmStockFilterSet(
-    val filterMode: FilmStockFilterMode = FilmStockFilterMode.ALL,
+    val filterMode: FilmStockFilterMode = FilmStockFilterMode.All,
     val manufacturers: List<String> = emptyList(),
     val isoValues: List<Int> = emptyList(),
     val types: List<FilmType> = emptyList(),
