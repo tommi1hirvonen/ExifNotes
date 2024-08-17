@@ -35,7 +35,7 @@ class FilmStockTest {
             iso = 400,
             type = FilmType.BWNegative,
             process = FilmProcess.BWNegative,
-            isPreadded = true
+            isPreAdded = true
         )
         val format = Json { prettyPrint = true }
         val json = format.encodeToString(filmStock)

@@ -45,7 +45,7 @@ class FrameTest {
         iso = 400,
         type = FilmType.BWNegative,
         process = FilmProcess.BWNegative,
-        isPreadded = true
+        isPreAdded = true
     )
 
     private val filters = listOf(

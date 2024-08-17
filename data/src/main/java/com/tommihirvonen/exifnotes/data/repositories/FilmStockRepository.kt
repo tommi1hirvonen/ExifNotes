@@ -38,14 +38,13 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
             put(KEY_FILM_ISO, filmStock.iso)
             put(KEY_FILM_TYPE, filmStock.type.ordinal)
             put(KEY_FILM_PROCESS, filmStock.process.ordinal)
-            put(KEY_FILM_IS_PREADDED, filmStock.isPreadded)
+            put(KEY_FILM_IS_PREADDED, filmStock.isPreAdded)
         }
     }
 
-    fun addFilmStock(filmStock: FilmStock): Long {
+    fun addFilmStock(filmStock: FilmStock): FilmStock {
         val id = database.insert(TABLE_FILM_STOCKS, buildFilmStockContentValues(filmStock))
-        filmStock.id = id
-        return id
+        return filmStock.copy(id = id)
     }
 
     private val filmStockMapper = { row: Cursor ->
@@ -56,7 +55,7 @@ class FilmStockRepository @Inject constructor(private val database: Database) {
             iso = row.getInt(KEY_FILM_ISO),
             type = FilmType.from(row.getInt(KEY_FILM_TYPE)),
             process = FilmProcess.from(row.getInt(KEY_FILM_PROCESS)),
-            isPreadded = row.getInt(KEY_FILM_IS_PREADDED) > 0
+            isPreAdded = row.getInt(KEY_FILM_IS_PREADDED) > 0
         )
     }
 

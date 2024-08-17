@@ -29,16 +29,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Keep
 data class FilmStock(
-    override var id: Long = 0,
-    override var make: String? = null,
-    override var model: String? = null,
-    var iso: Int = 0,
+    override val id: Long = 0,
+    override val make: String? = null,
+    override val model: String? = null,
+    val iso: Int = 0,
     @EncodeDefault
-    var type: FilmType = FilmType.Unknown,
+    val type: FilmType = FilmType.Unknown,
     @EncodeDefault
-    var process: FilmProcess = FilmProcess.Unknown,
+    val process: FilmProcess = FilmProcess.Unknown,
     @EncodeDefault
-    var isPreadded: Boolean = false) : Gear(), Comparable<Gear>
+    val isPreAdded: Boolean = false
+) : Gear(), Comparable<Gear>
 
 fun List<FilmStock>.sorted(sortMode: FilmStockSortMode): List<FilmStock> =
     sortedWith(sortMode.comparator)

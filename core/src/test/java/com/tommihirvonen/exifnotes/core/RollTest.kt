@@ -57,7 +57,7 @@ class RollTest {
             iso = 400,
             type = FilmType.BWNegative,
             process = FilmProcess.BWNegative,
-            isPreadded = true
+            isPreAdded = true
         )
         val lens = Lens(
             id = 4,

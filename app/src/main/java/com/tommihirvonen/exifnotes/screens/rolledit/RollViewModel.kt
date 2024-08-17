@@ -69,9 +69,11 @@ class RollViewModel @AssistedInject constructor (
         _nameError.value = false
     }
 
-    fun submitFilmStock(filmStock: FilmStock) {
-        if (filmStockRepository.updateFilmStock(filmStock) == 0) {
-            filmStockRepository.addFilmStock(filmStock)
+    fun submitFilmStock(value: FilmStock) {
+        val filmStock = if (filmStockRepository.updateFilmStock(value) == 0) {
+            filmStockRepository.addFilmStock(value)
+        } else {
+            value
         }
         setFilmStock(filmStock)
     }

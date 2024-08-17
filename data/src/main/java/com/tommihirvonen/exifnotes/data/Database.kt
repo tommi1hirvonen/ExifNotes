@@ -265,13 +265,14 @@ class Database @Inject constructor(@ApplicationContext private val context: Cont
         for (s in filmStocks) {
             try {
                 val components = s.split(",")
-                val filmStock = FilmStock()
-                filmStock.make = components[0]
-                filmStock.model = components[1]
-                filmStock.iso = components[2].toInt()
-                filmStock.type = FilmType.from(components[3].toInt())
-                filmStock.process = FilmProcess.from(components[4].toInt())
-                filmStock.isPreadded = true
+                val filmStock = FilmStock(
+                    make = components[0],
+                    model = components[1],
+                    iso = components[2].toInt(),
+                    type = FilmType.from(components[3].toInt()),
+                    process = FilmProcess.from(components[4].toInt()),
+                    isPreAdded = true
+                )
                 val values = FilmStockRepository.buildFilmStockContentValues(filmStock)
 
                 // Insert film stocks if they do not already exist.

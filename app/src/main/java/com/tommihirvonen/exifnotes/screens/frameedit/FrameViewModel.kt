@@ -229,9 +229,11 @@ class FrameViewModel @AssistedInject constructor(
         _frame.value = _frame.value.copy(lightSource = value)
     }
 
-    fun submitLens(lens: Lens) {
-        if (lensRepository.updateLens(lens) == 0) {
-            lensRepository.addLens(lens)
+    fun submitLens(value: Lens) {
+        val lens = if (lensRepository.updateLens(value) == 0) {
+            lensRepository.addLens(value)
+        } else {
+            value
         }
         _frame.value.roll.camera?.let { camera ->
             cameraLensRepository.addCameraLensLink(camera, lens)
@@ -262,9 +264,11 @@ class FrameViewModel @AssistedInject constructor(
         )
     }
 
-    fun submitFilter(filter: Filter) {
-        if (filterRepository.updateFilter(filter) == 0) {
-            filterRepository.addFilter(filter)
+    fun submitFilter(value: Filter) {
+        val filter = if (filterRepository.updateFilter(value) == 0) {
+            filterRepository.addFilter(value)
+        } else {
+            value
         }
         lens.value?.let {
             lensFilterRepository.addLensFilterLink(filter, it)

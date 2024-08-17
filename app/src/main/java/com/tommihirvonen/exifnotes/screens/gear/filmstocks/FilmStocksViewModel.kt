@@ -69,9 +69,11 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
         _filmStocks.value = filteredFilmStocks
     }
 
-    fun submitFilmStock(filmStock: FilmStock) {
-        if (repository.updateFilmStock(filmStock) == 0) {
-            repository.addFilmStock(filmStock)
+    fun submitFilmStock(value: FilmStock) {
+        val filmStock = if (repository.updateFilmStock(value) == 0) {
+            repository.addFilmStock(value)
+        } else {
+            value
         }
         replaceFilmStock(filmStock)
     }
@@ -131,8 +133,8 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
     private val addedByFilter = { fs: FilmStock ->
         when (filterSet.filterMode) {
             FilmStockFilterMode.All -> true
-            FilmStockFilterMode.PreAdded -> fs.isPreadded
-            FilmStockFilterMode.UserAdded -> !fs.isPreadded
+            FilmStockFilterMode.PreAdded -> fs.isPreAdded
+            FilmStockFilterMode.UserAdded -> !fs.isPreAdded
         }
     }
 }
