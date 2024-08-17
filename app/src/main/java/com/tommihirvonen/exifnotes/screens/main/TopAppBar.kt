@@ -75,7 +75,7 @@ import com.tommihirvonen.exifnotes.core.entities.RollSortMode
 private fun AppBarPreview() {
     MainTopAppBar(
         subtitle = "Active rolls",
-        rollSortMode = RollSortMode.DATE,
+        rollSortMode = RollSortMode.Date,
         onRollSortModeSet = {},
         scrollBehavior = null,
         navigationIcon = {
@@ -191,15 +191,15 @@ private fun TopAppBarMenu(
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Date)) },
             onClick = {
-                onRollSortModeSet(RollSortMode.DATE)
+                onRollSortModeSet(RollSortMode.Date)
                 showMenu = false
             },
             leadingIcon = { Icon(Icons.Outlined.CalendarToday, "") },
             trailingIcon = {
                 RadioButton(
-                    selected = sortMode == RollSortMode.DATE,
+                    selected = sortMode == RollSortMode.Date,
                     onClick = {
-                        onRollSortModeSet(RollSortMode.DATE)
+                        onRollSortModeSet(RollSortMode.Date)
                         showMenu = false
                     }
                 )
@@ -208,15 +208,15 @@ private fun TopAppBarMenu(
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Name)) },
             onClick = {
-                onRollSortModeSet(RollSortMode.NAME)
+                onRollSortModeSet(RollSortMode.Name)
                 showMenu = false
             },
             leadingIcon = { Icon(Icons.Outlined.DriveFileRenameOutline, "") },
             trailingIcon = {
                 RadioButton(
-                    selected = sortMode == RollSortMode.NAME,
+                    selected = sortMode == RollSortMode.Name,
                     onClick = {
-                        onRollSortModeSet(RollSortMode.NAME)
+                        onRollSortModeSet(RollSortMode.Name)
                         showMenu = false
                     }
                 )
@@ -225,15 +225,15 @@ private fun TopAppBarMenu(
         DropdownMenuItem(
             text = { Text(stringResource(R.string.Camera)) },
             onClick = {
-                onRollSortModeSet(RollSortMode.CAMERA)
+                onRollSortModeSet(RollSortMode.Camera)
                 showMenu = false
             },
             leadingIcon = { Icon(Icons.Outlined.CameraAlt, "") },
             trailingIcon = {
                 RadioButton(
-                    selected = sortMode == RollSortMode.CAMERA,
+                    selected = sortMode == RollSortMode.Camera,
                     onClick = {
-                        onRollSortModeSet(RollSortMode.CAMERA)
+                        onRollSortModeSet(RollSortMode.Camera)
                         showMenu = false
                     }
                 )

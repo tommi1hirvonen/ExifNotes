@@ -22,11 +22,11 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class FrameSortMode(value: Int) {
-    FRAME_COUNT(0),
-    DATE(1),
-    F_STOP(2),
-    SHUTTER_SPEED(3),
-    LENS(4);
+    FrameCount(0),
+    Date(1),
+    FStop(2),
+    ShutterSpeed(3),
+    Lens(4);
 
     var value: Int = 0
         internal set
@@ -36,14 +36,14 @@ enum class FrameSortMode(value: Int) {
     }
 
     fun getComparator(context: Context): Comparator<Frame> = when (this) {
-        FRAME_COUNT -> compareByDescending { it.count }
-        DATE -> compareByDescending { it.date }
-        LENS -> compareBy { it.lens?.name }
-        F_STOP -> {
+        FrameCount -> compareByDescending { it.count }
+        Date -> compareByDescending { it.date }
+        Lens -> compareBy { it.lens?.name }
+        FStop -> {
             val allApertureValues = context.resources.getStringArray(R.array.AllApertureValues)
             compareBy { allApertureValues.indexOf(it.aperture) }
         }
-        SHUTTER_SPEED -> {
+        ShutterSpeed -> {
             val allShutterValues = context.resources.getStringArray(R.array.AllShutterValues)
             compareByDescending { allShutterValues.indexOf(it.shutter) }
         }
@@ -53,12 +53,12 @@ enum class FrameSortMode(value: Int) {
 
         fun fromValue(value: Int): FrameSortMode {
             return when (value) {
-                0 -> FRAME_COUNT
-                1 -> DATE
-                2 -> F_STOP
-                3 -> SHUTTER_SPEED
-                4 -> LENS
-                else -> FRAME_COUNT
+                0 -> FrameCount
+                1 -> Date
+                2 -> FStop
+                3 -> ShutterSpeed
+                4 -> Lens
+                else -> FrameCount
             }
         }
     }

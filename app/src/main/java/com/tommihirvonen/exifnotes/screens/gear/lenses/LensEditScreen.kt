@@ -181,7 +181,7 @@ private fun LensEditContentPreview() {
         serialNumber = "123ASD456",
         minFocalLength = 28,
         maxFocalLength = 28,
-        apertureIncrements = Increment.THIRD,
+        apertureIncrements = Increment.Third,
         minAperture = "22",
         maxAperture = "2.8",
         customApertureValues = listOf(2.8f, 5.6f)

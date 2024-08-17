@@ -77,14 +77,14 @@ fun FramesBottomAppBar(
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.FrameCount)) },
                     onClick = {
-                        onSortModeChange(FrameSortMode.FRAME_COUNT)
+                        onSortModeChange(FrameSortMode.FrameCount)
                         sortMenuExpanded = false
                     },
                     trailingIcon = {
                         RadioButton(
-                            selected = sortMode == FrameSortMode.FRAME_COUNT,
+                            selected = sortMode == FrameSortMode.FrameCount,
                             onClick = {
-                                onSortModeChange(FrameSortMode.FRAME_COUNT)
+                                onSortModeChange(FrameSortMode.FrameCount)
                                 sortMenuExpanded = false
                             }
                         )
@@ -93,14 +93,14 @@ fun FramesBottomAppBar(
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.Date)) },
                     onClick = {
-                        onSortModeChange(FrameSortMode.DATE)
+                        onSortModeChange(FrameSortMode.Date)
                         sortMenuExpanded = false
                     },
                     trailingIcon = {
                         RadioButton(
-                            selected = sortMode == FrameSortMode.DATE,
+                            selected = sortMode == FrameSortMode.Date,
                             onClick = {
-                                onSortModeChange(FrameSortMode.DATE)
+                                onSortModeChange(FrameSortMode.Date)
                                 sortMenuExpanded = false
                             }
                         )
@@ -109,14 +109,14 @@ fun FramesBottomAppBar(
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.FStop)) },
                     onClick = {
-                        onSortModeChange(FrameSortMode.F_STOP)
+                        onSortModeChange(FrameSortMode.FStop)
                         sortMenuExpanded = false
                     },
                     trailingIcon = {
                         RadioButton(
-                            selected = sortMode == FrameSortMode.F_STOP,
+                            selected = sortMode == FrameSortMode.FStop,
                             onClick = {
-                                onSortModeChange(FrameSortMode.F_STOP)
+                                onSortModeChange(FrameSortMode.FStop)
                                 sortMenuExpanded = false
                             }
                         )
@@ -125,14 +125,14 @@ fun FramesBottomAppBar(
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.ShutterSpeed)) },
                     onClick = {
-                        onSortModeChange(FrameSortMode.SHUTTER_SPEED)
+                        onSortModeChange(FrameSortMode.ShutterSpeed)
                         sortMenuExpanded = false
                     },
                     trailingIcon = {
                         RadioButton(
-                            selected = sortMode == FrameSortMode.SHUTTER_SPEED,
+                            selected = sortMode == FrameSortMode.ShutterSpeed,
                             onClick = {
-                                onSortModeChange(FrameSortMode.SHUTTER_SPEED)
+                                onSortModeChange(FrameSortMode.ShutterSpeed)
                                 sortMenuExpanded = false
                             }
                         )
@@ -141,14 +141,14 @@ fun FramesBottomAppBar(
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.Lens)) },
                     onClick = {
-                        onSortModeChange(FrameSortMode.LENS)
+                        onSortModeChange(FrameSortMode.Lens)
                         sortMenuExpanded = false
                     },
                     trailingIcon = {
                         RadioButton(
-                            selected = sortMode == FrameSortMode.LENS,
+                            selected = sortMode == FrameSortMode.Lens,
                             onClick = {
-                                onSortModeChange(FrameSortMode.LENS)
+                                onSortModeChange(FrameSortMode.Lens)
                                 sortMenuExpanded = false
                             }
                         )

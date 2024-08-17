@@ -19,10 +19,10 @@
 package com.tommihirvonen.exifnotes.core.entities
 
 enum class FilmStockSortMode {
-    NAME, ISO;
+    Name, ISO;
 
     val comparator: Comparator<FilmStock> get() = when (this) {
-        NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+        Name -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
         ISO -> compareBy { it.iso }
     }
 }

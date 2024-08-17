@@ -22,14 +22,14 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class PartialIncrement {
-    THIRD, HALF;
+    Third, Half;
 
     companion object {
-        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: THIRD
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: Third
     }
 
     fun description(context: Context) = when(this) {
-        THIRD -> context.getString(R.string.ThirdStop)
-        HALF -> context.getString(R.string.HalfStop)
+        Third -> context.getString(R.string.ThirdStop)
+        Half -> context.getString(R.string.HalfStop)
     }
 }

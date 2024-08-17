@@ -60,7 +60,7 @@ class MainViewModel @Inject constructor(
     private val mRollCounts = MutableStateFlow(RollCounts(0, 0, 0))
     private val mToolbarSubtitle = MutableStateFlow(context.resources.getString(R.string.ActiveRolls))
     private val mRollFilterMode = MutableStateFlow<RollFilterMode>(RollFilterMode.Active)
-    private val mRollSortMode = MutableStateFlow(RollSortMode.DATE)
+    private val mRollSortMode = MutableStateFlow(RollSortMode.Date)
 
     init {
         loadAll()

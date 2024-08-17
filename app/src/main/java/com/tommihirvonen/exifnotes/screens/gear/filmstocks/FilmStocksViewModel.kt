@@ -44,7 +44,7 @@ class FilmStocksViewModel @Inject constructor(private val repository: FilmStockR
     val sortMode: StateFlow<FilmStockSortMode> get() = _sortMode
 
     private val _filmStocks = MutableStateFlow(emptyList<FilmStock>())
-    private val _sortMode = MutableStateFlow(FilmStockSortMode.NAME)
+    private val _sortMode = MutableStateFlow(FilmStockSortMode.Name)
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

@@ -126,10 +126,10 @@ private fun CameraEditContentPreview() {
         make = "Canon",
         model = "A-1",
         serialNumber = "123ASD456",
-        shutterIncrements = Increment.THIRD,
+        shutterIncrements = Increment.Third,
         minShutter = "1/1000",
         maxShutter = "30\"",
-        exposureCompIncrements = PartialIncrement.THIRD,
+        exposureCompIncrements = PartialIncrement.Third,
         format = Format.MM35
     )
     CameraEditContent(

@@ -178,9 +178,9 @@ class CameraViewModel @AssistedInject constructor(
     }
 
     private fun getShutterValues(increment: Increment) = when (increment) {
-        Increment.THIRD -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ShutterValuesThird)
-        Increment.HALF -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ShutterValuesHalf)
-        Increment.FULL -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ShutterValuesFull)
+        Increment.Third -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ShutterValuesThird)
+        Increment.Half -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ShutterValuesHalf)
+        Increment.Full -> context.resources.getStringArray(com.tommihirvonen.exifnotes.core.R.array.ShutterValuesFull)
     }.reversed()
 
     private fun shutterRangeValidation(camera: Camera): Boolean {

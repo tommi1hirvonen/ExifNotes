@@ -94,7 +94,7 @@ class FramesViewModel @AssistedInject constructor(
     private val _selectedFrames = MutableStateFlow(hashSetOf<Frame>())
     private val _frameSortMode = MutableStateFlow(
         FrameSortMode.fromValue(
-            sharedPreferences.getInt(KEY_FRAME_SORT_ORDER, FrameSortMode.FRAME_COUNT.value)
+            sharedPreferences.getInt(KEY_FRAME_SORT_ORDER, FrameSortMode.FrameCount.value)
         )
     )
 

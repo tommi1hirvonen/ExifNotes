@@ -46,8 +46,8 @@ class RollTest {
             serialNumber = "ABC123",
             minShutter = "1/1000",
             maxShutter = "30",
-            shutterIncrements = Increment.HALF,
-            exposureCompIncrements = PartialIncrement.THIRD,
+            shutterIncrements = Increment.Half,
+            exposureCompIncrements = PartialIncrement.Third,
             format = Format.MM35
         )
         val filmStock = FilmStock(
@@ -68,7 +68,7 @@ class RollTest {
             minFocalLength = 28,
             maxFocalLength = 28,
             serialNumber = "ABC123",
-            apertureIncrements = Increment.HALF
+            apertureIncrements = Increment.Half
         )
         val filters = listOf(
             Filter(id = 10, make = "Haida", model = "C-POL PRO II"),

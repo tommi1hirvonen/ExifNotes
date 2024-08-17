@@ -519,7 +519,7 @@ private fun FramesContentPreview() {
         roll = roll,
         frames = LoadState.Success(listOf(frame1, frame2)),
         selectedFrames = hashSetOf(),
-        sortMode = FrameSortMode.FRAME_COUNT,
+        sortMode = FrameSortMode.FrameCount,
         onFrameClick = {},
         onFabClick = {},
         toggleFrameSelection = {},

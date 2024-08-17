@@ -60,7 +60,7 @@ private fun TopAppBarPreview() {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
         currentPagerPage = 3,
         onNavigateUp = {},
-        filmStockSortMode = FilmStockSortMode.NAME,
+        filmStockSortMode = FilmStockSortMode.Name,
         onFilmStockSort = {},
         manufacturers = emptyList(),
         isoValues = emptyList(),
@@ -271,13 +271,13 @@ private fun SortDropdownMenu(
             text = { Text(stringResource(R.string.Name)) },
             onClick = {
                 onDismiss()
-                onFilmStockSort(FilmStockSortMode.NAME)
+                onFilmStockSort(FilmStockSortMode.Name)
             },
             trailingIcon = {
                 RadioButton(
-                    selected = filmStockSortMode == FilmStockSortMode.NAME,
+                    selected = filmStockSortMode == FilmStockSortMode.Name,
                     onClick = {
-                        onFilmStockSort(FilmStockSortMode.NAME)
+                        onFilmStockSort(FilmStockSortMode.Name)
                         onDismiss()
                     }
                 )

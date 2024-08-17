@@ -365,7 +365,7 @@ private fun MainContentPreview() {
         subtitle = "Archived rolls",
         rolls = rolls,
         selectedRolls = hashSetOf(),
-        rollSortMode = RollSortMode.DATE,
+        rollSortMode = RollSortMode.Date,
         onRollSortModeSet = {},
         onFabClick = {},
         onRollClick = {},
