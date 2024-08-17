@@ -22,7 +22,7 @@ import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
 enum class Format {
-    MM35, MEDIUM_FORMAT_120, APS_110, SHEET;
+    MM35, MediumFormat120, APS110, Sheet;
 
     companion object {
         fun from(value: Int) =
@@ -31,8 +31,8 @@ enum class Format {
 
     fun description(context: Context) = when (this) {
         MM35 -> "35 mm"
-        MEDIUM_FORMAT_120 -> "120"
-        APS_110 -> "110"
-        SHEET -> context.getString(R.string.Sheet)
+        MediumFormat120 -> "120"
+        APS110 -> "110"
+        Sheet -> context.getString(R.string.Sheet)
     }
 }

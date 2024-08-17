@@ -392,11 +392,4 @@
         <item>Preadded</item>
         <item>User added</item>
     </string-array>
-
-    <string-array name="FilmFormats">
-        <item>35 mm</item>
-        <item>120</item>
-        <item>110</item>
-        <item>@string/Sheet</item>
-    </string-array>
 </resources>
