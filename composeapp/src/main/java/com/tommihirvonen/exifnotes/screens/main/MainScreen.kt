@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
@@ -38,6 +40,7 @@ import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
@@ -90,6 +94,7 @@ fun MainScreen(
     var showRemoveLabelsDialog by remember { mutableStateOf(false) }
     var showBatchEditDialog by remember { mutableStateOf(false) }
     var showBatchEditFilmStock by remember { mutableStateOf(false) }
+    var showBatchEditISODialog by remember { mutableStateOf(false) }
 
     MainContent(
         snackbarHostState = snackbarHostState,
@@ -219,6 +224,10 @@ fun MainScreen(
                 }
                 showBatchEditDialog = false
             },
+            onEditISO = {
+                showBatchEditDialog = false
+                showBatchEditISODialog = true
+            },
             onDismiss = { showBatchEditDialog = false }
         )
     }
@@ -234,6 +243,18 @@ fun MainScreen(
             }
         )
     }
+    if (showBatchEditISODialog) {
+        IsoDialog(
+            onDismiss = { showBatchEditISODialog = false },
+            onConfirm = { value ->
+                showBatchEditISODialog = false
+                selectedRolls.value.forEach { roll ->
+                    roll.iso = value
+                    mainViewModel.submitRoll(roll)
+                }
+            }
+        )
+    }
 }
 
 @Preview
@@ -242,6 +263,7 @@ private fun BatchEditDialog(
     selectedRolls: HashSet<Roll> = hashSetOf(),
     onEditFilmStock: () -> Unit = {},
     onClearFilmStock: () -> Unit = {},
+    onEditISO: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
     AlertDialog(
@@ -286,6 +308,20 @@ private fun BatchEditDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(stringResource(R.string.ClearFilmStock))
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onEditISO() }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(stringResource(R.string.SetISO))
                     }
                 }
             }
@@ -458,4 +494,58 @@ private fun MainContent(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun IsoDialog(
+    onDismiss: () -> Unit = {},
+    onConfirm: (Int) -> Unit = {}
+) {
+    var value by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.Cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = value.toIntOrNull() != null,
+                onClick = {
+                    if (value.toIntOrNull() != null) {
+                        onConfirm(value.toIntOrNull() ?: 0)
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.OK))
+            }
+        },
+        title = { Text(stringResource(R.string.SetISO)) },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TextField(
+                    modifier = Modifier.width(100.dp),
+                    value = value,
+                    onValueChange = {
+                        value = if (it.isEmpty()) {
+                            it
+                        } else {
+                            when (it.toIntOrNull()) {
+                                null -> value
+                                else -> it
+                            }
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
+                    )
+                )
+            }
+        }
+    )
 }
