@@ -181,7 +181,7 @@ fun textResource(@StringRes id: Int): CharSequence = LocalContext.current.resour
 
 val FilmType.description: String @Composable get() = description(LocalContext.current)
 
-val FilmProcess.description: String? @Composable get() = description(LocalContext.current)
+val FilmProcess.description: String @Composable get() = description(LocalContext.current)
 
 val LightSource.description: String @Composable get() = description(LocalContext.current)
 

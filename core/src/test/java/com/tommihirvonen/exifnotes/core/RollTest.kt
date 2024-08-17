@@ -56,7 +56,7 @@ class RollTest {
             model = "HP5+",
             iso = 400,
             type = FilmType.BWNegative,
-            process = FilmProcess.BW_NEGATIVE,
+            process = FilmProcess.BWNegative,
             isPreadded = true
         )
         val lens = Lens(

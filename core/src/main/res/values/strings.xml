@@ -38,6 +38,8 @@
     <string name="Tungsten">Tungsten</string>
     <string name="Flash">Flash</string>
 
+    <string name="Integral">Integral</string>
+
     <string name="ThirdStop">⅓ stop</string>
     <string name="HalfStop">½ stop</string>
     <string name="FullStop">1 stop</string>

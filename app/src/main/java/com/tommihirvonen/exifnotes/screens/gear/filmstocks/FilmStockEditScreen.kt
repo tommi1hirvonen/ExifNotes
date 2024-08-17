@@ -92,7 +92,7 @@ private fun FilmStockEditFormPreview() {
         model = "400 Professional",
         iso = 400,
         type = FilmType.BWNegative,
-        process = FilmProcess.BW_NEGATIVE
+        process = FilmProcess.BWNegative
     )
     FilmStockEditForm(
         isNewFilmStock = false,
@@ -205,7 +205,7 @@ private fun FilmStockEditForm(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = filmStock.process.description ?: "",
+                        value = filmStock.process.description,
                         onValueChange = {},
                         label = { Text(stringResource(R.string.FilmProcess)) },
                         trailingIcon = {
@@ -218,7 +218,7 @@ private fun FilmStockEditForm(
                     ) {
                         FilmProcess.entries.forEach { p ->
                             DropdownMenuItem(
-                                text = { Text(p.description ?: "") },
+                                text = { Text(p.description) },
                                 onClick = {
                                     onProcessChange(p)
                                     processExpanded = false

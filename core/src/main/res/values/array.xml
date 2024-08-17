@@ -387,16 +387,6 @@
         <item>64</item>
     </string-array>
 
-    <string-array name="FilmProcesses">
-        <item>Unknown</item>
-        <item>B&amp;W negative</item>
-        <item>B&amp;W reversal</item>
-        <item>C-41</item>
-        <item>E-6</item>
-        <item>ECN-2</item>
-        <item>Integral</item>
-    </string-array>
-
     <string-array name="FilmStocksFilterMode">
         <item>All</item>
         <item>Preadded</item>

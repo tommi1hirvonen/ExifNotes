@@ -111,7 +111,7 @@ fun FilmStockCard(
                     )
                     Text(
                         modifier = Modifier.weight(0.7f),
-                        text = filmStock.process.description ?: ""
+                        text = filmStock.process.description
                     )
                 }
             }
