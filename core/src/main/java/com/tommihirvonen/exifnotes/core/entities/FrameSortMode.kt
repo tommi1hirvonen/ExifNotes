@@ -21,19 +21,12 @@ package com.tommihirvonen.exifnotes.core.entities
 import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
 
-enum class FrameSortMode(value: Int) {
+enum class FrameSortMode(val value: Int) {
     FrameCount(0),
     Date(1),
     FStop(2),
     ShutterSpeed(3),
     Lens(4);
-
-    var value: Int = 0
-        internal set
-
-    init {
-        this.value = value
-    }
 
     fun getComparator(context: Context): Comparator<Frame> = when (this) {
         FrameCount -> compareByDescending { it.count }
