@@ -91,7 +91,7 @@ private fun FilmStockEditFormPreview() {
         make = "Exif Notes Labs",
         model = "400 Professional",
         iso = 400,
-        type = FilmType.BW_NEGATIVE,
+        type = FilmType.BWNegative,
         process = FilmProcess.BW_NEGATIVE
     )
     FilmStockEditForm(
@@ -174,7 +174,7 @@ private fun FilmStockEditForm(
                     OutlinedTextField(
                         modifier = Modifier.menuAnchor(),
                         readOnly = true,
-                        value = filmStock.type.description ?: "",
+                        value = filmStock.type.description,
                         onValueChange = {},
                         label = { Text(stringResource(R.string.FilmType)) },
                         trailingIcon = {
@@ -187,7 +187,7 @@ private fun FilmStockEditForm(
                     ) {
                         FilmType.entries.forEach { t ->
                             DropdownMenuItem(
-                                text = { Text(t.description ?: "") },
+                                text = { Text(t.description) },
                                 onClick = {
                                     onTypeChange(t)
                                     typeExpanded = false

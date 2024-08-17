@@ -55,7 +55,7 @@ private fun FilmStockCardPreview() {
         make = "Tommi's Lab",
         model = "Rainbow 400",
         iso = 400,
-        type = FilmType.BW_NEGATIVE,
+        type = FilmType.BWNegative,
         process = FilmProcess.C41
     )
     FilmStockCard(
@@ -101,7 +101,7 @@ fun FilmStockCard(
                     )
                     Text(
                         modifier = Modifier.weight(0.7f),
-                        text = filmStock.type.description ?: ""
+                        text = filmStock.type.description
                     )
                 }
                 Row {

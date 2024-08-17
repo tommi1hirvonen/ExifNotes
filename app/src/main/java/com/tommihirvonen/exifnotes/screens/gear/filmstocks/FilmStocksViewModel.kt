@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.tommihirvonen.exifnotes.screens.gear.filmstocks;
+package com.tommihirvonen.exifnotes.screens.gear.filmstocks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -43,7 +43,7 @@ class FrameTest {
         make = "ILFORD",
         model = "HP5+",
         iso = 400,
-        type = FilmType.BW_NEGATIVE,
+        type = FilmType.BWNegative,
         process = FilmProcess.BW_NEGATIVE,
         isPreadded = true
     )

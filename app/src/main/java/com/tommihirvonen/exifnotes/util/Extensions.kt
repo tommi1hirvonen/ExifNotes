@@ -179,7 +179,7 @@ fun Iterable<Lens>.mapNonUniqueToNameWithSerial() = map { lens ->
 @ReadOnlyComposable
 fun textResource(@StringRes id: Int): CharSequence = LocalContext.current.resources.getText(id)
 
-val FilmType.description: String? @Composable get() = description(LocalContext.current)
+val FilmType.description: String @Composable get() = description(LocalContext.current)
 
 val FilmProcess.description: String? @Composable get() = description(LocalContext.current)
 

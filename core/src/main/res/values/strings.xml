@@ -20,6 +20,15 @@
     <string name="NoValue">&lt;empty&gt;</string>
     <string name="Sheet">Sheet</string>
 
+    <string name="BWNegative">B&amp;W negative</string>
+    <string name="BWReversal">B&amp;W reversal</string>
+    <string name="BWInstant">B&amp;W instant (integral)</string>
+    <string name="ColourNegative">Colour negative</string>
+    <string name="ColourReversal">Colour reversal</string>
+    <string name="ColourInstant">Colour instant (integral)</string>
+    <string name="MotionPictureBWNegative">Motion picture B&amp;W negative</string>
+    <string name="MotionPictureColourNegative">Motion picture colour negative</string>
+
     <string name="Unknown">Unknown</string>
     <string name="Daylight">Daylight</string>
     <string name="Sunny">Sunny</string>
