@@ -18,17 +18,10 @@
 
 package com.tommihirvonen.exifnotes.core.entities
 
-enum class RollSortMode(value: Int) {
-    Date(0),
-    Name(1),
-    Camera(2);
-
-    var value: Int = 0
-        internal set
-
-    init {
-        this.value = value
-    }
+enum class RollSortMode {
+    Date,
+    Name,
+    Camera;
 
     val comparator: Comparator<Roll> get() = when (this) {
         Date -> compareByDescending { roll ->
