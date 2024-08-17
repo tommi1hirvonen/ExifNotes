@@ -93,7 +93,7 @@ class FrameTest {
         )
         val frame = Frame(
             id = 5,
-            roll = roll,
+            rollId = roll.id,
             count = 10,
             date = LocalDateTime.now(),
             shutter = "1/125",
@@ -151,7 +151,7 @@ class FrameTest {
         )
         val frame = Frame(
             id = 5,
-            roll = roll,
+            rollId = roll.id,
             count = 10,
             date = LocalDateTime.now(),
             shutter = "1/125",

@@ -90,6 +90,7 @@ class RollTest {
             frames = listOf(
                 Frame(
                     id = 5,
+                    rollId = 3,
                     count = 10,
                     date = LocalDateTime.now(),
                     shutter = "1/125",
@@ -107,6 +108,7 @@ class RollTest {
                 ),
                 Frame(
                     id = 6,
+                    rollId = 3,
                     count = 11,
                     date = LocalDateTime.now(),
                     shutter = "1/125",
