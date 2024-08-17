@@ -423,6 +423,9 @@ class FrameViewModel @AssistedInject constructor(
         }
         val pictureFile = complementaryPicturesManager.getPictureFile(filename)
         if (!pictureFile.exists()) {
+            _snackbarMessage.value = SnackbarMessage(
+                message = context.resources.getString(R.string.PictureSetButNotFound)
+            )
             return
         }
         viewModelScope.launch {

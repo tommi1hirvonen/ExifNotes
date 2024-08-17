@@ -814,6 +814,11 @@ private fun FrameEditContent(
                         label = { Text(stringResource(R.string.DescriptionOrNote)) }
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.ComplementaryPicture),
+                    style = MaterialTheme.typography.bodySmall
+                )
                 Row(
                     modifier = Modifier
                         .padding(top = 16.dp)
@@ -1069,13 +1074,15 @@ private fun CustomShutterDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(R.string.AllowedFormatsCustomShutterValue))
+                Text(stringResource(R.string.EnterCustomShutterSpeedValue))
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
                     modifier = Modifier.width(100.dp),
                     value = value,
                     onValueChange = { value = it }
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(stringResource(R.string.AllowedFormatsCustomShutterValue))
             }
         }
     )
@@ -1107,6 +1114,7 @@ private fun FocalLengthDialog(
                 Text(stringResource(R.string.OK))
             }
         },
+        title = { Text(stringResource(R.string.ChooseFocalLength)) },
         text = {
             Column {
                 Row(

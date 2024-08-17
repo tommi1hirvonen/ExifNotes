@@ -60,7 +60,6 @@
     <string name="Blue">Blue</string>
     <string name="Both">Both</string>
     <string name="Camera">Camera</string>
-    <string name="CameraNoColon">Camera</string>
     <string name="CameraIsInUseConfirmation">Camera is in use. Delete anyway?</string>
     <string name="Cameras">CAMERAS</string>
     <string name="CamerasNoCap">Cameras</string>
@@ -102,13 +101,11 @@
         <item quantity="other">Delete %d frames?</item>
     </plurals>
     <string name="ConfirmLensDelete">Delete lens</string>
-    <string name="ConfirmRollDelete">Delete roll</string>
     <plurals name="ConfirmRollsDelete">
         <item quantity="one">Delete %d roll?</item>
         <item quantity="other">Delete %d rolls?</item>
     </plurals>
     <string name="Continue">Continue</string>
-    <string name="Copy">Copy</string>
     <string name="CopyrightInformationSummary">Copyright information to be stored under the copyright tag in the file\'s exif</string>
     <string name="CopyrightInformationTitle">Copyright information</string>
     <string name="CsvDescription">Text file with the roll\'s data in csv format</string>
@@ -120,7 +117,6 @@
     <string name="DatabaseCopiedSuccessfully">Database copied successfully</string>
     <string name="DatabaseImported">Database imported successfully</string>
     <string name="Date">Date</string>
-    <string name="DateNoColon">Date</string>
     <string name="Daylight">Daylight</string>
     <string name="Decline">Decline</string>
     <string name="DefaultFormat">Default format</string>
@@ -184,7 +180,6 @@
     <string name="ExposureComp">Exposure comp.</string>
     <string name="ExposureCompSingleLine">Exposure compensation</string>
     <string name="ExposureCompensationIncrements">Exposure compensation increments</string>
-    <string name="Favorite">Favorite</string>
     <string name="Favorites">Favorites</string>
     <string name="FStop">F-stop</string>
     <string name="FileEndingSummary">File ending of the files you wish to tag (e.g. .jpg or .tiff etc.)</string>
@@ -199,9 +194,7 @@
     <string name="FilmProcess">Film process</string>
     <string name="FilterFilmStocksBy">Filter film stocks by</string>
     <string name="FilterIsInUseDeleteAnyway">Filter is in use. Delete anyway?</string>
-    <string name="FilterNoColon">Filter</string>
     <string name="FilterOrFilters">Filter(s)</string>
-    <string name="Filters">FILTERS</string>
     <string name="FiltersNoCap">Filters</string>
     <string name="FixedLens">Fixed lens</string>
     <string name="FixedLensHelp">Setting a fixed lens will change the camera into a fixed-lens camera. The lens will be used by default for all (new) frames added with this camera. This reduces the number of steps when adding new frames and keeps the list of separate lenses to a minimum.\n\nSetting a fixed lens removes and disables other lens links for this camera. You can however define compatible filters for fixed lens cameras.</string>
@@ -212,7 +205,6 @@
     <string name="FocalLengthValuesZeroOrGreater">Focal length values must be zero or greater</string>
     <string name="Format">Format</string>
     <string name="FrameCount">Frame count</string>
-    <string name="FrameCountNoColon">Frame count</string>
     <string name="From">From</string>
     <string name="FullStop">1 stop</string>
     <string name="GPSNotEnabled">You have location updates enabled in the app\'s settings, but GPS is disabled in system settings.\n\nDo you want to go to system settings to enable GPS?</string>
@@ -247,15 +239,11 @@
         In this case the old database will be used.
     </string>
     <string name="ImportingComplementaryPicturesPleaseWait">Importing complementary pictures, please wait.\n\nDepending on the size of the .zip file, this can take several minutes.</string>
-    <string name="IncorrectValueFormat">Incorrect value format</string>
     <string name="Information">Information</string>
-    <string name="IsBeingUsed">is being used!</string>
     <string name="Labels">Labels</string>
     <string name="LabelsAdded">Label(s) added</string>
     <string name="LabelsRemoved">Label(s) removed</string>
     <string name="Lens">Lens</string>
-    <string name="LensNoColon">Lens</string>
-    <string name="Lenses">LENSES</string>
     <string name="LensIsInUseConfirmation">Lens is in use. Delete anyway?</string>
     <string name="LensesNoCap">Lenses</string>
     <string name="License">License</string>
@@ -263,7 +251,6 @@
     <string name="LightSource">Light source</string>
     <string name="Loaded">Loaded</string>
     <string name="LoadedOn">Loaded on</string>
-    <string name="LoadingPicture">Loading picture…</string>
     <string name="Location">Location</string>
     <string name="MainActivityTitle">Film rolls</string>
     <string name="Make">Make</string>
@@ -272,35 +259,24 @@
     <string name="Manufacturer">Manufacturer</string>
     <string name="Map">Map</string>
     <string name="MapType">Map type</string>
-    <string name="Minus50">-50</string>
     <string name="MinApertureGreaterThanMax">Min aperture cannot be greater than max</string>
     <string name="MinFocalLengthGreaterThanMax">Min focal length cannot be greater than max</string>
     <string name="MinShutterSpeedGreaterThanMax">Min shutter speed cannot be greater than max</string>
     <string name="Model">Model</string>
-    <string name="More">More</string>
     <string name="MountsTo">Mounts to:</string>
     <string name="Name">Name</string>
-    <string name="NameNoColon">Name</string>
-    <string name="New">New</string>
-    <string name="NewFrame">New frame</string>
     <string name="NewLabel">New label</string>
     <string name="NewRoll">New roll</string>
     <string name="No">No</string>
-    <string name="NoActiveOrArchivedRolls">No active/archived rolls</string>
-    <string name="NoActiveRolls">No active rolls</string>
-    <string name="NoArchivedRolls">No archived rolls</string>
     <string name="NoCamera">No camera</string>
     <string name="NoCameraFeatureWasFound">No camera feature was found!</string>
     <string name="NoCameras">No added cameras</string>
     <string name="NoLabels">No added labels</string>
-    <string name="NoFavorites">No favorites</string>
     <string name="NoFilmStocks">No added film stocks</string>
     <string name="NoFilters">No added filters</string>
     <string name="NoFrames">No added frames</string>
-    <string name="NoFramesToShow">No frames to show on map</string>
     <string name="NoLens">No lens</string>
     <string name="NoLenses">No added lenses</string>
-    <string name="NoLocation">No location was set!</string>
     <string name="NoMake">No make was set!</string>
     <string name="NoMakeOrModel">No make or model was set!</string>
     <string name="NoMinOrMaxAperture">One end of the aperture range was empty!</string>
@@ -308,7 +284,6 @@
     <string name="NoModel">No model was set</string>
     <string name="NoName">No name was set</string>
     <string name="NoOfExposuresSingleLine">No. of exposures</string>
-    <string name="NoPhotos">No photos</string>
     <string name="NoPicturesExported">No pictures were exported</string>
     <string name="NoPicturesImported">No pictures were imported</string>
     <string name="NoRolls">No rolls</string>
@@ -327,7 +302,6 @@
     <string name="NotificationComplementaryPicturesImportSuccessTitle">Complementary pictures imported</string>
     <string name="NotificationComplementaryPicturesImportTitle">Importing complementary pictures</string>
     <string name="NoValue">&lt;empty&gt;</string>
-    <string name="NoWritePermission">The app needs write permission to external storage to export the .csv file and ExifTool commands.</string>
     <string name="Normal">Normal</string>
     <string name="OK">OK</string>
     <string name="Options">Options</string>
@@ -380,7 +354,6 @@
     <string name="SelectCompatibleLenses">Select compatible lenses</string>
     <string name="SelectPictureFromGallery">Select from gallery</string>
     <string name="SerialNumber">Serial number</string>
-    <string name="SetFixedLens">Set fixed lens</string>
     <string name="SetISO">Set ISO</string>
     <string name="Settings">Settings</string>
     <string name="Shade">Shade</string>
@@ -390,7 +363,6 @@
     <string name="ShutterRange">Shutter speed range</string>
     <string name="ShutterSpeed">Shutter speed</string>
     <string name="ShutterSpeedIncrements">Shutter speed increments</string>
-    <string name="Sort">Sort</string>
     <string name="SortBy">Sort by</string>
     <string name="SortFilmStocksBy">Sort film stocks by</string>
     <string name="SortRollsBy">Sort rolls by</string>
@@ -401,7 +373,6 @@
     <string name="TakeNewComplementaryPicture">Take new complementary picture</string>
     <string name="TapOnMap">Tap on map to move marker</string>
     <string name="Terrain">Terrain</string>
-    <string name="Text">Text</string>
     <string name="Theme">Theme</string>
     <string name="ThirdPartyOpenSourceLicenses">Third party open source licenses</string>
     <string name="ThirdStop">⅓ stop</string>
@@ -411,9 +382,7 @@
     <string name="TimeUnloaded">Time unloaded</string>
     <string name="TimeoutGettingAddress">Timeout getting address</string>
     <string name="To">To</string>
-    <string name="TooManyFrames">Frame not added. The frame count cannot be greater than 100.</string>
     <string name="Tungsten">Tungsten</string>
-    <string name="UIColorTitle">User interface color </string>
     <string name="Unarchive">Unarchive</string>
     <string name="Unknown">Unknown</string>
     <string name="Unloaded">Unloaded</string>
