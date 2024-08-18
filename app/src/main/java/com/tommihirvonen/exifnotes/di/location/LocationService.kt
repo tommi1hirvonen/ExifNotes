@@ -90,6 +90,26 @@ class LocationService @Inject constructor(
         pStopLocationUpdates()
     }
 
+    fun requestLastLocationUpdate(onCompleted: (Location?) -> Unit) {
+        val fineLocationPermissions = ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        val coarseLocationPermission = ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+        if (fineLocationPermissions != PackageManager.PERMISSION_GRANTED
+            && coarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
+            onCompleted(null)
+            return
+        }
+        locationClient.lastLocation.addOnSuccessListener { location ->
+            lastLocation = location
+            onCompleted(location)
+        }
+    }
+
     private fun pStartLocationUpdates() {
         if (!appLocationEnabled) {
             return

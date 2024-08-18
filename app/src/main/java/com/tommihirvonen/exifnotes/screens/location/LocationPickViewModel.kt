@@ -22,6 +22,7 @@ import android.Manifest
 import android.app.Application
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
@@ -174,8 +175,12 @@ class LocationPickViewModel @AssistedInject constructor(
         _searchExpanded.value = !_searchExpanded.value
     }
 
-    fun setMyLocation(cameraPositionState: CameraPositionState) {
-        val location = locationService.lastLocation
+    fun setMyLocation(cameraPositionState: CameraPositionState) =
+        locationService.requestLastLocationUpdate { location ->
+            onMyLocationReceived(location, cameraPositionState)
+        }
+
+    private fun onMyLocationReceived(location: Location?, cameraPositionState: CameraPositionState) {
         val latLng = location?.let { LatLng(it.latitude, it.longitude) }
         if (latLng != null) {
             viewModelScope.launch { setLocation(latLng) }
