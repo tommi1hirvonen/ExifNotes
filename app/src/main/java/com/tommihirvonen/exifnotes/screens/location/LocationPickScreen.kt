@@ -94,7 +94,7 @@ import kotlinx.coroutines.launch
 fun LocationPickScreen(
     frame: Frame?,
     onNavigateUp: () -> Unit,
-    onLocationConfirm: (LatLng?, String?) -> Unit,
+    onLocationConfirm: (LatLng, String?) -> Unit,
     themeViewModel: ThemeViewModel,
     locationPickViewModel: LocationPickViewModel =
         hiltViewModel { factory: LocationPickViewModel.Factory ->
@@ -109,6 +109,7 @@ fun LocationPickScreen(
     }
 
     val scope = rememberCoroutineScope()
+    val snackbarState = remember { SnackbarHostState() }
     val location by locationPickViewModel.location.collectAsState()
     val markerState by remember {
         derivedStateOf { location?.let { MarkerState(it) } }
@@ -127,8 +128,10 @@ fun LocationPickScreen(
     val isQuerying by locationPickViewModel.isQueryingSuggestions.collectAsState()
     val suggestions by locationPickViewModel.suggestions.collectAsState()
     val mapType by locationPickViewModel.mapType.collectAsState()
+    val locationNotSetMessage = stringResource(R.string.LocationNotSet)
     LocationPickScreenContent(
         isDarkTheme = darkTheme,
+        snackbarState = snackbarState,
         myLocationEnabled = locationPickViewModel.myLocationEnabled,
         mapType = mapType,
         cameraPositionState = cameraPositionState,
@@ -142,7 +145,10 @@ fun LocationPickScreen(
         suggestions = suggestions,
         onNavigateUp = onNavigateUp,
         onConfirm = {
-            onLocationConfirm(location, address)
+            when (val loc = location) {
+                null -> scope.launch { snackbarState.showSnackbar(locationNotSetMessage) }
+                else -> onLocationConfirm(loc, address)
+            }
         },
         onLocationChange = { value ->
             scope.launch { locationPickViewModel.setLocation(value) }
@@ -177,6 +183,7 @@ fun LocationPickScreen(
 private fun LocationPickScreenPreview() {
     LocationPickScreenContent(
         isDarkTheme = false,
+        snackbarState = SnackbarHostState(),
         myLocationEnabled = true,
         mapType = MapType.NORMAL,
         cameraPositionState = rememberCameraPositionState(),
@@ -204,6 +211,7 @@ private fun LocationPickScreenPreview() {
 @Composable
 fun LocationPickScreenContent(
     isDarkTheme: Boolean,
+    snackbarState: SnackbarHostState,
     myLocationEnabled: Boolean,
     mapType: MapType,
     cameraPositionState: CameraPositionState,
@@ -225,7 +233,6 @@ fun LocationPickScreenContent(
     onMyLocationClick: () -> Unit,
     onMapTypeChange: (MapType) -> Unit
 ) {
-    val snackbarState = remember { SnackbarHostState() }
     var mapTypeExpanded by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
