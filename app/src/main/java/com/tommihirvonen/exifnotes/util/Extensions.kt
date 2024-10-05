@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.LinkAnnotation
@@ -200,6 +201,12 @@ fun PaddingValues.copy(
         bottom = bottom ?: this.calculateBottomPadding(),
     )
 }
+
+fun Color.darken(factor: Float) = copy(
+    red = (red * factor).coerceAtMost(255.0f),
+    green = (green * factor).coerceAtMost(255.0f),
+    blue = (blue * factor).coerceAtMost(255.0f)
+)
 
 val LatLng.coordinates: Coordinates
     get() {

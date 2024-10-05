@@ -69,6 +69,7 @@ import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.sortableDateTime
+import com.tommihirvonen.exifnotes.util.darken
 import java.time.LocalDateTime
 
 @Preview
@@ -124,12 +125,18 @@ fun FrameCard(
 ) {
     val haptic = LocalHapticFeedback.current
     val cardColor by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
+        targetValue = if (selected)
+            MaterialTheme.colorScheme.surfaceVariant
+        else
+            MaterialTheme.colorScheme.surface,
         label = "cardBackgroundColor",
         animationSpec = tween(durationMillis = 400)
     )
     val imageTint by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surfaceVariant,
+        targetValue = if (selected)
+            MaterialTheme.colorScheme.surfaceVariant.darken(0.8f)
+        else
+            MaterialTheme.colorScheme.surfaceVariant,
         label = "cardBackgroundColor",
         animationSpec = tween(durationMillis = 400)
     )
