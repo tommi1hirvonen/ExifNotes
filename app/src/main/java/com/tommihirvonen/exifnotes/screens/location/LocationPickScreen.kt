@@ -18,19 +18,22 @@
 
 package com.tommihirvonen.exifnotes.screens.location
 
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -42,6 +45,7 @@ import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -50,7 +54,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -68,7 +72,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.maps.model.CameraPosition
@@ -236,53 +239,52 @@ fun LocationPickScreenContent(
     var mapTypeExpanded by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
-            val searchBarPadding by animateDpAsState(
-                targetValue = if (searchExpanded) 0.dp else 16.dp,
-                label = "Search bar padding"
-            )
-            val searchBarWidth by animateDpAsState(
-                targetValue = if (searchExpanded) Dp.Infinity else 450.dp,
-                label = "Search bar width"
-            )
             val placeholder = searchText.ifEmpty { stringResource(R.string.SearchWEllipsis) }
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                SearchBar(
+                DockedSearchBar(
                     modifier = Modifier
-                        .widthIn(searchBarWidth, searchBarWidth)
-                        .padding(searchBarPadding),
-                    placeholder = { Text(placeholder) },
-                    leadingIcon = {
-                        IconButton(
-                            onClick = {
-                                if (!searchExpanded) {
-                                    onNavigateUp()
-                                } else {
-                                    onToggleSearchExpanded()
+                        .windowInsetsPadding(WindowInsets.safeContent)
+                        .heightIn(0.dp, 400.dp),
+                    shadowElevation = 6.dp,
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = searchText,
+                            onQueryChange = onSearchTextChange,
+                            onSearch = onQuerySearchRequested,
+                            expanded = searchExpanded,
+                            onExpandedChange = { onToggleSearchExpanded() },
+                            placeholder = { Text(placeholder) },
+                            leadingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        if (!searchExpanded) {
+                                            onNavigateUp()
+                                        } else {
+                                            onToggleSearchExpanded()
+                                        }
+                                    }
+                                ) {
+                                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
+                                }
+                            },
+                            trailingIcon = {
+                                if (searchText.isNotEmpty()) {
+                                    IconButton(
+                                        onClick = {
+                                            onSearchTextChange("")
+                                        }
+                                    ) {
+                                        Icon(Icons.Outlined.Clear, "")
+                                    }
                                 }
                             }
-                        ) {
-                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, "")
-                        }
+                        )
                     },
-                    trailingIcon = {
-                        if (searchText.isNotEmpty()) {
-                            IconButton(
-                                onClick = {
-                                    onSearchTextChange("")
-                                }
-                            ) {
-                                Icon(Icons.Outlined.Clear, "")
-                            }
-                        }
-                    },
-                    query = searchText,
-                    onQueryChange = onSearchTextChange,
-                    onSearch = onQuerySearchRequested,
-                    active = searchExpanded,
-                    onActiveChange = { onToggleSearchExpanded() }
+                    expanded = searchExpanded,
+                    onExpandedChange = { onToggleSearchExpanded() }
                 ) {
                     if (isQueryingSuggestions) {
                         LinearProgressIndicator(
