@@ -284,6 +284,7 @@ fun MainContent(
                     key = { roll -> roll.id }
                 ) { roll ->
                     RollCard(
+                        modifier = Modifier.animateItem(),
                         roll = roll,
                         selected = selectedRolls.any { it.id == roll.id },
                         onClick = {

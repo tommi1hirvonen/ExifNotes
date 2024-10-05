@@ -95,6 +95,7 @@ private fun RollCardPreview() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RollCard(
+    modifier: Modifier = Modifier,
     roll: Roll,
     selected: Boolean = false,
     onClick: () -> Unit = {},
@@ -116,7 +117,7 @@ fun RollCard(
         label = "cardBackgroundColor",
         animationSpec = tween(durationMillis = 400)
     )
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxWidth().then(modifier)) {
         val cardShape = RoundedCornerShape(12.dp)
         Card(
             modifier = Modifier
