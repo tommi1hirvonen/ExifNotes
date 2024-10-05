@@ -328,7 +328,7 @@ class FrameViewModel @AssistedInject constructor(
                 try {
                     complementaryPicturesManager.compressPictureFile(filename)
                     loadPictureBitmap()
-                } catch (e: IOException) {
+                } catch (_: IOException) {
                     _snackbarMessage.value = SnackbarMessage(
                         message = context.resources.getString(R.string.ErrorCompressingComplementaryPicture)
                     )
@@ -355,12 +355,12 @@ class FrameViewModel @AssistedInject constructor(
                         )
                         _pictureBitmap.value = pictureBitmap
                         _pictureRotation.value = getPictureRotation(pictureFile)
-                    } catch (e: IOException) {
+                    } catch (_: IOException) {
                         _snackbarMessage.value = SnackbarMessage(
                             message = context.resources.getString(R.string.ErrorSavingSelectedPicture)
                         )
                     }
-                } catch (e: FileNotFoundException) {
+                } catch (_: FileNotFoundException) {
                     _snackbarMessage.value = SnackbarMessage(
                         message = context.resources.getString(R.string.ErrorLocatingSelectedPicture)
                     )
@@ -375,7 +375,7 @@ class FrameViewModel @AssistedInject constructor(
             _snackbarMessage.value = SnackbarMessage(
                 message = context.resources.getString(R.string.PictureAddedToGallery)
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             _snackbarMessage.value = SnackbarMessage(
                 message = context.resources.getString(R.string.ErrorAddingPictureToGallery)
             )
@@ -390,7 +390,7 @@ class FrameViewModel @AssistedInject constructor(
         try {
             complementaryPicturesManager.rotatePictureRight(filename)
             _pictureRotation.value += 90f
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             _snackbarMessage.value = SnackbarMessage(
                 message = context.resources.getString(R.string.ErrorWhileEditingPicturesExifData)
             )
@@ -405,7 +405,7 @@ class FrameViewModel @AssistedInject constructor(
         try {
             complementaryPicturesManager.rotatePictureLeft(filename)
             _pictureRotation.value -= 90f
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             _snackbarMessage.value = SnackbarMessage(
                 message = context.resources.getString(R.string.ErrorWhileEditingPicturesExifData)
             )
@@ -455,7 +455,7 @@ class FrameViewModel @AssistedInject constructor(
                 ExifInterface.ORIENTATION_ROTATE_270 -> 270f
                 else -> 0f
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             0f
         }
 }

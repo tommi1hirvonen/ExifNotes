@@ -98,7 +98,7 @@ class CsvBuilder @Inject constructor(@ApplicationContext private val context: Co
 
             try {
                 stringBuilder.escape(frame.lightSource.description(context))
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } catch (_: ArrayIndexOutOfBoundsException) {
                 stringBuilder.append("Error")
             }
             stringBuilder.append("\n")

@@ -352,7 +352,7 @@ private fun RollsFilterDialog(
                 ) {
                     items(list) { pair ->
                         val (roll, marker) = pair
-                        val selected = items[roll] ?: false
+                        val selected = items[roll] == true
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()

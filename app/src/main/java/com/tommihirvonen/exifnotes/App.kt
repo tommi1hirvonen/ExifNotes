@@ -165,7 +165,7 @@ fun App(onFinish: () -> Unit) {
                 val frameEditEntry = remember(backStackEntry) {
                     try {
                         navController.getBackStackEntry<FrameEdit>()
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         navController.getBackStackEntry<RollsMapFrameEdit>()
                     }
                 }
@@ -324,7 +324,7 @@ fun App(onFinish: () -> Unit) {
                 val cameraEntry = remember(backStackEntry) {
                     try {
                         navController.getBackStackEntry<CameraEdit>()
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         navController.getBackStackEntry<RollCameraEdit>()
                     }
                 }
@@ -353,7 +353,7 @@ fun App(onFinish: () -> Unit) {
                 val frameEditEntry = remember(backStackEntry) {
                     try {
                         navController.getBackStackEntry<FrameEdit>()
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         navController.getBackStackEntry<RollsMapFrameEdit>()
                     }
                 }
@@ -379,7 +379,7 @@ fun App(onFinish: () -> Unit) {
                 val frameEditEntry = remember(backStackEntry) {
                     try {
                         navController.getBackStackEntry<FrameEdit>()
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         navController.getBackStackEntry<RollsMapFrameEdit>()
                     }
                 }

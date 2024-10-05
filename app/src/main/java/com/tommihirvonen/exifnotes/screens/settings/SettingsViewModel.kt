@@ -249,7 +249,7 @@ class SettingsViewModel @Inject constructor(
             if (filePath.isNotEmpty() && extension == "db") {
                 val importSuccess: Boolean = try {
                     database.importDatabase(filePath)
-                } catch (e: IOException) {
+                } catch (_: IOException) {
                     val message = context.resources.getString(R.string.ErrorImportingDatabaseFrom) +
                             filePath
                     onError(message)

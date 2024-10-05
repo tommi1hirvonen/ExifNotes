@@ -464,7 +464,7 @@ private fun MainContent(
                 onAddLabels = onAddLabels,
                 onRemoveLabels = onRemoveLabels,
                 navigationIcon = {
-                    if (maxWidth < 600.dp) {
+                    if (this.maxWidth < 600.dp) {
                         IconButton(onClick = {
                             scope.launch {
                                 drawerState.apply {
@@ -477,7 +477,7 @@ private fun MainContent(
             )
         }
 
-        if (maxWidth < 600.dp) {
+        if (this.maxWidth < 600.dp) {
             ModalNavigationDrawer(
                 drawerContent = { drawerContent() },
                 drawerState = drawerState,

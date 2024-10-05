@@ -54,9 +54,9 @@ class GeocoderRequest(private val httpClient: HttpClient, val requestUrl: String
                     GeocoderResponse.Success(latNlg, formattedAddress)
                 }
             }
-        } catch (e: TimeoutCancellationException) {
+        } catch (_: TimeoutCancellationException) {
             GeocoderResponse.Timeout
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             GeocoderResponse.Error
         }
 

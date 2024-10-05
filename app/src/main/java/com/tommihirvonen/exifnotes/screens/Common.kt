@@ -170,13 +170,13 @@ fun <TValue, TSort : Comparable<TSort>> MultiChoiceDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    val prev = items[item] ?: false
+                                    val prev = items[item] == true
                                     items[item] = !prev
                                 },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Checkbox(
-                                checked = items[item] ?: false,
+                                checked = items[item] == true,
                                 onCheckedChange = { items[item] = it }
                             )
                             Text(itemText(item))

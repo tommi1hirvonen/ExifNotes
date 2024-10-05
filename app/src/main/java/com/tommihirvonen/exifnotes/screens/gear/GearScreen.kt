@@ -494,7 +494,7 @@ private fun GearContent(
     )
 
     BoxWithConstraints {
-        val maxWidth = maxWidth
+        val maxWidth = this.maxWidth
         Row {
             if (maxWidth >= 600.dp) {
                 NavigationRail {
