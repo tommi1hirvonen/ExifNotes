@@ -129,7 +129,7 @@ fun FrameCard(
         animationSpec = tween(durationMillis = 400)
     )
     val imageTint by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant,
+        targetValue = if (selected) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.surfaceVariant,
         label = "cardBackgroundColor",
         animationSpec = tween(durationMillis = 400)
     )
