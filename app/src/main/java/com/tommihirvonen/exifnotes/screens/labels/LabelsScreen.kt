@@ -152,6 +152,7 @@ private fun LabelsContent(
             }
             items(labels, key = { label -> label.id }) { label ->
                 LabelListItem(
+                    modifier = Modifier.animateItem(),
                     label = label,
                     onLabelDelete = { confirmDeleteLabel = label },
                     onLabelEdit = { onEditLabel(label) }
@@ -198,6 +199,7 @@ private fun LabelListItemPreview() {
 
 @Composable
 private fun LabelListItem(
+    modifier: Modifier = Modifier,
     label: Label,
     onLabelDelete: () -> Unit,
     onLabelEdit: () -> Unit
@@ -207,6 +209,7 @@ private fun LabelListItem(
             .fillMaxWidth()
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .clickable { onLabelEdit() }
+            .then(modifier)
     ) {
         Row(
             modifier = Modifier

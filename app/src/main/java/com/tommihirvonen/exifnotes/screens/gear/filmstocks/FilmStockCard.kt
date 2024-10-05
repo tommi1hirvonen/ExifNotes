@@ -67,12 +67,13 @@ private fun FilmStockCardPreview() {
 
 @Composable
 fun FilmStockCard(
+    modifier: Modifier = Modifier,
     filmStock: FilmStock,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     var showDropdown by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxWidth().then(modifier)) {
         Card(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 6.dp)

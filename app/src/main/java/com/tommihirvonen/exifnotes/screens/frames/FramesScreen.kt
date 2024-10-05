@@ -642,7 +642,7 @@ private fun FramesContent(
                     key = { it.id }
                 ) { frame ->
                     FrameCard(
-                        modifier = Modifier.widthIn(500.dp, 500.dp),
+                        modifier = Modifier.widthIn(500.dp, 500.dp).animateItem(),
                         frame = frame,
                         selected = selectedFrames.any { it.id == frame.id },
                         onClick = {

@@ -93,6 +93,7 @@ fun FiltersScreen(
             key = { it.id }
         ) { filter ->
             FilterCard(
+                modifier = Modifier.animateItem(),
                 filter = filter,
                 compatibleCameras = compatibleCamerasProvider(filter),
                 compatibleLenses = compatibleLensesProvider(filter),
@@ -124,6 +125,7 @@ private fun FilterCardPreview() {
 
 @Composable
 private fun FilterCard(
+    modifier: Modifier = Modifier,
     filter: Filter,
     compatibleCameras: List<Camera>,
     compatibleLenses: List<Lens>,
@@ -133,7 +135,7 @@ private fun FilterCard(
     onEditCompatibleCameras: () -> Unit
 ) {
     var showDropdown by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxWidth().then(modifier)) {
         Card(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 6.dp)

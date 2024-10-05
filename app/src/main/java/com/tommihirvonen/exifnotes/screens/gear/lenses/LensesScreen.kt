@@ -97,6 +97,7 @@ fun LensesScreen(
             key = { it.first.id }
         ) { (lens, uniqueName) ->
             LensCard(
+                modifier = Modifier.animateItem(),
                 uniqueName = uniqueName,
                 compatibleCameras = compatibleCamerasProvider(lens),
                 compatibleFilters = compatibleFiltersProvider(lens),
@@ -130,6 +131,7 @@ private fun LensCardPreview() {
 
 @Composable
 private fun LensCard(
+    modifier: Modifier = Modifier,
     uniqueName: String,
     compatibleCameras: List<Camera>,
     compatibleFilters: List<Filter>,
@@ -139,7 +141,7 @@ private fun LensCard(
     onEditCompatibleFilters: () -> Unit
 ) {
     var showDropdown by remember { mutableStateOf(false) }
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier = Modifier.fillMaxWidth().then(modifier)) {
         Card(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 6.dp)

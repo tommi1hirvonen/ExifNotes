@@ -93,6 +93,7 @@ private fun FilmStocksContent(
             key = { it.id }
         ) { filmStock ->
             FilmStockCard(
+                modifier = Modifier.animateItem(),
                 filmStock = filmStock,
                 onEdit = { onEdit(filmStock) },
                 onDelete = { onDelete(filmStock) }
