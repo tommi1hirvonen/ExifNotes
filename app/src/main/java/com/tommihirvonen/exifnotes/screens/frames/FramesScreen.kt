@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.screens.frames
 
 import android.text.format.DateFormat
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -564,6 +565,7 @@ private fun FramesContent(
         is LoadState.Success -> frames.data.size
         else -> 0
     }
+    BackHandler(enabled = actionModeEnabled) { toggleFrameSelectionNone() }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -642,7 +644,9 @@ private fun FramesContent(
                     key = { it.id }
                 ) { frame ->
                     FrameCard(
-                        modifier = Modifier.widthIn(500.dp, 500.dp).animateItem(),
+                        modifier = Modifier
+                            .widthIn(500.dp, 500.dp)
+                            .animateItem(),
                         frame = frame,
                         selected = selectedFrames.any { it.id == frame.id },
                         onClick = {

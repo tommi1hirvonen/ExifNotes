@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.screens.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -185,6 +186,7 @@ fun MainContent(
     val messageRollsAddedToFavorites = stringResource(R.string.RollsAddedToFavorites)
     val messageRollsRemovedFromFavorites = stringResource(R.string.RollsRemovedFromFavorites)
 
+    BackHandler(enabled = actionModeEnabled) { toggleRollSelectionNone() }
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
