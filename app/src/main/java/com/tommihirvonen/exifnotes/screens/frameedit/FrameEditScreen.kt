@@ -842,31 +842,16 @@ private fun FrameEditContent(
                     text = stringResource(R.string.ComplementaryPicture),
                     style = MaterialTheme.typography.bodySmall
                 )
-                Row(
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    FilledTonalButton(onClick = { pictureOptionsExpanded = true }) {
-                        Icon(Icons.Outlined.MoreHoriz, "")
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(stringResource(R.string.Options))
-                    }
-                    DropdownMenu(
-                        expanded = pictureOptionsExpanded,
-                        onDismissRequest = { pictureOptionsExpanded = false }
+                val cameraErrorMessage = stringResource(R.string.NoCameraFeatureWasFound)
+                if (frame.pictureFilename == null) {
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        val cameraErrorMessage = stringResource(R.string.NoCameraFeatureWasFound)
-                        DropdownMenuItem(
-                            text = {
-                                Text(stringResource(R.string.TakeNewComplementaryPicture))
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Outlined.CameraAlt, "")
-                            },
+                        TextButton(
                             onClick = {
-                                pictureOptionsExpanded = false
                                 if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
                                     scope.launch {
                                         snackbarHostState.showSnackbar(cameraErrorMessage)
@@ -876,20 +861,75 @@ private fun FrameEditContent(
                                     takePicture.launch(uri)
                                 }
                             }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(stringResource(R.string.SelectPictureFromGallery))
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Outlined.InsertPhoto, "")
-                            },
-                            onClick = {
-                                pictureOptionsExpanded = false
-                                selectPicture.launch("image/*")
-                            }
-                        )
-                        if (frame.pictureFilename != null) {
+                        ) {
+                            Icon(Icons.Outlined.CameraAlt, "")
+                            Text(
+                                modifier = Modifier.padding(start = 6.dp),
+                                text = stringResource(R.string.TakeNewComplementaryPicture)
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TextButton(onClick = { selectPicture.launch("image/*") }) {
+                            Icon(Icons.Outlined.InsertPhoto, "")
+                            Text(
+                                modifier = Modifier.padding(start = 6.dp),
+                                text = stringResource(R.string.SelectPictureFromGallery)
+                            )
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        FilledTonalButton(onClick = { pictureOptionsExpanded = true }) {
+                            Icon(Icons.Outlined.MoreHoriz, "")
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(stringResource(R.string.Options))
+                        }
+                        DropdownMenu(
+                            expanded = pictureOptionsExpanded,
+                            onDismissRequest = { pictureOptionsExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(R.string.TakeNewComplementaryPicture))
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.CameraAlt, "")
+                                },
+                                onClick = {
+                                    pictureOptionsExpanded = false
+                                    if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(cameraErrorMessage)
+                                        }
+                                    } else {
+                                        val uri = pictureTempFileProvider()
+                                        takePicture.launch(uri)
+                                    }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(R.string.SelectPictureFromGallery))
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.InsertPhoto, "")
+                                },
+                                onClick = {
+                                    pictureOptionsExpanded = false
+                                    selectPicture.launch("image/*")
+                                }
+                            )
                             DropdownMenuItem(
                                 text = {
                                     Text(stringResource(R.string.AddPictureToGallery))
@@ -941,6 +981,7 @@ private fun FrameEditContent(
                         }
                     }
                 }
+
                 Row(
                     modifier = Modifier
                         .padding(top = 16.dp)
