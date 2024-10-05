@@ -405,9 +405,8 @@ private fun RollEditContent(
                             style = MaterialTheme.typography.bodySmall
                         )
                         OutlinedTextField(
-                            value = roll.iso.toString(),
+                            value = if (roll.iso == 0) "" else roll.iso.toString(),
                             onValueChange = onIsoChange,
-                            supportingText = { Text(stringResource(R.string.Required)) },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             )
