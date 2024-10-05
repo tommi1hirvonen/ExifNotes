@@ -78,6 +78,7 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -414,7 +415,7 @@ private fun FrameEditContent(
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
-                                .menuAnchor(),
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = frame.count.toString(),
                             onValueChange = {},
@@ -468,7 +469,7 @@ private fun FrameEditContent(
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
-                                .menuAnchor(),
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = frame.aperture ?: "",
                             onValueChange = {},
@@ -522,7 +523,7 @@ private fun FrameEditContent(
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
-                                .menuAnchor(),
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = frame.shutter ?: "",
                             onValueChange = {},
@@ -578,7 +579,7 @@ private fun FrameEditContent(
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier
-                                    .menuAnchor()
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                                     .fillMaxWidth(),
                                 readOnly = true,
                                 value = lensName,
@@ -705,7 +706,7 @@ private fun FrameEditContent(
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier
-                                    .menuAnchor(),
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = frame.exposureComp ?: "",
                                 onValueChange = {},
@@ -741,7 +742,7 @@ private fun FrameEditContent(
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier
-                                    .menuAnchor(),
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = frame.noOfExposures.toString(),
                                 onValueChange = {},
@@ -795,7 +796,7 @@ private fun FrameEditContent(
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier
-                                    .menuAnchor(),
+                                    .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = frame.lightSource.description,
                                 onValueChange = {},

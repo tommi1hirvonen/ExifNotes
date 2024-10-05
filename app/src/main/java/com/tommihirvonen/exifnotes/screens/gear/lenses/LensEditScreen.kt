@@ -50,6 +50,7 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -326,7 +327,7 @@ private fun LensEditContent(
                         onExpandedChange = { apertureIncrementsExpanded = it }
                     ) {
                         OutlinedTextField(
-                            modifier = Modifier.menuAnchor(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = lens.apertureIncrements.description(context),
                             onValueChange = {},
@@ -370,7 +371,7 @@ private fun LensEditContent(
                             onExpandedChange = { maxApertureExpanded = it }
                         ) {
                             OutlinedTextField(
-                                modifier = Modifier.menuAnchor(),
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = lens.maxAperture ?: "",
                                 isError = apertureRangeError.isNotEmpty(),
@@ -406,7 +407,7 @@ private fun LensEditContent(
                             onExpandedChange = { minApertureExpanded = it }
                         ) {
                             OutlinedTextField(
-                                modifier = Modifier.menuAnchor(),
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = lens.minAperture ?: "",
                                 isError = apertureRangeError.isNotEmpty(),

@@ -46,6 +46,7 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -269,7 +270,7 @@ private fun CameraEditContent(
                         onExpandedChange = { shutterIncrementsExpanded = it }
                     ) {
                         OutlinedTextField(
-                            modifier = Modifier.menuAnchor(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = camera.shutterIncrements.description(context),
                             onValueChange = {},
@@ -312,7 +313,7 @@ private fun CameraEditContent(
                             onExpandedChange = { minShutterExpanded = it }
                         ) {
                             OutlinedTextField(
-                                modifier = Modifier.menuAnchor(),
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = camera.minShutter ?: "",
                                 isError = shutterRangeError.isNotEmpty(),
@@ -348,7 +349,7 @@ private fun CameraEditContent(
                             onExpandedChange = { maxShutterExpanded = it }
                         ) {
                             OutlinedTextField(
-                                modifier = Modifier.menuAnchor(),
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                                 readOnly = true,
                                 value = camera.maxShutter ?: "",
                                 isError = shutterRangeError.isNotEmpty(),
@@ -397,7 +398,7 @@ private fun CameraEditContent(
                         onExpandedChange = { exposureCompIncrementsExpanded = it }
                     ) {
                         OutlinedTextField(
-                            modifier = Modifier.menuAnchor(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = camera.exposureCompIncrements.description(context),
                             onValueChange = {},
@@ -460,7 +461,7 @@ private fun CameraEditContent(
                         onExpandedChange = { formatExpanded = it }
                     ) {
                         OutlinedTextField(
-                            modifier = Modifier.menuAnchor(),
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             readOnly = true,
                             value = camera.format.description(context),
                             onValueChange = {},
