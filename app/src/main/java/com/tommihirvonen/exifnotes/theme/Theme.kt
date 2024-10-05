@@ -19,6 +19,9 @@
 package com.tommihirvonen.exifnotes.theme
 
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -26,6 +29,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -103,6 +107,22 @@ fun ExifNotesTheme(
         is Theme.Light -> false
         is Theme.Dark -> true
         is Theme.Auto -> isSystemInDarkTheme()
+    }
+
+    val context = LocalContext.current as ComponentActivity
+    LaunchedEffect(darkTheme) {
+        context.enableEdgeToEdge(
+            statusBarStyle = if (darkTheme) {
+                SystemBarStyle.dark(0)
+            } else {
+                SystemBarStyle.light(0, 0)
+            },
+            navigationBarStyle = if (darkTheme) {
+                SystemBarStyle.dark(0)
+            } else {
+                SystemBarStyle.light(0, 0)
+            }
+        )
     }
 
     val colorScheme = when {
