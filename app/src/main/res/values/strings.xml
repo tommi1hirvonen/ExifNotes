@@ -403,14 +403,15 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Mark roll as favorite
-        \n-Categorize rolls with labels
-        \n-Library updates
-        \n-Code and project refactoring
+        \n\n-Complete UI/application layer rewrite
+        \n-Migrated from Views/XML to Jetpack Compose
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.21.0 2024-02-24:
+    <string name="VersionHistoryStatement">v1.22.0 2024-10-05:
+        \n-Complete UI/application layer rewrite
+        \n-Migrated from Views/XML to Jetpack Compose
+        \n\nv1.21.0 2024-02-24:
         \n-Mark roll as favorite
         \n-Categorize rolls with labels
         \n-Library updates
