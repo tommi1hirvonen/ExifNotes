@@ -175,7 +175,9 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun exportComplementaryPictures(destinationUri: Uri) {
-        val complementaryPictureFilenames = frameRepository.complementaryPictureFilenames.toTypedArray()
+        val complementaryPictureFilenames = frameRepository
+            .complementaryPictureFilenames
+            .toTypedArray<String?>()
         val data = Data.Builder()
             .putString(ComplementaryPicturesExportWorker.TARGET_URI, destinationUri.toString())
             .putStringArray(ComplementaryPicturesExportWorker.FILENAMES, complementaryPictureFilenames)
