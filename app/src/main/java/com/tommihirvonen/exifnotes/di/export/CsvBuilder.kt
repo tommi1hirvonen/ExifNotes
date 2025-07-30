@@ -30,7 +30,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CsvBuilder @Inject constructor(@ApplicationContext private val context: Context) {
+class CsvBuilder @Inject constructor(@param:ApplicationContext private val context: Context) {
     fun create(roll: Roll, frames: List<Frame>): String {
         val camera = roll.camera
         val filmStock = roll.filmStock

@@ -32,7 +32,7 @@ import javax.inject.Singleton
 
 @Singleton
 class RollShareIntentBuilder @Inject constructor(
-    @ApplicationContext private val context: Context, private val builder: RollExportBuilder) {
+    @param:ApplicationContext private val context: Context, private val builder: RollExportBuilder) {
 
     fun create(roll: Roll, options: List<RollExportOption>): Intent? {
 

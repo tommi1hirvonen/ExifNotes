@@ -38,7 +38,7 @@ import javax.inject.Singleton
 
 @Singleton
 class LocationService @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     var lastLocation: Location? = null
         private set

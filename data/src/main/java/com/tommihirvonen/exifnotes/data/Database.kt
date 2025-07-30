@@ -40,7 +40,7 @@ import javax.inject.Singleton
  * export and import functionality.
  */
 @Singleton
-class Database @Inject constructor(@ApplicationContext private val context: Context)
+class Database @Inject constructor(@param:ApplicationContext private val context: Context)
     : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {

@@ -28,7 +28,7 @@ import javax.inject.Singleton
 
 @Singleton
 class RollExportHelper @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val builder: RollExportBuilder) {
 
     fun export(roll: Roll, options: List<RollExportOption>, targetDirectory: DocumentFile) {
