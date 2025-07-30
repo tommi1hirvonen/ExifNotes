@@ -403,12 +403,15 @@
         \nhttps://github.com/tommi1hirvonen/ExifNotes
     </string>
     <string name="Updates">Updates in this version:
-        \n\n-Complete UI/application layer rewrite
-        \n-Migrated from Views/XML to Jetpack Compose
+        \n\n-Library updates
+        \n-Targeting Android 15
         \n
     </string>
     <string name="VersionHistory">Version history</string>
-    <string name="VersionHistoryStatement">v1.22.0 2024-10-05:
+    <string name="VersionHistoryStatement">v1.22.1 2025-07-30:
+        \n-Library updates
+        \n-Targeting Android 15
+        \n\nv1.22.0 2024-10-05:
         \n-Complete UI/application layer rewrite
         \n-Migrated from Views/XML to Jetpack Compose
         \n\nv1.21.0 2024-02-24:
