@@ -33,6 +33,7 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.database.sqlite.transaction
 
 /**
  * FilmDbHelper is the SQL database class that holds all the information
@@ -129,31 +130,27 @@ class Database @Inject constructor(@param:ApplicationContext private val context
             // Enable foreign key support, since we aren't overriding onConfigure() (added in API 16).
             db.execSQL("PRAGMA foreign_keys=ON;")
             // Alter statements
-            db.beginTransaction()
-            try {
+            db.transaction {
                 // execSQL() does not support multiple SQL commands separated with a semi-colon.
                 // Separate the upgrade commands into single SQL commands.
-                db.execSQL(ROLLS_TABLE_REVISION_1)
-                db.execSQL(ROLLS_TABLE_REVISION_2)
-                db.execSQL(ROLLS_TABLE_REVISION_3)
-                db.execSQL(ROLLS_TABLE_REVISION_4)
-                db.execSQL(FRAMES_TABLE_REVISION_1)
-                db.execSQL(FRAMES_TABLE_REVISION_2)
-                db.execSQL(FRAMES_TABLE_REVISION_3)
-                db.execSQL(ON_UPGRADE_CREATE_LINK_FRAME_FILTER_TABLE)
-                db.execSQL(FRAMES_TABLE_REVISION_4)
-                db.execSQL(FRAMES_TABLE_REVISION_5)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_1)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_2)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_3)
-                db.execSQL(CAMERA_LENS_LINK_TABLE_REVISION_4)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_1)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_2)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_3)
-                db.execSQL(LENS_FILTER_LINK_TABLE_REVISION_4)
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
+                execSQL(ROLLS_TABLE_REVISION_1)
+                execSQL(ROLLS_TABLE_REVISION_2)
+                execSQL(ROLLS_TABLE_REVISION_3)
+                execSQL(ROLLS_TABLE_REVISION_4)
+                execSQL(FRAMES_TABLE_REVISION_1)
+                execSQL(FRAMES_TABLE_REVISION_2)
+                execSQL(FRAMES_TABLE_REVISION_3)
+                execSQL(ON_UPGRADE_CREATE_LINK_FRAME_FILTER_TABLE)
+                execSQL(FRAMES_TABLE_REVISION_4)
+                execSQL(FRAMES_TABLE_REVISION_5)
+                execSQL(CAMERA_LENS_LINK_TABLE_REVISION_1)
+                execSQL(CAMERA_LENS_LINK_TABLE_REVISION_2)
+                execSQL(CAMERA_LENS_LINK_TABLE_REVISION_3)
+                execSQL(CAMERA_LENS_LINK_TABLE_REVISION_4)
+                execSQL(LENS_FILTER_LINK_TABLE_REVISION_1)
+                execSQL(LENS_FILTER_LINK_TABLE_REVISION_2)
+                execSQL(LENS_FILTER_LINK_TABLE_REVISION_3)
+                execSQL(LENS_FILTER_LINK_TABLE_REVISION_4)
             }
         }
         if (oldVersion < 20) {
@@ -231,7 +228,7 @@ class Database @Inject constructor(@param:ApplicationContext private val context
                     }
                     success[0] = false
                 }
-            } catch (e: SQLiteException) {
+            } catch (_: SQLiteException) {
                 Toast.makeText(context, context.resources.getString(R.string.CouldNotReadDatabase),
                         Toast.LENGTH_LONG).show()
                 return false
@@ -285,9 +282,9 @@ class Database @Inject constructor(@param:ApplicationContext private val context
                 } else {
                     db.insert(TABLE_FILM_STOCKS, null, values)
                 }
-            } catch (e: ArrayIndexOutOfBoundsException) {
+            } catch (_: ArrayIndexOutOfBoundsException) {
                 counter++
-            } catch (e: NumberFormatException) {
+            } catch (_: NumberFormatException) {
                 counter++
             }
         }

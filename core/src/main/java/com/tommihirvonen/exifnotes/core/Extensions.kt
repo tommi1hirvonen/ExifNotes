@@ -18,6 +18,7 @@
 
 package com.tommihirvonen.exifnotes.core
 
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import java.time.Instant
 import java.time.LocalDateTime
@@ -35,6 +36,7 @@ fun latLngOrNull(value: String): LatLng? =
         val lng = lngString.replace(",", ".").toDouble()
         LatLng(lat, lng)
     } catch (e: Exception) {
+        Log.e("EXIF_NOTES", e.toString())
         null
     }
 
@@ -48,6 +50,7 @@ fun localDateTimeOrNull(value: Long): LocalDateTime? =
         val zdt = instant.atZone(zone)
         zdt.toLocalDateTime()
     } catch (e: Exception) {
+        Log.e("EXIF_NOTES", e.toString())
         null
     }
 
@@ -61,8 +64,10 @@ fun localDateTimeOrNull(value: String): LocalDateTime? =
         LocalDateTime.parse(value, dateTimeFormatter1)
     } catch (e: DateTimeParseException) {
         try {
+            Log.e("EXIF_NOTES", e.toString())
             LocalDateTime.parse(value, dateTimeFormatter2)
         } catch (e: DateTimeParseException) {
+            Log.e("EXIF_NOTES", e.toString())
             null
         }
     }

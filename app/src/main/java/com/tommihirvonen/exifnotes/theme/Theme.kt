@@ -21,6 +21,7 @@ package com.tommihirvonen.exifnotes.theme
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -109,9 +110,9 @@ fun ExifNotesTheme(
         is Theme.Auto -> isSystemInDarkTheme()
     }
 
-    val context = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current as ComponentActivity
     LaunchedEffect(darkTheme) {
-        context.enableEdgeToEdge(
+        activity.enableEdgeToEdge(
             statusBarStyle = if (darkTheme) {
                 SystemBarStyle.dark(0)
             } else {

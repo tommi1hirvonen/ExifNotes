@@ -48,6 +48,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
+import androidx.core.graphics.get
 
 @HiltViewModel(assistedFactory = RollsMapViewModel.Factory::class)
 class RollsMapViewModel @AssistedInject constructor(
@@ -172,8 +175,7 @@ private fun getMarkerBitmap(context: Context, hue: Float): Bitmap {
 
 private fun getMarkerBitmap(context: Context): Bitmap {
     val drawable = ContextCompat.getDrawable(context, R.drawable.ic_marker_red)!!
-    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
-        drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
     val canvas = Canvas(bitmap)
     drawable.setBounds(0, 0, canvas.width, canvas.height)
     drawable.draw(canvas)
@@ -186,10 +188,10 @@ private fun setBitmapHue(bitmap: Bitmap, hue: Float): Bitmap {
     val hvs = FloatArray(3)
     for (y in 0 until height) {
         for (x in 0 until width) {
-            val pixel = bitmap.getPixel(x, y)
+            val pixel = bitmap[x, y]
             Color.colorToHSV(pixel, hvs)
             hvs[0] = hue
-            bitmap.setPixel(x, y, Color.HSVToColor(Color.alpha(pixel), hvs))
+            bitmap[x, y] = Color.HSVToColor(Color.alpha(pixel), hvs)
         }
     }
     return bitmap

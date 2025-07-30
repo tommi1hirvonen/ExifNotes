@@ -90,6 +90,7 @@ import com.tommihirvonen.exifnotes.screens.main.MainViewModel
 import com.tommihirvonen.exifnotes.theme.Theme
 import com.tommihirvonen.exifnotes.theme.ThemeViewModel
 import com.tommihirvonen.exifnotes.util.LoadState
+import androidx.core.graphics.createBitmap
 
 @Composable
 fun RollsMapScreen(
@@ -305,8 +306,7 @@ private fun RollsMapContent(
 @Composable
 private fun RollsFilterDialogPreview() {
     val drawable = ContextCompat.getDrawable(LocalContext.current, R.drawable.ic_marker_red)!!
-    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth,
-        drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
     val roll = Roll(name = "Test roll")
     RollsFilterDialog(
         rolls = listOf(roll),

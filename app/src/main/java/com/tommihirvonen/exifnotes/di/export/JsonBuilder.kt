@@ -20,7 +20,6 @@ package com.tommihirvonen.exifnotes.di.export
 
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 object JsonBuilder {

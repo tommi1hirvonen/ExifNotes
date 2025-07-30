@@ -35,6 +35,7 @@ import java.io.*
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.graphics.scale
 
 /**
  * Manages all complementary pictures attached to frames.
@@ -242,7 +243,7 @@ class ComplementaryPicturesManager @Inject constructor(
             outHeight = maxSize
             outWidth = inWidth * maxSize / inHeight
         }
-        return Bitmap.createScaledBitmap(bitmap, outWidth, outHeight, false)
+        return bitmap.scale(outWidth, outHeight, false)
     }
 
     /**

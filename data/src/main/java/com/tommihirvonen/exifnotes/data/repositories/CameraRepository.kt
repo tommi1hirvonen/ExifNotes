@@ -30,6 +30,7 @@ import com.tommihirvonen.exifnotes.data.constants.*
 import com.tommihirvonen.exifnotes.data.dsl.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.database.sqlite.transaction
 
 @Singleton
 class CameraRepository @Inject constructor(
@@ -116,21 +117,20 @@ class CameraRepository @Inject constructor(
             ?: 0
 
         val database = database.writableDatabase
-        database.beginTransaction()
-        try {
+        return database.transaction {
             // If the camera currently has a fixed lens, update/add it to the database.
             // This needs to be done first since the cameras table references the lenses table.
             val lens = camera.lens
                 ?.copy(make = camera.make, model = camera.model)
                 ?.let { l ->
-                    if (lenses.updateLens(l, database) == 0) {
-                        lenses.addLens(l, database)
+                    if (lenses.updateLens(l, this) == 0) {
+                        lenses.addLens(l, this)
                     } else {
                         l
                     }
                 }
             val contentValues = buildCameraContentValues(camera.copy(lens = lens))
-            val affectedRows = database
+            val affectedRows = this
                 .from(TABLE_CAMERAS)
                 .where { KEY_CAMERA_ID eq camera.id }
                 .update(contentValues)
@@ -142,15 +142,12 @@ class CameraRepository @Inject constructor(
 
             // If the camera's current lens is null, delete the old fixed lens from the database.
             if (previousLensId > 0 && camera.lens == null) {
-                lenses.deleteLens(Lens(id = previousLensId), database)
+                lenses.deleteLens(Lens(id = previousLensId), this)
             }
 
             // Camera and possible fixed lens were updated completely.
             // Commit transaction and return affected row count.
-            database.setTransactionSuccessful()
-            return affectedRows to camera.copy(lens = lens)
-        } finally {
-            database.endTransaction()
+            affectedRows to camera.copy(lens = lens)
         }
     }
 
