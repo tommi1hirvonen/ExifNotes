@@ -249,6 +249,7 @@
     <string name="License">License</string>
     <string name="Light">Light</string>
     <string name="LightSource">Light source</string>
+    <string name="LineSeparatorForExifTool">Line separator for ExifTool commands</string>
     <string name="Loaded">Loaded</string>
     <string name="LoadedOn">Loaded on</string>
     <string name="Location">Location</string>

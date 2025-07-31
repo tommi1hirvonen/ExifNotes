@@ -26,4 +26,30 @@ enum class RollExportOption {
         EXIFTOOL -> "ExifTool"
         JSON -> "JSON"
     }
+
+    fun toRollExportOptionData(): RollExportOptionData? = when (this) {
+        CSV -> RollExportOptionData.CSV
+        JSON -> RollExportOptionData.JSON
+        else -> null
+    }
+}
+
+sealed class RollExportOptionData {
+    data object CSV : RollExportOptionData()
+    data object JSON : RollExportOptionData()
+    class ExifTool(val lineSeparatorOs: LineSeparatorOs) : RollExportOptionData()
+}
+
+enum class LineSeparatorOs {
+    WINDOWS, UNIX;
+
+    override fun toString(): String = when (this) {
+        WINDOWS -> "Windows (CRLF)"
+        UNIX -> "macOS/Linux (Unix) (LF)"
+    }
+
+    val lineSeparator: String get() = when (this) {
+        WINDOWS -> "\r\n"
+        UNIX -> "\n"
+    }
 }

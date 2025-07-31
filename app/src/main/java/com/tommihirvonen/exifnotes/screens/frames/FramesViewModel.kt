@@ -37,7 +37,7 @@ import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
 import com.tommihirvonen.exifnotes.di.export.RollExportHelper
-import com.tommihirvonen.exifnotes.di.export.RollExportOption
+import com.tommihirvonen.exifnotes.di.export.RollExportOptionData
 import com.tommihirvonen.exifnotes.di.export.RollShareIntentBuilder
 import com.tommihirvonen.exifnotes.di.location.LocationService
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
@@ -189,13 +189,13 @@ class FramesViewModel @AssistedInject constructor(
         }
     }
 
-    fun exportFiles(uri: Uri, exportOptions: List<RollExportOption>) {
+    fun exportFiles(uri: Uri, exportOptions: List<RollExportOptionData>) {
         val directoryDocumentFile = DocumentFile.fromTreeUri(getApplication(), uri)
             ?: return
         rollExportHelper.export(roll.value, exportOptions, directoryDocumentFile)
     }
 
-    fun createShareFilesIntent(exportOptions: List<RollExportOption>): Intent? {
+    fun createShareFilesIntent(exportOptions: List<RollExportOptionData>): Intent? {
         val title = context.resources.getString(R.string.Share)
         val shareIntent = rollShareIntentBuilder.create(roll.value, exportOptions)
         val intent = shareIntent?.let { Intent.createChooser(it, title) }

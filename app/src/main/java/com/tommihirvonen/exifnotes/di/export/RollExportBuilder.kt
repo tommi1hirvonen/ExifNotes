@@ -31,7 +31,7 @@ class RollExportBuilder @Inject constructor(
     private val csvBuilder: CsvBuilder,
     private val exifToolCommandsBuilder: ExifToolCommandsBuilder) {
 
-    fun create(roll: Roll, options: List<RollExportOption>): List<RollExport> {
+    fun create(roll: Roll, options: List<RollExportOptionData>): List<RollExport> {
         val frames = frameRepository.getFrames(roll)
         return options.map { option ->
             val (filename, content) = contentMapping(roll, frames, option)
@@ -39,16 +39,22 @@ class RollExportBuilder @Inject constructor(
         }
     }
 
-    private fun contentMapping(roll: Roll, frames: List<Frame>, option: RollExportOption): Pair<String, String> {
+    private fun contentMapping(
+        roll: Roll,
+        frames: List<Frame>,
+        option: RollExportOptionData
+    ): Pair<String, String> {
         val rollName = roll.name?.illegalCharsRemoved()
         return when (option) {
-            RollExportOption.CSV -> {
+            is RollExportOptionData.CSV -> {
                 "${rollName}_csv.txt" to csvBuilder.create(roll, frames)
             }
-            RollExportOption.EXIFTOOL -> {
-                "${rollName}_ExifToolCmds.txt" to exifToolCommandsBuilder.create(roll, frames)
+            is RollExportOptionData.ExifTool -> {
+                "${rollName}_ExifToolCmds.txt" to exifToolCommandsBuilder.create(
+                    roll, frames, option.lineSeparatorOs
+                )
             }
-            RollExportOption.JSON -> {
+            is RollExportOptionData.JSON -> {
                 "${rollName}.json" to JsonBuilder.create(roll, frames)
             }
         }

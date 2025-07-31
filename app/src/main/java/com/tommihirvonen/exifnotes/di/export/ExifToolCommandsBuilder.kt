@@ -63,7 +63,7 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
         private const val lightSourceTag = "-LightSource="
     }
 
-    fun create(roll: Roll, frames: List<Frame>): String {
+    fun create(roll: Roll, frames: List<Frame>, lineSeparatorOs: LineSeparatorOs): String {
         val stringBuilder = StringBuilder()
         val artistName = prefs.getString(SettingsViewModel.KEY_ARTIST_NAME, "") ?: ""
         val copyrightInformation = prefs.getString(SettingsViewModel.KEY_COPYRIGHT_INFO, "") ?: ""
@@ -77,7 +77,7 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
 
         val quote = "\""
         val space = " "
-        val lineSep = "\n"
+        val lineSep = lineSeparatorOs.lineSeparator
         val camera = roll.camera
         for (frame in frames) {
             //ExifTool path

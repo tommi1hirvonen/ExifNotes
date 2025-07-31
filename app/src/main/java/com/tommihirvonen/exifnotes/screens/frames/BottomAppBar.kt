@@ -45,22 +45,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
+import com.tommihirvonen.exifnotes.di.export.LineSeparatorOs
 import com.tommihirvonen.exifnotes.di.export.RollExportOption
+import com.tommihirvonen.exifnotes.di.export.RollExportOptionData
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
+import com.tommihirvonen.exifnotes.screens.SingleChoiceDialog
 
 @Composable
 fun FramesBottomAppBar(
     sortMode: FrameSortMode,
     onFabClick: () -> Unit,
     onSortModeChange: (FrameSortMode) -> Unit,
-    onRollShare: (List<RollExportOption>) -> Unit,
-    onRollExport: (List<RollExportOption>) -> Unit,
+    onRollShare: (List<RollExportOptionData>) -> Unit,
+    onRollExport: (List<RollExportOptionData>) -> Unit,
     onNavigateToMap: () -> Unit
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
     var shareMenuExpanded by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
     var showShareDialog by remember { mutableStateOf(false) }
+    var exportOptions by remember { mutableStateOf(emptyList<RollExportOption>()) }
+    var showExportLineSeparatorDialog by remember { mutableStateOf(false) }
+    var showShareLineSeparatorDialog by remember { mutableStateOf(false) }
     BottomAppBar(
         actions = {
             IconButton(onClick = { sortMenuExpanded = !sortMenuExpanded }) {
@@ -197,7 +203,36 @@ fun FramesBottomAppBar(
             itemText = { it.toString() },
             sortItemsBy = { it.ordinal },
             onDismiss = { showExportDialog = false },
-            onConfirm = onRollExport
+            onConfirm = { options ->
+                if (options.contains(RollExportOption.EXIFTOOL)) {
+                    exportOptions = options
+                    showExportDialog = false
+                    showExportLineSeparatorDialog = true
+                } else {
+                    val optionsData = options.mapNotNull { it.toRollExportOptionData() }
+                    onRollExport(optionsData)
+                }
+            }
+        )
+    }
+    if (showExportLineSeparatorDialog)
+    {
+        val title = stringResource(R.string.LineSeparatorForExifTool)
+        val items = LineSeparatorOs.entries
+        SingleChoiceDialog(
+            title = title,
+            items = items,
+            initialSelection = LineSeparatorOs.WINDOWS,
+            itemText = { it.toString() },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showExportLineSeparatorDialog = false },
+            onConfirm = { option ->
+                val optionsData = exportOptions
+                    .mapNotNull { it.toRollExportOptionData() }
+                    .plus(RollExportOptionData.ExifTool(option))
+                exportOptions = emptyList()
+                onRollExport(optionsData)
+            }
         )
     }
     if (showShareDialog) {
@@ -209,7 +244,36 @@ fun FramesBottomAppBar(
             itemText = { it.toString() },
             sortItemsBy = { it.ordinal },
             onDismiss = { showShareDialog = false },
-            onConfirm = onRollShare
+            onConfirm = { options ->
+                if (options.contains(RollExportOption.EXIFTOOL)) {
+                    exportOptions = options
+                    showShareDialog = false
+                    showShareLineSeparatorDialog = true
+                } else {
+                    val optionsData = options.mapNotNull { it.toRollExportOptionData() }
+                    onRollShare(optionsData)
+                }
+            }
+        )
+    }
+    if (showShareLineSeparatorDialog)
+    {
+        val title = stringResource(R.string.LineSeparatorForExifTool)
+        val items = LineSeparatorOs.entries
+        SingleChoiceDialog(
+            title = title,
+            items = items,
+            initialSelection = LineSeparatorOs.WINDOWS,
+            itemText = { it.toString() },
+            sortItemsBy = { it.ordinal },
+            onDismiss = { showShareLineSeparatorDialog = false },
+            onConfirm = { option ->
+                val optionsData = exportOptions
+                    .mapNotNull { it.toRollExportOptionData() }
+                    .plus(RollExportOptionData.ExifTool(option))
+                exportOptions = emptyList()
+                onRollShare(optionsData)
+            }
         )
     }
 }

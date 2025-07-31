@@ -31,14 +31,20 @@ class RollExportHelper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val builder: RollExportBuilder) {
 
-    fun export(roll: Roll, options: List<RollExportOption>, targetDirectory: DocumentFile) {
+    fun export(roll: Roll, options: List<RollExportOptionData>, targetDirectory: DocumentFile) {
         val exports = builder.create(roll, options)
         exports.forEach { export ->
             val (option, filename, content) = export
             val file = when (option) {
-                RollExportOption.CSV -> targetDirectory.createFile("text/plain", filename)
-                RollExportOption.EXIFTOOL -> targetDirectory.createFile("text/plain", filename)
-                RollExportOption.JSON -> targetDirectory.createFile("application/json", filename)
+                is RollExportOptionData.CSV -> {
+                    targetDirectory.createFile("text/plain", filename)
+                }
+                is RollExportOptionData.ExifTool -> {
+                    targetDirectory.createFile("text/plain", filename)
+                }
+                is RollExportOptionData.JSON -> {
+                    targetDirectory.createFile("application/json", filename)
+                }
             } ?: return@forEach
             val stream = context.contentResolver.openOutputStream(file.uri) ?: return@forEach
             val writer = OutputStreamWriter(stream)

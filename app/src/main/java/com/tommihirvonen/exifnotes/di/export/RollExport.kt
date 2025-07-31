@@ -18,4 +18,4 @@
 
 package com.tommihirvonen.exifnotes.di.export
 
-data class RollExport(val option: RollExportOption, val fileName: String, val content: String)
+data class RollExport(val option: RollExportOptionData, val fileName: String, val content: String)

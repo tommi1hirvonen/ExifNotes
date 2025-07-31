@@ -79,7 +79,7 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
-import com.tommihirvonen.exifnotes.di.export.RollExportOption
+import com.tommihirvonen.exifnotes.di.export.RollExportOptionData
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
 import com.tommihirvonen.exifnotes.screens.SimpleItemsDialog
 import com.tommihirvonen.exifnotes.screens.TimePickerDialog
@@ -117,7 +117,7 @@ fun FramesScreen(
     val scope = rememberCoroutineScope()
 
     var showLabels by remember { mutableStateOf(false) }
-    var exportOptions by remember { mutableStateOf(emptyList<RollExportOption>()) }
+    var exportOptions by remember { mutableStateOf(emptyList<RollExportOptionData>()) }
     var showBatchEditDialog by remember { mutableStateOf(false) }
     var showCopyDialog by remember { mutableStateOf(false) }
 
@@ -547,8 +547,8 @@ private fun FramesContent(
     toggleFrameSelectionAll: () -> Unit,
     toggleFrameSelectionNone: () -> Unit,
     onSortModeChange: (FrameSortMode) -> Unit,
-    onRollShare: (List<RollExportOption>) -> Unit,
-    onRollExport: (List<RollExportOption>) -> Unit,
+    onRollShare: (List<RollExportOptionData>) -> Unit,
+    onRollExport: (List<RollExportOptionData>) -> Unit,
     onNavigateToMap: () -> Unit,
     onEditRoll: () -> Unit,
     onNavigateUp: () -> Unit,
