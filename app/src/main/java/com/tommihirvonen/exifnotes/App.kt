@@ -307,7 +307,13 @@ fun App(onFinish: () -> Unit) {
                 )
             }
             composable<RollCameraEdit> { backStackEntry ->
-                val rollEditEntry = remember(backStackEntry) { navController.getBackStackEntry<RollEdit>() }
+                val rollEditEntry = remember(backStackEntry) {
+                    try {
+                        navController.getBackStackEntry<RollEdit>()
+                    } catch (_: IllegalArgumentException) {
+                        navController.getBackStackEntry<FramesRollEdit>()
+                    }
+                }
                 val camera = backStackEntry.toRoute<RollCameraEdit>()
                 val rollViewModel = hiltViewModel<RollViewModel>(rollEditEntry)
                 CameraEditScreen(
