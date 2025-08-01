@@ -52,11 +52,13 @@ fun LensSelectCompatibleCamerasDialog(
                 .mapNotNull { id ->
                     cameras.firstOrNull { camera -> camera.id == id }
                 }
-            added.forEach { camera ->
-                gearViewModel.addCameraLensLink(camera, lens)
+            val foldResult = added.fold(lens) { lens, camera ->
+                val (_, l) = gearViewModel.addCameraLensLink(camera, lens)
+                l
             }
-            removed.forEach { camera ->
-                gearViewModel.deleteCameraLensLink(camera, lens)
+            removed.fold(foldResult) { lens, camera ->
+                val (_, l) = gearViewModel.deleteCameraLensLink(camera, lens)
+                l
             }
         }
     )
@@ -98,11 +100,13 @@ fun LensSelectCompatibleFiltersDialog(
                 .mapNotNull { id ->
                     filters.value.firstOrNull { filter -> filter.id == id }
                 }
-            added.forEach { filter ->
-                gearViewModel.addLensFilterLink(filter, lens, fixedLensCamera = null)
+            val foldResult = added.fold(lens) { lens, filter ->
+                val (_, l) = gearViewModel.addLensFilterLink(filter, lens, fixedLensCamera = null)
+                l
             }
-            removed.forEach { filter ->
-                gearViewModel.deleteLensFilterLink(filter, lens, fixedLensCamera = null)
+            removed.fold(foldResult) { lens, filter ->
+                val (_, l) = gearViewModel.deleteLensFilterLink(filter, lens, fixedLensCamera = null)
+                l
             }
         }
     )

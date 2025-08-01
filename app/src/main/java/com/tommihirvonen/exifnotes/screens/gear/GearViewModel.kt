@@ -138,63 +138,65 @@ class GearViewModel @Inject constructor(
         mFilters.value = mFilters.value.filterNot { it.id == filter.id }
     }
 
-    fun addCameraLensLink(camera: Camera, lens: Lens) {
+    fun addCameraLensLink(camera: Camera, lens: Lens): Pair<Camera, Lens> {
         cameraLensRepository.addCameraLensLink(camera, lens)
-        replaceCamera(
-            camera.copy(lensIds = camera.lensIds.plus(lens.id).toHashSet())
-        )
-        replaceLens(
-            lens.copy(cameraIds = lens.cameraIds.plus(camera.id).toHashSet())
-        )
+        val lensIds = camera.lensIds.plus(lens.id).toHashSet()
+        val cameraReplacement = camera.copy(lensIds = lensIds)
+        replaceCamera(cameraReplacement)
+        val cameraIds = lens.cameraIds.plus(camera.id).toHashSet()
+        val lensReplacement = lens.copy(cameraIds = cameraIds)
+        replaceLens(lensReplacement)
+        return cameraReplacement to lensReplacement
     }
 
-    fun deleteCameraLensLink(camera: Camera, lens: Lens) {
+    fun deleteCameraLensLink(camera: Camera, lens: Lens): Pair<Camera, Lens> {
         cameraLensRepository.deleteCameraLensLink(camera, lens)
-        replaceCamera(
-            camera.copy(lensIds = camera.lensIds.minus(lens.id).toHashSet())
-        )
-        replaceLens(
-            lens.copy(cameraIds = lens.cameraIds.minus(camera.id).toHashSet())
-        )
+        val lensIds = camera.lensIds.minus(lens.id).toHashSet()
+        val cameraReplacement = camera.copy(lensIds = lensIds)
+        replaceCamera(cameraReplacement)
+        val cameraIds = lens.cameraIds.minus(camera.id).toHashSet()
+        val lensReplacement = lens.copy(cameraIds = cameraIds)
+        replaceLens(lensReplacement)
+        return cameraReplacement to lensReplacement
     }
 
-    fun addLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {
+    fun addLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?): Pair<Filter, Lens> {
         lensFilterRepository.addLensFilterLink(filter, lens)
-        replaceFilter(
-            filter.copy(lensIds = filter.lensIds.plus(lens.id).toHashSet())
-        )
+        val lensIds = filter.lensIds.plus(lens.id).toHashSet()
+        val filterReplacement = filter.copy(lensIds = lensIds)
+        replaceFilter(filterReplacement)
         if (fixedLensCamera != null) {
-            replaceCamera(
-                fixedLensCamera.copy(
-                    lens = fixedLensCamera.lens?.copy(
-                        filterIds = lens.filterIds.plus(filter.id).toHashSet()
-                    )
-                )
-            )
+            val filterIds = lens.filterIds.plus(filter.id).toHashSet()
+            val lensReplacement = fixedLensCamera.lens?.copy(filterIds = filterIds)
+                ?: lens.copy(filterIds = filterIds)
+            val cameraReplacement = fixedLensCamera.copy(lens = lensReplacement)
+            replaceCamera(cameraReplacement)
+            return filterReplacement to lensReplacement
         } else {
-            replaceLens(
-                lens.copy(filterIds = lens.filterIds.plus(filter.id).toHashSet())
-            )
+            val filterIds = lens.filterIds.plus(filter.id).toHashSet()
+            val lensReplacement = lens.copy(filterIds = filterIds)
+            replaceLens(lensReplacement)
+            return filterReplacement to lensReplacement
         }
     }
 
-    fun deleteLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?) {
+    fun deleteLensFilterLink(filter: Filter, lens: Lens, fixedLensCamera: Camera?): Pair<Filter, Lens> {
         lensFilterRepository.deleteLensFilterLink(filter, lens)
-        replaceFilter(
-            filter.copy(lensIds = filter.lensIds.minus(lens.id).toHashSet())
-        )
+        val lensIds = filter.lensIds.minus(lens.id).toHashSet()
+        val filterReplacement = filter.copy(lensIds = lensIds)
+        replaceFilter(filterReplacement)
         if (fixedLensCamera != null) {
-            replaceCamera(
-                fixedLensCamera.copy(
-                    lens = fixedLensCamera.lens?.copy(
-                        filterIds = lens.filterIds.minus(filter.id).toHashSet()
-                    )
-                )
-            )
+            val filterIds = lens.filterIds.minus(filter.id).toHashSet()
+            val lensReplacement = fixedLensCamera.lens?.copy(filterIds = filterIds)
+                ?: lens.copy(filterIds = filterIds)
+            val cameraReplacement = fixedLensCamera.copy(lens = lensReplacement)
+            replaceCamera(cameraReplacement)
+            return filterReplacement to lensReplacement
         } else {
-            replaceLens(
-                lens.copy(filterIds = lens.filterIds.minus(filter.id).toHashSet())
-            )
+            val filterIds = lens.filterIds.minus(filter.id).toHashSet()
+            val lensReplacement = lens.copy(filterIds = filterIds)
+            replaceLens(lensReplacement)
+            return filterReplacement to lensReplacement
         }
     }
 }

@@ -49,11 +49,13 @@ fun FilterSelectCompatibleLensesDialog(
                 .mapNotNull { id ->
                     lenses.value.firstOrNull { lens -> lens.id == id }
                 }
-            added.forEach { lens ->
-                gearViewModel.addLensFilterLink(filter, lens, fixedLensCamera = null)
+            val foldResult = added.fold(filter) { filter, lens ->
+                val (f, _) = gearViewModel.addLensFilterLink(filter, lens, fixedLensCamera = null)
+                f
             }
-            removed.forEach { lens ->
-                gearViewModel.deleteLensFilterLink(filter, lens, fixedLensCamera = null)
+            removed.fold(foldResult) { filter, lens ->
+                val (f, _) = gearViewModel.deleteLensFilterLink(filter, lens, fixedLensCamera = null)
+                f
             }
         }
     )
@@ -97,19 +99,24 @@ fun FilterSelectCompatibleCamerasDialog(
                 .mapNotNull { id ->
                     cameraLenses.firstOrNull { pair -> pair.second.id == id }
                 }
-            added.forEach { cameraLens ->
-                gearViewModel.addLensFilterLink(
+            // Fold lenses so that the correct list of filter ids
+            // contained in the lens is accumulated.
+            val foldResult = added.fold(filter) { filter, cameraLens ->
+                val (f, _) = gearViewModel.addLensFilterLink(
                     filter,
                     cameraLens.second,
-                    fixedLensCamera = cameraLens.first
+                    cameraLens.first
                 )
+                f
             }
-            removed.forEach { cameraLens ->
-                gearViewModel.deleteLensFilterLink(
+            // Use the fold operation result as the starting point for deletion.
+            removed.fold(foldResult) { filter, cameraLens ->
+                val (f, _) = gearViewModel.deleteLensFilterLink(
                     filter,
                     cameraLens.second,
-                    fixedLensCamera = cameraLens.first
+                    cameraLens.first
                 )
+                f
             }
         }
     )
