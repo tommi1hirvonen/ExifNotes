@@ -30,6 +30,7 @@ import com.tommihirvonen.exifnotes.core.entities.sorted
 import com.tommihirvonen.exifnotes.data.repositories.LabelRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollCounts
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
+import com.tommihirvonen.exifnotes.di.EventBus
 import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +44,8 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     application: Application,
     private val rollRepository: RollRepository,
-    private val labelRepository: LabelRepository
+    private val labelRepository: LabelRepository,
+    private val eventBus: EventBus
 ) : AndroidViewModel(application) {
 
     val rolls: StateFlow<LoadState<List<Roll>>> get() = mRolls
@@ -64,6 +66,9 @@ class MainViewModel @Inject constructor(
 
     init {
         loadAll()
+        viewModelScope.launch {
+            eventBus.frameCountRefreshEvents.collect(::refreshFrameCount)
+        }
     }
 
     private val context get() = getApplication<Application>()
@@ -169,6 +174,12 @@ class MainViewModel @Inject constructor(
     fun deleteLabel(label: Label) {
         labelRepository.deleteLabel(label)
         mLabels.value = labels.value.minus(label)
+    }
+
+    suspend fun refreshFrameCount(rollId: Long) {
+        withContext(Dispatchers.IO) {
+            rollRepository.getRoll(rollId)?.let(::replaceRoll)
+        }
     }
 
     private fun replaceRoll(roll: Roll) {

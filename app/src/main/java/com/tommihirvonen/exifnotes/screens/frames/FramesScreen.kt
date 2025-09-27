@@ -175,7 +175,7 @@ fun FramesScreen(
         },
         onEditLabels = { showLabels = true },
         onDelete = {
-            selectedFrames.value.forEach(framesViewModel::deleteFrame)
+            framesViewModel.deleteFrames(selectedFrames.value)
         },
         onEdit = { showBatchEditDialog = true },
         onCopy = { showCopyDialog = true },

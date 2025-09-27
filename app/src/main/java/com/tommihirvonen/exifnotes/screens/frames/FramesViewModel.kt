@@ -36,6 +36,7 @@ import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
 import com.tommihirvonen.exifnotes.data.repositories.LensRepository
 import com.tommihirvonen.exifnotes.data.repositories.RollRepository
+import com.tommihirvonen.exifnotes.di.EventBus
 import com.tommihirvonen.exifnotes.di.export.RollExportHelper
 import com.tommihirvonen.exifnotes.di.export.RollExportOptionData
 import com.tommihirvonen.exifnotes.di.export.RollShareIntentBuilder
@@ -64,7 +65,8 @@ class FramesViewModel @AssistedInject constructor(
     private val rollShareIntentBuilder: RollShareIntentBuilder,
     private val rollExportHelper: RollExportHelper,
     private val locationService: LocationService,
-    private val application: Application
+    private val application: Application,
+    private val eventBus: EventBus
 ) : AndroidViewModel(application) {
 
     @AssistedFactory
@@ -112,7 +114,9 @@ class FramesViewModel @AssistedInject constructor(
 
     fun submitFrame(value: Frame) {
         val frame = if (frameRepository.updateFrame(value) == 0) {
-            frameRepository.addFrame(value)
+            val result = frameRepository.addFrame(value)
+            viewModelScope.launch { eventBus.sendFrameCountRefreshEvent(rollId) }
+            result
         } else {
             value
         }
@@ -155,11 +159,14 @@ class FramesViewModel @AssistedInject constructor(
         _frames.value = LoadState.Success(framesList)
     }
 
-    fun deleteFrame(frame: Frame) {
-        frameRepository.deleteFrame(frame)
-        framesList = framesList.filterNot { it.id == frame.id }
-        _selectedFrames.value = _selectedFrames.value.filterNot { it.id == frame.id }.toHashSet()
+    fun deleteFrames(frames: Iterable<Frame>) {
+        frames.forEach(frameRepository::deleteFrame)
+        framesList = framesList.filterNot { f1 -> frames.any { f2 -> f1.id == f2.id } }
+        _selectedFrames.value = _selectedFrames.value
+            .filterNot { f1 -> frames.any { f2 -> f1.id == f2.id } }
+            .toHashSet()
         _frames.value = LoadState.Success(framesList)
+        viewModelScope.launch { eventBus.sendFrameCountRefreshEvent(rollId) }
     }
 
     private fun loadFrames() {
