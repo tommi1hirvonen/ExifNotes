@@ -473,7 +473,7 @@ private fun CameraEditContent(
                             expanded = formatExpanded,
                             onDismissRequest = { formatExpanded = false }
                         ) {
-                            Format.entries.forEach { format ->
+                            Format.selectableEntries.forEach { format ->
                                 DropdownMenuItem(
                                     text = { Text(format.description(context)) },
                                     onClick = {

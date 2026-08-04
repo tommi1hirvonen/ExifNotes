@@ -20,13 +20,43 @@ package com.tommihirvonen.exifnotes.core.entities
 
 import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
+import kotlin.math.hypot
+import kotlin.math.roundToInt
 
-enum class Format {
-    MM35, MediumFormat120, APS110, Sheet;
+enum class Format(
+    private val selectionOrder: Int,
+    private val frameWidthMm: Double? = null,
+    private val frameHeightMm: Double? = null
+) {
+    // Keep the first four entries in their original order. Their ordinals are stored in the database.
+    MM35(0, 36.0, 24.0),
+    MediumFormat120(2),
+    APS110(9, 17.0, 13.0),
+    Sheet(10),
+    MediumFormat645(3, 56.0, 41.5),
+    MediumFormat66(4, 56.0, 56.0),
+    MediumFormat67(5, 56.0, 70.0),
+    MediumFormat69(6, 56.0, 84.0),
+    MediumFormat612(7, 56.0, 112.0),
+    MediumFormat617(8, 56.0, 168.0),
+    XPan(1, 65.0, 24.0),
+    Sheet4x5(11, 96.0, 120.0),
+    Sheet8x10(12, 196.0, 246.0);
 
     companion object {
+        private val mm35Diagonal = hypot(36.0, 24.0)
+
+        val selectableEntries = entries.sortedBy(Format::selectionOrder)
+
         fun from(value: Int) =
             entries.firstOrNull { it.ordinal == value } ?: MM35
+    }
+
+    fun focalLengthIn35mmFormat(focalLength: Int): Int? {
+        if (focalLength <= 0) return null
+        val width = frameWidthMm ?: return null
+        val height = frameHeightMm ?: return null
+        return (focalLength * mm35Diagonal / hypot(width, height)).roundToInt()
     }
 
     fun description(context: Context) = when (this) {
@@ -34,5 +64,14 @@ enum class Format {
         MediumFormat120 -> "120"
         APS110 -> "110"
         Sheet -> context.getString(R.string.Sheet)
+        MediumFormat645 -> "120 (6 × 4.5)"
+        MediumFormat66 -> "120 (6 × 6)"
+        MediumFormat67 -> "120 (6 × 7)"
+        MediumFormat69 -> "120 (6 × 9)"
+        MediumFormat612 -> "120 (6 × 12)"
+        MediumFormat617 -> "120 (6 × 17)"
+        XPan -> "XPan (24 × 65 mm)"
+        Sheet4x5 -> "${context.getString(R.string.Sheet)} (4 × 5 in)"
+        Sheet8x10 -> "${context.getString(R.string.Sheet)} (8 × 10 in)"
     }
 }

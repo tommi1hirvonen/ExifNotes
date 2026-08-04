@@ -56,6 +56,7 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
         private const val imageDescriptionTag = "-ImageDescription="
         private const val exposureCompTag = "-ExposureCompensation="
         private const val focalLengthTag = "-FocalLength="
+        private const val focalLengthIn35mmFormatTag = "-FocalLengthIn35mmFormat="
         private const val isoTag = "-ISO="
         private const val serialNumberTag = "-SerialNumber="
         private const val lensSerialNumberTag = "-LensSerialNumber="
@@ -159,8 +160,14 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
                 .append(quote).append(exposureComp).append(quote).append(space)
             //FocalLength
             val focalLength = frame.focalLength
-            if (focalLength > 0) stringBuilder.append(focalLengthTag).append(quote)
-                .append(focalLength).append(quote).append(space)
+            if (focalLength > 0) {
+                stringBuilder.append(focalLengthTag).append(quote)
+                    .append(focalLength).append(quote).append(space)
+                roll.format.focalLengthIn35mmFormat(focalLength)?.let { equivalent ->
+                    stringBuilder.append(focalLengthIn35mmFormatTag).append(quote)
+                        .append(equivalent).append(quote).append(space)
+                }
+            }
             //ISO
             val iso = roll.iso
             if (iso > 0) stringBuilder.append(isoTag).append(quote).append(iso)
