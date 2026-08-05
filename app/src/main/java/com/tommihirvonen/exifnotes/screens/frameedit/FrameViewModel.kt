@@ -69,6 +69,7 @@ class FrameViewModel @AssistedInject constructor(
     @Assisted("frameId") frameId: Long,
     @Assisted("previousFrameId") previousFrameId: Long,
     @Assisted("frameCount") frameCount: Int,
+    @Assisted estimateDate: Boolean,
     private val application: Application,
     frameRepository: FrameRepository,
     rollRepository: RollRepository,
@@ -88,7 +89,8 @@ class FrameViewModel @AssistedInject constructor(
             @Assisted("rollId") rollId: Long,
             @Assisted("frameId") frameId: Long,
             @Assisted("previousFrameId") previousFrameId: Long,
-            @Assisted("frameCount") frameCount: Int
+            @Assisted("frameCount") frameCount: Int,
+            @Assisted estimateDate: Boolean
         ): FrameViewModel
     }
 
@@ -116,10 +118,12 @@ class FrameViewModel @AssistedInject constructor(
             }
             existingFrame
         } else {
-            val date = LocalDateTime.now()
             val noOfExposures = 1
             val location = locationService.lastLocation?.let { LatLng(it.latitude, it.longitude) }
             val previousFrame = frameRepository.getFrame(previousFrameId)
+            val date = if (estimateDate && previousFrame != null)
+                previousFrame.date.plusMinutes(5)
+            else LocalDateTime.now()
             if (previousFrame != null) {
                 Frame(
                     rollId = previousFrame.rollId,

@@ -139,6 +139,7 @@ fun FrameEditScreen(
     rollId: Long,
     previousFrameId: Long = -1,
     frameCount: Int = -1,
+    estimateDate: Boolean = false,
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onNavigateToFilterEdit: () -> Unit,
@@ -151,6 +152,7 @@ fun FrameEditScreen(
         frameId = frameId,
         previousFrameId = previousFrameId,
         frameCount = frameCount,
+        estimateDate = estimateDate,
         onNavigateUp = onNavigateUp,
         onNavigateToLocationPick = onNavigateToLocationPick,
         onAddFilter = onNavigateToFilterEdit,
@@ -169,6 +171,7 @@ private fun FrameEditScreen(
     frameId: Long,
     previousFrameId: Long,
     frameCount: Int,
+    estimateDate: Boolean,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
     onAddAccessory: () -> Unit,
@@ -176,7 +179,7 @@ private fun FrameEditScreen(
     onNavigateToLocationPick: () -> Unit,
     onSubmit: (Frame) -> Unit,
     frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
-        factory.create(rollId, frameId, previousFrameId, frameCount)
+        factory.create(rollId, frameId, previousFrameId, frameCount, estimateDate)
     }
 ) {
     val frame = frameViewModel.frame.collectAsState()
