@@ -628,6 +628,37 @@ private fun FrameEditContent(
                         }
                     }
                 }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FocalLengthSingleLine),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    DropdownButton(
+                        text = frame.focalLength.toString(),
+                        onClick = { showFocalLengthDialog = true }
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Accessories),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val accessoriesText = frame.accessories.joinToString(separator = "\n") { "-${it.name}" }
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = accessoriesText,
+                        maxLines = Int.MAX_VALUE,
+                        onClick = { showAccessoriesDialog = true }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = onAddAccessory) {
+                            Icon(Icons.Outlined.Add, "")
+                        }
+                    }
+                }
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
                         text = stringResource(R.string.FilterOrFilters),
@@ -652,37 +683,6 @@ private fun FrameEditContent(
                             Icon(Icons.Outlined.Add, "")
                         }
                     }
-                }
-                Row(modifier = Modifier.padding(top = 16.dp)) {
-                    Text(
-                        text = stringResource(R.string.Accessories),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val accessoriesText = frame.accessories.joinToString(separator = "\n") { "-${it.name}" }
-                    DropdownButton(
-                        modifier = Modifier.weight(1f),
-                        text = accessoriesText,
-                        maxLines = Int.MAX_VALUE,
-                        onClick = { showAccessoriesDialog = true }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
-                        FilledTonalIconButton(onClick = onAddAccessory) {
-                            Icon(Icons.Outlined.Add, "")
-                        }
-                    }
-                }
-                Column(modifier = Modifier.padding(top = 16.dp)) {
-                    Text(
-                        text = stringResource(R.string.FocalLengthSingleLine),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    DropdownButton(
-                        text = frame.focalLength.toString(),
-                        onClick = { showFocalLengthDialog = true }
-                    )
                 }
                 Column(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
