@@ -19,11 +19,29 @@
 package com.tommihirvonen.exifnotes.core
 
 import com.tommihirvonen.exifnotes.core.entities.Filter
+import com.tommihirvonen.exifnotes.core.entities.AttachmentType
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
 class FilterTest {
+    @Test
+    fun accessory_modifiers_serialize() {
+        val accessory = Filter(
+            make = "Metabones",
+            model = "Speed Booster",
+            type = AttachmentType.FocalReducer,
+            factor = 0.71
+        )
+
+        val json = Json.encodeToString(accessory)
+
+        assertTrue(json.contains("\"type\":\"FocalReducer\""))
+        assertTrue(json.contains("\"factor\":0.71"))
+        assertEquals(AttachmentType.Filter, AttachmentType.from(99))
+    }
     @Test
     fun filter_serialize() {
         val filter = Filter(

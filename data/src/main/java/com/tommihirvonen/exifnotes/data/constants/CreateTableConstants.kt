@@ -64,7 +64,9 @@ internal val CREATE_FILTER_TABLE = """
     |create table $TABLE_FILTERS(
     |   $KEY_FILTER_ID integer primary key autoincrement,
     |   $KEY_FILTER_MAKE text not null,
-    |   $KEY_FILTER_MODEL text not null
+    |   $KEY_FILTER_MODEL text not null,
+    |   $KEY_FILTER_TYPE integer not null default 0,
+    |   $KEY_FILTER_FACTOR text not null default '1.0'
     |);
     """.trimMargin()
 

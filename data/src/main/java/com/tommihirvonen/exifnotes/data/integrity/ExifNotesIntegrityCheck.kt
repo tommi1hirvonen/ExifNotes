@@ -53,6 +53,8 @@ internal class ExifNotesIntegrityCheck(db: SQLiteDatabase) : IntegrityCheck(db) 
             col(KEY_FILTER_ID, INT).primaryKey().autoIncrement()
             col(KEY_FILTER_MAKE, TEXT).notNull()
             col(KEY_FILTER_MODEL, TEXT).notNull()
+            col(KEY_FILTER_TYPE, INT).notNull()
+            col(KEY_FILTER_FACTOR, TEXT).notNull()
         }
         table(TABLE_LINK_CAMERA_LENS) {
             col(KEY_CAMERA_ID, INT).notNull().primaryKey().foreignKey(TABLE_CAMERAS, CASCADE)

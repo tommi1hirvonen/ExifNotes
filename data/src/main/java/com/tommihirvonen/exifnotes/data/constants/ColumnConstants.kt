@@ -73,6 +73,8 @@ internal const val KEY_ROLL_FAVORITE = "roll_favorite"
 internal const val KEY_FILTER_ID = "filter_id"
 internal const val KEY_FILTER_MAKE = "filter_make"
 internal const val KEY_FILTER_MODEL = "filter_model"
+internal const val KEY_FILTER_TYPE = "filter_type"
+internal const val KEY_FILTER_FACTOR = "filter_factor"
 
 internal const val KEY_FILM_STOCK_ID = "film_stock_id"
 internal const val KEY_FILM_MANUFACTURER_NAME = "film_manufacturer_name"
