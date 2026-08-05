@@ -383,6 +383,7 @@ fun App(onFinish: () -> Unit) {
                 val filter = backStackEntry.toRoute<FilterEdit>()
                 FilterEditScreen(
                     filterId = filter.filterId,
+                    isAccessory = filter.filterId <= 0,
                     onDismiss = { navController.navigateUp() },
                     submitHandler = gearViewModel::submitFilter
                 )
