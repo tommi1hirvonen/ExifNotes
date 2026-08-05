@@ -32,6 +32,7 @@ class FormatTest {
 
     @Test
     fun focalLengthIn35mmFormat_convertsKnownMediumFormats() {
+        assertEquals(63, Format.MediumFormatGFX.focalLengthIn35mmFormat(80))
         assertEquals(50, Format.MediumFormat645.focalLengthIn35mmFormat(80))
         assertEquals(44, Format.MediumFormat66.focalLengthIn35mmFormat(80))
         assertEquals(39, Format.MediumFormat67.focalLengthIn35mmFormat(80))
@@ -69,6 +70,7 @@ class FormatTest {
                 Format.MM35,
                 Format.XPan,
                 Format.MediumFormat120,
+                Format.MediumFormatGFX,
                 Format.MediumFormat645,
                 Format.MediumFormat66,
                 Format.MediumFormat67,

@@ -482,7 +482,7 @@ private fun GearContent(
         NavigationItem(
             selected = pagerState.currentPage == 2,
             onClick = { scope.launch { pagerState.animateScrollToPage(2) } },
-            label = { Text(stringResource(R.string.FiltersNoCap)) },
+            label = { Text(stringResource(R.string.FiltersAndAccessories)) },
             icon = { Icon(Icons.Outlined.Circle, "") }
         ),
         NavigationItem(

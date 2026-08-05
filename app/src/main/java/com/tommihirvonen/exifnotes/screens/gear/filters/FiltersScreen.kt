@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tommihirvonen.exifnotes.R
+import com.tommihirvonen.exifnotes.core.entities.AttachmentType
 import com.tommihirvonen.exifnotes.core.entities.Camera
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
@@ -147,6 +148,15 @@ private fun FilterCard(
                 modifier = Modifier.padding(6.dp)
             ) {
                 Text(filter.name, style = MaterialTheme.typography.titleMedium)
+                if (filter.isAccessory) {
+                    Text(
+                        if (filter.type.usesFactor) stringResource(
+                            if (filter.type == AttachmentType.ExtensionTube)
+                                R.string.ExtensionAccessorySummary else R.string.OpticalAccessorySummary,
+                            attachmentTypeName(filter.type), filter.factor
+                        ) else attachmentTypeName(filter.type)
+                    )
+                }
                 if (compatibleCameras.isNotEmpty()) {
                     Row {
                         Text(

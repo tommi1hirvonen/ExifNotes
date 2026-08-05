@@ -155,6 +155,9 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToFilterEdit = {
                         navController.navigate(route = FrameFilterEdit(filterId = -1))
                     },
+                    onNavigateToAccessoryEdit = {
+                        navController.navigate(route = FrameFilterEdit(filterId = -1, isAccessory = true))
+                    },
                     onNavigateToLensEdit = {
                         navController.navigate(route = FrameLensEdit(lensId = -1))
                     },
@@ -263,6 +266,9 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
                     onNavigateToFilterEdit = {
                         navController.navigate(route = FrameFilterEdit(filterId = -1))
+                    },
+                    onNavigateToAccessoryEdit = {
+                        navController.navigate(route = FrameFilterEdit(filterId = -1, isAccessory = true))
                     },
                     onNavigateToLensEdit = {
                         navController.navigate(route = FrameLensEdit(lensId = -1))
@@ -392,6 +398,7 @@ fun App(onFinish: () -> Unit) {
                 val frameViewModel = hiltViewModel<FrameViewModel>(frameEditEntry)
                 FilterEditScreen(
                     filterId = filter.filterId,
+                    isAccessory = filter.isAccessory,
                     onDismiss = { navController.navigateUp() },
                     submitHandler = frameViewModel::submitFilter
                 )
@@ -486,7 +493,7 @@ private data class FrameEdit(
 private data class FrameLensEdit(val lensId: Long)
 
 @Serializable
-private data class FrameFilterEdit(val filterId: Long)
+private data class FrameFilterEdit(val filterId: Long, val isAccessory: Boolean = false)
 
 @Serializable
 private object LocationPick

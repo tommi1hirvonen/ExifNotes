@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.core
 
 import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.core.entities.Camera
+import com.tommihirvonen.exifnotes.core.entities.AttachmentType
 import com.tommihirvonen.exifnotes.core.entities.FilmProcess
 import com.tommihirvonen.exifnotes.core.entities.FilmStock
 import com.tommihirvonen.exifnotes.core.entities.FilmType
@@ -31,12 +32,64 @@ import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.PartialIncrement
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.accessories
+import com.tommihirvonen.exifnotes.core.entities.effectiveAperture
+import com.tommihirvonen.exifnotes.core.entities.effectiveFocalLength
+import com.tommihirvonen.exifnotes.core.entities.effectiveLensModel
+import com.tommihirvonen.exifnotes.core.entities.opticalFilters
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDateTime
 
 class FrameTest {
+
+    @Test
+    fun accessories_modify_effective_exif_values() {
+        val filter = Filter(id = 1, make = "Hoya", model = "UV")
+        val teleconverter = Filter(
+            id = 2,
+            make = "Nikon",
+            model = "TC-20E",
+            type = AttachmentType.Teleconverter,
+            factor = 2.0
+        )
+        val focalReducer = Filter(
+            id = 3,
+            make = "Metabones",
+            model = "Speed Booster",
+            type = AttachmentType.FocalReducer,
+            factor = 0.5
+        )
+        val extensionTube = Filter(
+            id = 4,
+            make = "Nikon",
+            model = "PK-13",
+            type = AttachmentType.ExtensionTube,
+            factor = 25.0
+        )
+        val frame = Frame(
+            rollId = 1,
+            focalLength = 100,
+            aperture = "2.8",
+            lens = Lens(make = "Nikon", model = "105mm f/2.8"),
+            filters = listOf(filter, teleconverter, focalReducer, extensionTube)
+        )
+
+        assertEquals(listOf(filter), frame.opticalFilters)
+        assertEquals(listOf(teleconverter, focalReducer, extensionTube), frame.accessories)
+        assertEquals(200, frame.copy(filters = listOf(teleconverter)).effectiveFocalLength)
+        assertEquals(5.6, frame.copy(filters = listOf(teleconverter)).effectiveAperture)
+        assertEquals(50, frame.copy(filters = listOf(focalReducer)).effectiveFocalLength)
+        assertEquals(1.4, frame.copy(filters = listOf(focalReducer)).effectiveAperture)
+        assertEquals(100, frame.effectiveFocalLength)
+        assertEquals(3.5, frame.effectiveAperture)
+        assertEquals(
+            "105mm f/2.8 + Nikon TC-20E + Metabones Speed Booster + Nikon PK-13",
+            frame.effectiveLensModel
+        )
+    }
 
     private val filmStock = FilmStock(
         id = 2,

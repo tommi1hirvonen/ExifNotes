@@ -20,9 +20,26 @@ package com.tommihirvonen.exifnotes.core.entities
 
 import androidx.annotation.Keep
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
+@Serializable
+enum class AttachmentType(val usesFactor: Boolean = false) {
+    // Filter must remain first: its ordinal is the database migration default.
+    Filter,
+    Accessory,
+    Teleconverter(true),
+    FocalReducer(true),
+    ExtensionTube(true);
+
+    companion object {
+        fun from(value: Int) = entries.firstOrNull { it.ordinal == value } ?: Filter
+    }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
 @Parcelize
 @Serializable
 @Keep
@@ -30,6 +47,12 @@ data class Filter(
         override val id: Long = 0,
         override val make: String? = null,
         override val model: String? = null,
+        @EncodeDefault
+        val type: AttachmentType = AttachmentType.Filter,
+        @EncodeDefault
+        val factor: Double = 1.0,
         @Transient
         val lensIds: HashSet<Long> = HashSet()
-) : Gear(), Comparable<Gear>
+) : Gear(), Comparable<Gear> {
+    val isAccessory: Boolean get() = type != AttachmentType.Filter
+}

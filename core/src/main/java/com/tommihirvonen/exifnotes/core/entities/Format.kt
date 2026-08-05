@@ -31,17 +31,18 @@ enum class Format(
     // Keep the first four entries in their original order. Their ordinals are stored in the database.
     MM35(0, 36.0, 24.0),
     MediumFormat120(2),
-    APS110(9, 17.0, 13.0),
-    Sheet(10),
-    MediumFormat645(3, 56.0, 41.5),
-    MediumFormat66(4, 56.0, 56.0),
-    MediumFormat67(5, 56.0, 70.0),
-    MediumFormat69(6, 56.0, 84.0),
-    MediumFormat612(7, 56.0, 112.0),
-    MediumFormat617(8, 56.0, 168.0),
+    APS110(10, 17.0, 13.0),
+    Sheet(11),
+    MediumFormat645(4, 56.0, 41.5),
+    MediumFormat66(5, 56.0, 56.0),
+    MediumFormat67(6, 56.0, 70.0),
+    MediumFormat69(7, 56.0, 84.0),
+    MediumFormat612(8, 56.0, 112.0),
+    MediumFormat617(9, 56.0, 168.0),
     XPan(1, 65.0, 24.0),
-    Sheet4x5(11, 96.0, 120.0),
-    Sheet8x10(12, 196.0, 246.0);
+    Sheet4x5(12, 96.0, 120.0),
+    Sheet8x10(13, 196.0, 246.0),
+    MediumFormatGFX(3, 43.8, 32.9);
 
     companion object {
         private val mm35Diagonal = hypot(36.0, 24.0)
@@ -73,5 +74,6 @@ enum class Format(
         XPan -> "XPan (24 × 65 mm)"
         Sheet4x5 -> "${context.getString(R.string.Sheet)} (4 × 5 in)"
         Sheet8x10 -> "${context.getString(R.string.Sheet)} (8 × 10 in)"
+        MediumFormatGFX -> "GFX (43.8 × 32.9 mm)"
     }
 }
