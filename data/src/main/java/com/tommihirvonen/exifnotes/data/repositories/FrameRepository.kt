@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.data.repositories
 
 import android.content.ContentValues
 import android.database.Cursor
+import androidx.core.database.sqlite.transaction
 import com.tommihirvonen.exifnotes.core.decimalString
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
@@ -49,6 +50,15 @@ class FrameRepository @Inject constructor(
             frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
         }
         return frame
+    }
+
+    fun insertFrame(value: Frame): Frame = database.writableDatabase.transaction {
+        execSQL(
+            "update $TABLE_FRAMES set $KEY_COUNT = $KEY_COUNT + 1 " +
+                "where $KEY_ROLL_ID = ? and $KEY_COUNT >= ?",
+            arrayOf<Any>(value.rollId, value.count)
+        )
+        addFrame(value)
     }
 
     private fun addFrameFilterLink(frame: Frame, filter: Filter) {

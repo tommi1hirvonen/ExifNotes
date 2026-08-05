@@ -116,10 +116,10 @@ class FrameViewModel @AssistedInject constructor(
             }
             existingFrame
         } else {
-            val date = LocalDateTime.now()
             val noOfExposures = 1
             val location = locationService.lastLocation?.let { LatLng(it.latitude, it.longitude) }
             val previousFrame = frameRepository.getFrame(previousFrameId)
+            val date = previousFrame?.date?.plusMinutes(5) ?: LocalDateTime.now()
             if (previousFrame != null) {
                 Frame(
                     rollId = previousFrame.rollId,

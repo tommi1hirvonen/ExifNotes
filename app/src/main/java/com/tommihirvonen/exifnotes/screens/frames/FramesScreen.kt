@@ -19,6 +19,7 @@
 package com.tommihirvonen.exifnotes.screens.frames
 
 import android.text.format.DateFormat
+import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -120,6 +121,7 @@ fun FramesScreen(
     var exportOptions by remember { mutableStateOf(emptyList<RollExportOptionData>()) }
     var showBatchEditDialog by remember { mutableStateOf(false) }
     var showCopyDialog by remember { mutableStateOf(false) }
+    var showAddFrameDialog by remember { mutableStateOf(false) }
 
     val exportSuccessText = stringResource(R.string.ExportedFilesSuccessfully)
     val exportFailureText = stringResource(R.string.ErrorExporting)
@@ -144,15 +146,7 @@ fun FramesScreen(
         onFrameClick = { frame ->
             onEditFrame(frame, null, 0)
         },
-        onFabClick = {
-            val frames = when (val state = framesLoadState.value) {
-                is LoadState.Success -> state.data
-                else -> emptyList()
-            }
-            val frameCount = frames.maxOfOrNull(Frame::count)?.plus(1) ?: 1
-            val previousFrame = frames.maxByOrNull(Frame::id)
-            onEditFrame(null, previousFrame, frameCount)
-        },
+        onFabClick = { showAddFrameDialog = true },
         toggleFrameSelection = framesViewModel::toggleFrameSelection,
         toggleFrameSelectionAll = framesViewModel::toggleFrameSelectionAll,
         toggleFrameSelectionNone = framesViewModel::toggleFrameSelectionNone,
@@ -182,6 +176,18 @@ fun FramesScreen(
         onNavigateUp = onNavigateUp,
         snackbarHostState = snackbarHostState
     )
+    if (showAddFrameDialog) {
+        val frames = (framesLoadState.value as? LoadState.Success)?.data.orEmpty()
+        FrameCountsDialog(
+            initialValue = (frames.maxOfOrNull(Frame::count)?.plus(1) ?: 1).toString(),
+            label = R.string.FrameCount,
+            onDismiss = { showAddFrameDialog = false },
+            onConfirm = { count ->
+                showAddFrameDialog = false
+                onEditFrame(null, frames.filter { it.count < count }.maxByOrNull(Frame::count), count)
+            }
+        )
+    }
     if (showLabels) {
         val initialItems = labels.value.associateWith { label ->
             roll.value.labels.any { it.id == label.id }
@@ -723,9 +729,11 @@ fun FocalLengthDialog(
 @Composable
 fun FrameCountsDialog(
     onDismiss: () -> Unit = {},
-    onConfirm: (Int) -> Unit = {}
+    onConfirm: (Int) -> Unit = {},
+    initialValue: String = "",
+    @StringRes label: Int = R.string.EditFrameCountsBy
 ) {
-    var value by remember { mutableStateOf("") }
+    var value by remember { mutableStateOf(initialValue) }
     AlertDialog(
         onDismissRequest = onDismiss,
         dismissButton = {
@@ -750,7 +758,7 @@ fun FrameCountsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(R.string.EditFrameCountsBy))
+                Text(stringResource(label))
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
                     modifier = Modifier.width(100.dp),

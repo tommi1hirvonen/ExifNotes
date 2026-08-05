@@ -128,7 +128,8 @@ fun App(onFinish: () -> Unit) {
                             rollId = frames.rollId,
                             frameId = frame?.id ?: -1,
                             previousFrameId = previousFrame?.id ?: -1,
-                            frameCount = frameCount
+                            frameCount = frameCount,
+                            insert = frame == null
                         )
                         navController.navigate(route = route)
                     },
@@ -161,7 +162,7 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToLensEdit = {
                         navController.navigate(route = FrameLensEdit(lensId = -1))
                     },
-                    submitHandler = framesViewModel::submitFrame
+                    submitHandler = { framesViewModel.submitFrame(it, frameEdit.insert) }
                 )
             }
             composable<LocationPick> { backStackEntry ->
@@ -486,7 +487,8 @@ private data class FramesRollEdit(val rollId: Long)
 
 @Serializable
 private data class FrameEdit(
-    val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int
+    val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int,
+    val insert: Boolean = false
 )
 
 @Serializable
