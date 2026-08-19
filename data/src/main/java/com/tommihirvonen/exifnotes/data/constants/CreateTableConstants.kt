@@ -94,6 +94,8 @@ internal val CREATE_FRAME_TABLE = """
     |   $KEY_ROLL_ID integer not null references $TABLE_ROLLS on delete cascade,
     |   $KEY_COUNT integer not null,
     |   $KEY_DATE text not null,
+    |   $KEY_TIME_ZONE_ID text,
+    |   $KEY_UTC_OFFSET_SECONDS integer,
     |   $KEY_LENS_ID integer references $TABLE_LENSES on delete set null,
     |   $KEY_SHUTTER text,
     |   $KEY_APERTURE text,

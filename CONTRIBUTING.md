@@ -90,5 +90,6 @@ This property is not mandatory in order to build the project and to develop and 
 In order to acquire a Google Maps API key, you will need to set up a Google Cloud account and enable these APIs for the key:
 - Geocoding API
 - Maps SDK for Android
+- Time Zone API
 
 To acquire an API key, you can get started here: https://mapsplatform.google.com/

@@ -18,6 +18,9 @@
 
 package com.tommihirvonen.exifnotes.data.constants
 
+internal const val KEY_TIME_ZONE_ID = "time_zone_id"
+internal const val KEY_UTC_OFFSET_SECONDS = "utc_offset_seconds"
+
 internal const val KEY_FRAME_ID = "frame_id"
 internal const val KEY_COUNT = "count"
 internal const val KEY_DATE = "date"

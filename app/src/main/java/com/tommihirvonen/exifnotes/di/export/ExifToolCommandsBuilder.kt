@@ -26,6 +26,7 @@ import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.effectiveAperture
 import com.tommihirvonen.exifnotes.core.entities.effectiveFocalLength
 import com.tommihirvonen.exifnotes.core.entities.effectiveLensModel
+import com.tommihirvonen.exifnotes.core.entities.utcOffset
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
 import com.tommihirvonen.exifnotes.util.exifToolLocation
@@ -124,6 +125,10 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             //DateTimeOriginal
             stringBuilder.append(dateTimeOriginalTag).append(quote).append(date.sortableDateTime
                 .replace("-", ":")).append(quote).append(space)
+            frame.utcOffset?.let { offset ->
+                stringBuilder.append("-OffsetTime=").append(quote).append(offset).append(quote).append(space)
+                stringBuilder.append("-OffsetTimeOriginal=").append(quote).append(offset).append(quote).append(space)
+            }
 
             //ShutterSpeedValue & ExposureTime
             val shutter = frame.shutter

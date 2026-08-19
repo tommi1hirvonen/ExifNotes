@@ -43,6 +43,8 @@ data class Frame(
     val count: Int = 0,
     @Serializable(with = LocalDateTimeSerializer::class)
     val date: LocalDateTime = LocalDateTime.now(),
+    val timeZoneId: String? = null,
+    val utcOffsetSeconds: Int? = null,
     val shutter: String? = null,
     val aperture: String? = null,
     val note: String? = null,

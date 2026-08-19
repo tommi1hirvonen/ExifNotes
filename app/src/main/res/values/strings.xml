@@ -18,6 +18,12 @@
   -->
 
 <resources>
+    <string name="TimeZone">Time zone</string>
+    <string name="ResolvingTimeZone">Finding time zone…</string>
+    <string name="TimeZoneUnknown">Unknown</string>
+    <string name="TimeZoneOffsetUnknown">%1$s (offset unavailable for this date and time)</string>
+    <string name="UseLocationTimeZone">Use location time zone</string>
+    <string name="TimeZoneLookupFailed">Could not find the location’s time zone. Check your connection and try again.</string>
     <string name="About">About</string>
     <string name="Active">Active</string>
     <string name="ActiveRolls">Active rolls</string>

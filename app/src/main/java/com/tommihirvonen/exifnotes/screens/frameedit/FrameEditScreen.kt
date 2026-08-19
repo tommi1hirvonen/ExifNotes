@@ -119,6 +119,7 @@ import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.accessories
 import com.tommihirvonen.exifnotes.core.entities.opticalFilters
+import com.tommihirvonen.exifnotes.core.entities.utcOffset
 import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
@@ -188,6 +189,7 @@ private fun FrameEditScreen(
     val apertureValues = frameViewModel.apertureValues.collectAsState()
     val filters = frameViewModel.filters.collectAsState()
     val isResolvingAddress = frameViewModel.isResolvingFormattedAddress.collectAsState()
+    val isResolvingTimeZone = frameViewModel.isResolvingTimeZone.collectAsState()
     val pictureBitmap = frameViewModel.pictureBitmap.collectAsState()
     val pictureRotation = frameViewModel.pictureRotation.collectAsState()
     val snackbarMessage = frameViewModel.snackbarMessage.collectAsState()
@@ -201,6 +203,8 @@ private fun FrameEditScreen(
         filters = filters.value,
         exposureCompValues = frameViewModel.exposureCompValues,
         isResolvingAddress = isResolvingAddress.value,
+        isResolvingTimeZone = isResolvingTimeZone.value,
+        onResolveTimeZone = frameViewModel::resolveTimeZone,
         pictureBitmap = pictureBitmap.value,
         pictureRotation = pictureRotation.value,
         pictureTempFileProvider = frameViewModel::createNewPictureFile,
@@ -251,6 +255,8 @@ private fun FrameEditContentPreview() {
         filters = emptyList(),
         exposureCompValues = emptyList(),
         isResolvingAddress = true,
+        isResolvingTimeZone = false,
+        onResolveTimeZone = {},
         pictureBitmap = null,
         pictureRotation = 0f,
         pictureTempFileProvider = { Uri.fromFile(File("")) },
@@ -295,6 +301,8 @@ private fun FrameEditContent(
     filters: List<Filter>,
     exposureCompValues: List<String>,
     isResolvingAddress: Boolean,
+    isResolvingTimeZone: Boolean,
+    onResolveTimeZone: () -> Unit,
     pictureBitmap: Bitmap?,
     pictureRotation: Float,
     pictureTempFileProvider: () -> Uri,
@@ -389,6 +397,7 @@ private fun FrameEditContent(
                     val padding = ButtonDefaults.ContentPadding.copy(start = 18.dp)
                     Button(
                         contentPadding = padding,
+                        enabled = !isResolvingTimeZone,
                         onClick = onSubmit
                     ) {
                         Icon(
@@ -464,6 +473,25 @@ private fun FrameEditContent(
                         dateTime = frame.date,
                         onDateTimeSet = onDateChange
                     )
+                }
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    text = stringResource(R.string.TimeZone),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = when {
+                        isResolvingTimeZone -> stringResource(R.string.ResolvingTimeZone)
+                        frame.timeZoneId == null -> stringResource(R.string.TimeZoneUnknown)
+                        frame.utcOffset == null -> stringResource(R.string.TimeZoneOffsetUnknown, frame.timeZoneId.orEmpty())
+                        else -> "${frame.timeZoneId} (UTC${frame.utcOffset})"
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (frame.location != null) {
+                    TextButton(onClick = onResolveTimeZone, enabled = !isResolvingTimeZone) {
+                        Text(stringResource(R.string.UseLocationTimeZone))
+                    }
                 }
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     Text(

@@ -14,7 +14,7 @@ Exif Notes is an Android application that let's you quickly make notes on the fi
     - Film stocks
 - Add film rolls with specific gear and settings
 - Add frames to rolls when taking pictures and include details for multiple settings
-    - Date and time
+    - Date, time and time zone
     - Aperture
     - Shutter speed
     - Lens

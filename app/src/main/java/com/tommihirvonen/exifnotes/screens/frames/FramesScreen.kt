@@ -79,6 +79,7 @@ import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.withDate
 import com.tommihirvonen.exifnotes.core.localDateTimeOrNull
 import com.tommihirvonen.exifnotes.di.export.RollExportOptionData
 import com.tommihirvonen.exifnotes.screens.MultiChoiceDialog
@@ -383,7 +384,7 @@ fun FramesScreen(
                         timeState.minute
                     )
                     selectedFrames.value.forEach { frame ->
-                        framesViewModel.submitFrame(frame.copy(date = dateTime))
+                        framesViewModel.submitFrame(frame.withDate(dateTime))
                     }
                 }
             )

@@ -195,14 +195,7 @@ fun App(onFinish: () -> Unit) {
                     frame = null,
                     onNavigateUp = { navController.navigateUp() },
                     onLocationConfirm = { latLng, address ->
-                        framesViewModel.selectedFrames.value.forEach { frame ->
-                            framesViewModel.submitFrame(
-                                frame.copy(
-                                    location = latLng,
-                                    formattedAddress = address
-                                )
-                            )
-                        }
+                        framesViewModel.setSelectedFramesLocation(latLng, address)
                         navController.navigateUp()
                     },
                     themeViewModel = themeViewModel

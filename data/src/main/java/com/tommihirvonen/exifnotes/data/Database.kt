@@ -46,7 +46,7 @@ class Database @Inject constructor(@param:ApplicationContext private val context
 
     companion object {
         private const val DATABASE_NAME = "filmnotes.db"
-        private const val DATABASE_VERSION = 26
+        private const val DATABASE_VERSION = 27
     }
 
     override fun onOpen(db: SQLiteDatabase) {
@@ -180,6 +180,10 @@ class Database @Inject constructor(@param:ApplicationContext private val context
         if (oldVersion < 26) {
             db.execSQL(ALTER_TABLE_FILTERS_ADD_TYPE)
             db.execSQL(ALTER_TABLE_FILTERS_ADD_FACTOR)
+        }
+        if (oldVersion < 27) {
+            db.execSQL(ALTER_TABLE_FRAMES_ADD_TIME_ZONE)
+            db.execSQL(ALTER_TABLE_FRAMES_ADD_UTC_OFFSET)
         }
     }
 

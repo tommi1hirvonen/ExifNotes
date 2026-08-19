@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
+import com.tommihirvonen.exifnotes.core.entities.utcOffset
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.util.darken
 import java.time.LocalDateTime
@@ -193,6 +194,9 @@ fun FrameCard(
                                 overflow = TextOverflow.Ellipsis,
                                 style = style
                             )
+                            frame.utcOffset?.let { offset ->
+                                Text(text = "UTC$offset", style = style)
+                            }
                             Text(
                                 text = frame.lens?.name ?: "",
                                 maxLines = 1,

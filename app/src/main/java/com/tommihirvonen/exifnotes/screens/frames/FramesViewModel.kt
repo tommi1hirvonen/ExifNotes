@@ -21,16 +21,19 @@ package com.tommihirvonen.exifnotes.screens.frames
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.core.content.edit
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
+import com.google.android.gms.maps.model.LatLng
 import com.tommihirvonen.exifnotes.R
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.FrameSortMode
 import com.tommihirvonen.exifnotes.core.entities.Roll
 import com.tommihirvonen.exifnotes.core.entities.sorted
+import com.tommihirvonen.exifnotes.core.entities.withTimeZone
 import com.tommihirvonen.exifnotes.data.repositories.CameraRepository
 import com.tommihirvonen.exifnotes.data.repositories.FilterRepository
 import com.tommihirvonen.exifnotes.data.repositories.FrameRepository
@@ -41,6 +44,7 @@ import com.tommihirvonen.exifnotes.di.export.RollExportHelper
 import com.tommihirvonen.exifnotes.di.export.RollExportOptionData
 import com.tommihirvonen.exifnotes.di.export.RollShareIntentBuilder
 import com.tommihirvonen.exifnotes.di.location.LocationService
+import com.tommihirvonen.exifnotes.di.location.TimeZoneService
 import com.tommihirvonen.exifnotes.di.pictures.ComplementaryPicturesManager
 import com.tommihirvonen.exifnotes.util.LoadState
 import dagger.assisted.Assisted
@@ -65,6 +69,7 @@ class FramesViewModel @AssistedInject constructor(
     private val rollShareIntentBuilder: RollShareIntentBuilder,
     private val rollExportHelper: RollExportHelper,
     private val locationService: LocationService,
+    private val timeZoneService: TimeZoneService,
     private val application: Application,
     private val eventBus: EventBus
 ) : AndroidViewModel(application) {
@@ -129,10 +134,36 @@ class FramesViewModel @AssistedInject constructor(
             .plus(frame)
             .sorted(getApplication(), sortMode)
         _frames.value = LoadState.Success(framesList)
+        _selectedFrames.value = _selectedFrames.value.map {
+            if (it.id == frame.id) frame else it
+        }.toHashSet()
     }
 
     fun setRoll(roll: Roll) {
         _roll.value = roll
+    }
+
+    fun setSelectedFramesLocation(location: LatLng?, formattedAddress: String?) {
+        val updatedFrames = _selectedFrames.value.map { frame ->
+            val updated = frame.copy(location = location, formattedAddress = formattedAddress)
+            if (location != null && location != frame.location) updated.withTimeZone(null) else updated
+        }
+        updatedFrames.forEach { submitFrame(it) }
+        if (location == null || updatedFrames.isEmpty()) return
+        viewModelScope.launch {
+            // Resolve once for the shared location, then use each frame's own date for DST.
+            val zoneId = timeZoneService.getTimeZone(location, updatedFrames.first().date)
+            if (zoneId == null) {
+                Toast.makeText(context, R.string.TimeZoneLookupFailed, Toast.LENGTH_LONG).show()
+                return@launch
+            }
+            updatedFrames.forEach { requestedFrame ->
+                // Do not overwrite a frame that was edited or deleted during the request.
+                framesList.firstOrNull { it == requestedFrame }?.let {
+                    submitFrame(it.withTimeZone(zoneId))
+                }
+            }
+        }
     }
 
     fun toggleFrameSelection(frame: Frame) {
