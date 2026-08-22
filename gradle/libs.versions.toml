@@ -1,7 +1,7 @@
 [versions]
-agp = "8.11.1"
-kotlin = "2.2.0"
-coreKtx = "1.16.0"
+agp = "9.3.1"
+kotlin = "2.4.10"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitAndroidx = "1.2.1"
 espressoCore = "3.6.1"
@@ -10,7 +10,7 @@ material = "1.12.0"
 preference = "1.2.1"
 lifecycle = "2.9.2"
 navigation = "2.9.2"
-hilt = "2.57"
+hilt = "2.60.1"
 ktor = "3.2.3"
 maps = "19.2.0"
 mapsCompose = "6.7.0"
@@ -18,7 +18,7 @@ places = "3.5.0" # newer versions of the Places SDK (e.g. 4.0.0) do not support 
 location = "21.3.0"
 serialization = "1.9.0"
 desugaring = "2.1.5"
-license = "0.9.8"
+license = "0.9.9"
 exifinterface = "1.4.1"
 work = "2.10.2"
 text = "1.14.0"
@@ -27,7 +27,7 @@ activityCompose = "1.10.1"
 icons = "1.7.8"
 hiltNavigationCompose = "1.2.0"
 documentfile = "1.1.0"
-ksp = "2.2.0-2.0.2"
+ksp = "2.3.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -71,7 +71,6 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 jetbrains-kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }

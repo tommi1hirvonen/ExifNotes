@@ -6,11 +6,16 @@ import java.io.FileInputStream
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.hilt)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.license)
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_17
+    }
 }
 
 android {
@@ -33,17 +38,11 @@ android {
         }
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_1_8
-        }
-    }
-
     defaultConfig {
         applicationId = "com.tommihirvonen.exifnotes"
-        compileSdk = 35
+        compileSdk = 37
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 50
         versionName = "1.22.2"
         // Enabling this allows us to use resources when PNGs are generated during build-time
@@ -56,7 +55,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("config")
             if (propsFile.exists()) {
                 val props = Properties()
@@ -84,8 +83,8 @@ android {
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        targetCompatibility = JavaVersion.VERSION_1_8
-        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
     }
     namespace = "com.tommihirvonen.exifnotes"
 
@@ -130,7 +129,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.test.junit)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.test.manifest)
