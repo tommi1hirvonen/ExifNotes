@@ -87,14 +87,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
     }
     namespace = "com.tommihirvonen.exifnotes"
+}
 
-    tasks.withType(Test::class).configureEach {
-        val propsFile = rootProject.file("googlemapsapi.properties")
-        if (propsFile.exists()) {
-            val props = Properties()
-            props.load(FileInputStream(propsFile))
-            environment("google_maps_key", props["googleMapsKey"] as String)
-        }
+tasks.withType(Test::class).configureEach {
+    val propsFile = rootProject.file("googlemapsapi.properties")
+    if (propsFile.exists()) {
+        val props = Properties()
+        props.load(FileInputStream(propsFile))
+        environment("google_maps_key", props["googleMapsKey"] as String)
     }
 }
 
