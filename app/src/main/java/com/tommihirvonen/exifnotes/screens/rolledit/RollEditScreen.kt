@@ -474,7 +474,7 @@ private fun RollEditContent(
                             expanded = formatExpanded,
                             onDismissRequest = { formatExpanded = false }
                         ) {
-                            Format.entries.forEach { format ->
+                            Format.selectableEntries.forEach { format ->
                                 DropdownMenuItem(
                                     text = { Text(format.description(context)) },
                                     onClick = {

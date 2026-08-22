@@ -23,6 +23,9 @@ import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.effectiveAperture
+import com.tommihirvonen.exifnotes.core.entities.effectiveFocalLength
+import com.tommihirvonen.exifnotes.core.entities.effectiveLensModel
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
 import com.tommihirvonen.exifnotes.util.exifToolLocation
@@ -56,6 +59,7 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
         private const val imageDescriptionTag = "-ImageDescription="
         private const val exposureCompTag = "-ExposureCompensation="
         private const val focalLengthTag = "-FocalLength="
+        private const val focalLengthIn35mmFormatTag = "-FocalLengthIn35mmFormat="
         private const val isoTag = "-ISO="
         private const val serialNumberTag = "-SerialNumber="
         private const val lensSerialNumberTag = "-LensSerialNumber="
@@ -100,13 +104,14 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             }
             val lens = frame.lens
             if (lens != null) {
+                val lensModel = frame.effectiveLensModel ?: lens.model
                 //LensMakeTag
                 stringBuilder.append(lensMakeTag).append(quote).append(lens.make).append(quote).append(space)
                 //LensModelTag
-                stringBuilder.append(lensModelTag).append(quote).append(lens.model).append(quote).append(space)
+                stringBuilder.append(lensModelTag).append(quote).append(lensModel).append(quote).append(space)
                 //LensTag
                 stringBuilder.append(lensTag).append(quote).append(lens.make).append(space)
-                    .append(lens.model).append(quote).append(space)
+                    .append(lensModel).append(quote).append(space)
                 //LensSerialNumber
                 val serialNumber = lens.serialNumber
                 if (serialNumber?.isNotEmpty() == true) stringBuilder.append(lensSerialNumberTag).append(quote).append(serialNumber)
@@ -129,7 +134,7 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
                     .replace("\"", "")).append(quote).append(space)
             }
             //ApertureValue & FNumber
-            val aperture = frame.aperture
+            val aperture = frame.effectiveAperture
             if (aperture != null) {
                 stringBuilder.append(apertureTag).append(quote).append(aperture).append(quote).append(space)
                 stringBuilder.append(fNumberTag).append(quote).append(aperture).append(quote).append(space)
@@ -158,9 +163,15 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             if (exposureComp != null) stringBuilder.append(exposureCompTag)
                 .append(quote).append(exposureComp).append(quote).append(space)
             //FocalLength
-            val focalLength = frame.focalLength
-            if (focalLength > 0) stringBuilder.append(focalLengthTag).append(quote)
-                .append(focalLength).append(quote).append(space)
+            val focalLength = frame.effectiveFocalLength
+            if (focalLength > 0) {
+                stringBuilder.append(focalLengthTag).append(quote)
+                    .append(focalLength).append(quote).append(space)
+                roll.format.focalLengthIn35mmFormat(focalLength)?.let { equivalent ->
+                    stringBuilder.append(focalLengthIn35mmFormatTag).append(quote)
+                        .append(equivalent).append(quote).append(space)
+                }
+            }
             //ISO
             val iso = roll.iso
             if (iso > 0) stringBuilder.append(isoTag).append(quote).append(iso)

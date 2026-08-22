@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.data.repositories
 
 import android.content.ContentValues
 import android.database.Cursor
+import com.tommihirvonen.exifnotes.core.entities.AttachmentType
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.data.Database
@@ -105,6 +106,8 @@ class FilterRepository @Inject constructor(private val database: Database) {
             id = id,
             make = cursor.getStringOrNull(KEY_FILTER_MAKE),
             model = cursor.getStringOrNull(KEY_FILTER_MODEL),
+            type = AttachmentType.from(cursor.getInt(KEY_FILTER_TYPE)),
+            factor = cursor.getString(KEY_FILTER_FACTOR).toDouble(),
             lensIds = lensIds(id)
         )
     }
@@ -112,5 +115,7 @@ class FilterRepository @Inject constructor(private val database: Database) {
     private fun buildFilterContentValues(filter: Filter) = ContentValues().apply {
         put(KEY_FILTER_MAKE, filter.make)
         put(KEY_FILTER_MODEL, filter.model)
+        put(KEY_FILTER_TYPE, filter.type.ordinal)
+        put(KEY_FILTER_FACTOR, filter.factor)
     }
 }

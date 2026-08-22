@@ -112,9 +112,12 @@ class FramesViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
-    fun submitFrame(value: Frame) {
+    fun submitFrame(value: Frame, insert: Boolean = false) {
         val frame = if (frameRepository.updateFrame(value) == 0) {
-            val result = frameRepository.addFrame(value)
+            val result = if (insert) frameRepository.insertFrame(value) else frameRepository.addFrame(value)
+            if (insert) framesList = framesList.map {
+                if (it.count >= value.count) it.copy(count = it.count + 1) else it
+            }
             viewModelScope.launch { eventBus.sendFrameCountRefreshEvent(rollId) }
             result
         } else {

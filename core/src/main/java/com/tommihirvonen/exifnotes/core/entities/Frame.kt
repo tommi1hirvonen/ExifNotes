@@ -30,6 +30,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.time.LocalDateTime
+import kotlin.math.round
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalSerializationApi::class)
 @Parcelize
@@ -65,6 +67,35 @@ data class Frame(
     @Transient
     val pictureFileExists: Boolean = false
 ) : Parcelable
+
+val Frame.accessories: List<Filter> get() = filters.filter(Filter::isAccessory)
+
+val Frame.opticalFilters: List<Filter> get() = filters.filterNot(Filter::isAccessory)
+
+private val Frame.converterFactor: Double get() = accessories.fold(1.0) { value, accessory ->
+    when (accessory.type) {
+        AttachmentType.Teleconverter, AttachmentType.FocalReducer -> value * accessory.factor
+        else -> value
+    }
+}
+
+val Frame.effectiveFocalLength: Int get() {
+    if (focalLength <= 0) return focalLength
+    return (focalLength * converterFactor).roundToInt()
+}
+
+val Frame.effectiveAperture: Double? get() {
+    val apertureValue = aperture?.toDoubleOrNull() ?: return null
+    val extension = accessories.sumOf { if (it.type == AttachmentType.ExtensionTube) it.factor else 0.0 }
+    if (extension > 0 && focalLength <= 0) return null
+    val extensionFactor = if (extension > 0) 1 + extension / focalLength else 1.0
+    return round(apertureValue * converterFactor * extensionFactor * 10.0) / 10.0
+}
+
+val Frame.effectiveLensModel: String? get() {
+    val lensModel = lens?.model ?: return null
+    return listOf(lensModel).plus(accessories.map(Filter::name)).joinToString(" + ")
+}
 
 fun List<Frame>.sorted(context: Context, sortMode: FrameSortMode): List<Frame> =
     sortedWith(sortMode.getComparator(context))

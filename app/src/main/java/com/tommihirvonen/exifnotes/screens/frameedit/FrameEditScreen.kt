@@ -117,6 +117,8 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.accessories
+import com.tommihirvonen.exifnotes.core.entities.opticalFilters
 import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
@@ -140,6 +142,7 @@ fun FrameEditScreen(
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onNavigateToFilterEdit: () -> Unit,
+    onNavigateToAccessoryEdit: () -> Unit,
     onNavigateToLensEdit: () -> Unit,
     submitHandler: (Frame) -> Unit
 ) {
@@ -151,6 +154,7 @@ fun FrameEditScreen(
         onNavigateUp = onNavigateUp,
         onNavigateToLocationPick = onNavigateToLocationPick,
         onAddFilter = onNavigateToFilterEdit,
+        onAddAccessory = onNavigateToAccessoryEdit,
         onAddLens = onNavigateToLensEdit,
         onSubmit = { frame ->
             submitHandler(frame)
@@ -167,6 +171,7 @@ private fun FrameEditScreen(
     frameCount: Int,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
+    onAddAccessory: () -> Unit,
     onAddLens: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onSubmit: (Frame) -> Unit,
@@ -218,6 +223,7 @@ private fun FrameEditScreen(
         onPictureRotateLeft = frameViewModel::rotatePictureLeft,
         onNavigateUp = onNavigateUp,
         onAddFilter = onAddFilter,
+        onAddAccessory = onAddAccessory,
         onAddLens = onAddLens,
         onSubmit = {
             if (frameViewModel.validate()) {
@@ -267,6 +273,7 @@ private fun FrameEditContentPreview() {
         onPictureRotateLeft = {},
         onNavigateUp = {},
         onAddFilter = {},
+        onAddAccessory = {},
         onAddLens = {},
         onSubmit = {},
         snackbarMessage = SnackbarMessage()
@@ -310,6 +317,7 @@ private fun FrameEditContent(
     onPictureRotateLeft: () -> Unit,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
+    onAddAccessory: () -> Unit,
     onAddLens: () -> Unit,
     onSubmit: () -> Unit,
     snackbarMessage: SnackbarMessage
@@ -326,6 +334,7 @@ private fun FrameEditContent(
     var noOfExposuresExpanded by remember { mutableStateOf(false) }
     var lightSourceExpanded by remember { mutableStateOf(false) }
     var showFiltersDialog by remember { mutableStateOf(false) }
+    var showAccessoriesDialog by remember { mutableStateOf(false) }
     var showCustomApertureDialog by remember { mutableStateOf(false) }
     var showCustomShutterDialog by remember { mutableStateOf(false) }
     var showFocalLengthDialog by remember { mutableStateOf(false) }
@@ -619,6 +628,37 @@ private fun FrameEditContent(
                         }
                     }
                 }
+                Column(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.FocalLengthSingleLine),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    DropdownButton(
+                        text = frame.focalLength.toString(),
+                        onClick = { showFocalLengthDialog = true }
+                    )
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Accessories),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val accessoriesText = frame.accessories.joinToString(separator = "\n") { "-${it.name}" }
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = accessoriesText,
+                        maxLines = Int.MAX_VALUE,
+                        onClick = { showAccessoriesDialog = true }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = onAddAccessory) {
+                            Icon(Icons.Outlined.Add, "")
+                        }
+                    }
+                }
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
                         text = stringResource(R.string.FilterOrFilters),
@@ -628,7 +668,7 @@ private fun FrameEditContent(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val filtersText = frame.filters.joinToString(separator = "\n") { "-${it.name}" }
+                    val filtersText = frame.opticalFilters.joinToString(separator = "\n") { "-${it.name}" }
                     DropdownButton(
                         modifier = Modifier.weight(1f),
                         text = filtersText,
@@ -643,16 +683,6 @@ private fun FrameEditContent(
                             Icon(Icons.Outlined.Add, "")
                         }
                     }
-                }
-                Column(modifier = Modifier.padding(top = 16.dp)) {
-                    Text(
-                        text = stringResource(R.string.FocalLengthSingleLine),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    DropdownButton(
-                        text = frame.focalLength.toString(),
-                        onClick = { showFocalLengthDialog = true }
-                    )
                 }
                 Column(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
@@ -1010,13 +1040,27 @@ private fun FrameEditContent(
     }
     if (showFiltersDialog) {
         MultiChoiceDialog(
-            initialItems = filters.associateWith { filter -> frame.filters.any { it.id == filter.id } },
+            initialItems = filters.filterNot(Filter::isAccessory)
+                .associateWith { filter -> frame.opticalFilters.any { it.id == filter.id } },
             itemText = { it.name },
             sortItemsBy = { it.name },
             onDismiss = { showFiltersDialog = false },
             onConfirm = { selectedFilters ->
                 showFiltersDialog = false
-                onFiltersChange(selectedFilters)
+                onFiltersChange(frame.accessories + selectedFilters)
+            }
+        )
+    }
+    if (showAccessoriesDialog) {
+        MultiChoiceDialog(
+            initialItems = filters.filter(Filter::isAccessory)
+                .associateWith { accessory -> frame.accessories.any { it.id == accessory.id } },
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showAccessoriesDialog = false },
+            onConfirm = { selectedAccessories ->
+                showAccessoriesDialog = false
+                onFiltersChange(frame.opticalFilters + selectedAccessories)
             }
         )
     }
