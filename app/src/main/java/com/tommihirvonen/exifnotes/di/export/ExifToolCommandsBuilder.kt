@@ -58,7 +58,9 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
         private const val fNumberTag = "-FNumber="
         private const val commentTag = "-UserComment="
         private const val imageDescriptionTag = "-ImageDescription="
+        // ExifTool's name for the EXIF ExposureBiasValue tag (0x9204).
         private const val exposureCompTag = "-ExposureCompensation="
+        private val exposureCompFraction = Regex("([+-]?)(?:(\\d+)\\s+)?(\\d+)/(\\d+)")
         private const val focalLengthTag = "-FocalLength="
         private const val focalLengthIn35mmFormatTag = "-FocalLengthIn35mmFormat="
         private const val isoTag = "-ISO="
@@ -130,18 +132,23 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
                 stringBuilder.append("-OffsetTimeOriginal=").append(quote).append(offset).append(quote).append(space)
             }
 
-            //ShutterSpeedValue & ExposureTime
+            // ExifTool converts shutter times and f-numbers to APEX when writing.
             val shutter = frame.shutter
-            if (shutter != null) {
+            if (shutter != null && shutter != "B") {
                 stringBuilder.append(shutterTag).append(quote).append(shutter
                     .replace("\"", "")).append(quote).append(space)
                 stringBuilder.append(exposureTimeTag).append(quote).append(shutter
                     .replace("\"", "")).append(quote).append(space)
             }
             //ApertureValue & FNumber
-            val aperture = frame.effectiveAperture
+            val aperture = frame.effectiveAperture?.takeIf { it.isFinite() && it > 0 }
             if (aperture != null) {
-                stringBuilder.append(apertureTag).append(quote).append(aperture).append(quote).append(space)
+                if (aperture >= 1) {
+                    stringBuilder.append(apertureTag).append(quote).append(aperture).append(quote).append(space)
+                } else {
+                    // Clear stale values: EXIF's unsigned APEX cannot represent f-numbers below 1.
+                    stringBuilder.append(apertureTag).append(space)
+                }
                 stringBuilder.append(fNumberTag).append(quote).append(aperture).append(quote).append(space)
             }
             //UserComment & ImageDescription
@@ -163,8 +170,8 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             if (location?.exifToolLocation != null) {
                 stringBuilder.append(location.exifToolLocation)
             }
-            //ExposureCompensation
-            val exposureComp = frame.exposureComp
+            // Mixed fractions from the UI (e.g. -1 1/3) must be supplied as decimal EV.
+            val exposureComp = frame.exposureComp?.toExposureCompensationOrNull()
             if (exposureComp != null) stringBuilder.append(exposureCompTag)
                 .append(quote).append(exposureComp).append(quote).append(space)
             //FocalLength
@@ -214,5 +221,17 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             stringBuilder.append(lineSep).append(lineSep)
         }
         return stringBuilder.toString()
+    }
+
+    private fun String.toExposureCompensationOrNull(): Double? {
+        val text = trim()
+        text.toDoubleOrNull()?.let { return it.takeIf(Double::isFinite) }
+        val match = exposureCompFraction.matchEntire(text) ?: return null
+        val (sign, whole, numerator, denominator) = match.destructured
+        val divisor = denominator.toDouble()
+        if (divisor <= 0 || !divisor.isFinite()) return null
+        val magnitude = whole.ifEmpty { "0" }.toDouble() + numerator.toDouble() / divisor
+        val value = if (sign == "-") -magnitude else magnitude
+        return value.takeIf(Double::isFinite)
     }
 }
