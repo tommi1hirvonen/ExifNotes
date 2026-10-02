@@ -18,14 +18,32 @@
 
 package com.tommihirvonen.exifnotes.di.export
 
+import android.content.Context
+import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object JsonBuilder {
+@Singleton
+class JsonBuilder @Inject constructor(@ApplicationContext context: Context) {
+    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    private val format = Json { prettyPrint = true }
+
     fun create(roll: Roll, frames: List<Frame>): String {
-        val rollCopy = roll.copy(frames = frames)
-        val format = Json { prettyPrint = true }
-        return format.encodeToString(rollCopy)
+        val rollData = format.encodeToJsonElement(roll.copy(frames = frames)).jsonObject
+        val export = buildJsonObject {
+            rollData.forEach { (key, value) -> put(key, value) }
+            put("artist", prefs.getString(SettingsViewModel.KEY_ARTIST_NAME, "") ?: "")
+            put("copyright", prefs.getString(SettingsViewModel.KEY_COPYRIGHT_INFO, "") ?: "")
+        }
+        return format.encodeToString(export)
     }
 }

@@ -29,7 +29,8 @@ import javax.inject.Singleton
 class RollExportBuilder @Inject constructor(
     private val frameRepository: FrameRepository,
     private val csvBuilder: CsvBuilder,
-    private val exifToolCommandsBuilder: ExifToolCommandsBuilder) {
+    private val exifToolCommandsBuilder: ExifToolCommandsBuilder,
+    private val jsonBuilder: JsonBuilder) {
 
     fun create(roll: Roll, options: List<RollExportOptionData>): List<RollExport> {
         val frames = frameRepository.getFrames(roll)
@@ -55,7 +56,7 @@ class RollExportBuilder @Inject constructor(
                 )
             }
             is RollExportOptionData.JSON -> {
-                "${rollName}.json" to JsonBuilder.create(roll, frames)
+                "${rollName}.json" to jsonBuilder.create(roll, frames)
             }
         }
     }
