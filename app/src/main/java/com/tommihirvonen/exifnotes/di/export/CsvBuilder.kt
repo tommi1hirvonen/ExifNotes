@@ -22,6 +22,11 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.accessories
+import com.tommihirvonen.exifnotes.core.entities.effectiveAperture
+import com.tommihirvonen.exifnotes.core.entities.effectiveFocalLength
+import com.tommihirvonen.exifnotes.core.entities.opticalFilters
+import com.tommihirvonen.exifnotes.core.entities.utcOffset
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.util.readableCoordinates
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -68,10 +73,13 @@ class CsvBuilder @Inject constructor(@param:ApplicationContext private val conte
             .append("Notes").append(separator)
             .append("No of exposures").append(separator)
             .append("Filter").append(separator)
+            .append("Accessories").append(separator)
             .append("Location").append(separator)
             .append("Address").append(separator)
             .append("Flash").append(separator)
-            .append("Light source")
+            .append("Light source").append(separator)
+            .append("Time zone").append(separator)
+            .append("UTC offset")
             .append("\n")
         for (frame in frames) {
             stringBuilder.append(frame.count.toString()).append(separator)
@@ -80,10 +88,10 @@ class CsvBuilder @Inject constructor(@param:ApplicationContext private val conte
                 .escape(frame.lens?.serialNumber ?: "").append(separator)
                 .append(frame.shutter ?: "").append(separator)
 
-            frame.aperture?.let { stringBuilder.append("f").append(it) }
+            frame.effectiveAperture?.let { stringBuilder.append("f").append(it.toString()) }
             stringBuilder.append(separator)
 
-            if (frame.focalLength > 0) stringBuilder.append(frame.focalLength.toString())
+            if (frame.effectiveFocalLength > 0) stringBuilder.append(frame.effectiveFocalLength.toString())
             stringBuilder.append(separator)
 
             frame.exposureComp?.let { if (it.length > 1) stringBuilder.append(it) }
@@ -91,7 +99,8 @@ class CsvBuilder @Inject constructor(@param:ApplicationContext private val conte
 
             stringBuilder.escape(frame.note ?: "").append(separator)
                 .append(frame.noOfExposures.toString()).append(separator)
-                .escape(frame.filters.joinToString(separator = "|") { it.name }).append(separator)
+                .escape(frame.opticalFilters.joinToString(separator = "|") { it.name }).append(separator)
+                .escape(frame.accessories.joinToString(separator = "|") { it.name }).append(separator)
                 .escape(frame.location?.readableCoordinates ?: "").append(separator)
                 .escape(frame.formattedAddress ?: "").append(separator)
                 .append(frame.flashUsed.toString()).append(separator)
@@ -101,7 +110,8 @@ class CsvBuilder @Inject constructor(@param:ApplicationContext private val conte
             } catch (_: ArrayIndexOutOfBoundsException) {
                 stringBuilder.append("Error")
             }
-            stringBuilder.append("\n")
+            stringBuilder.append(separator).escape(frame.timeZoneId ?: "").append(separator)
+                .append(frame.utcOffset ?: "").append("\n")
         }
         return stringBuilder.toString()
     }

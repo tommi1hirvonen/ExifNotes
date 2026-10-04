@@ -123,12 +123,14 @@ fun App(onFinish: () -> Unit) {
                     onEditRoll = {
                         navController.navigate(route = FramesRollEdit(rollId = frames.rollId))
                     },
-                    onEditFrame = { frame, previousFrame, frameCount ->
+                    onEditFrame = { frame, previousFrame, frameCount, estimateDate ->
                         val route = FrameEdit(
                             rollId = frames.rollId,
                             frameId = frame?.id ?: -1,
                             previousFrameId = previousFrame?.id ?: -1,
-                            frameCount = frameCount
+                            frameCount = frameCount,
+                            insert = frame == null,
+                            estimateDate = estimateDate
                         )
                         navController.navigate(route = route)
                     },
@@ -150,15 +152,19 @@ fun App(onFinish: () -> Unit) {
                     frameId = frameEdit.frameId,
                     previousFrameId = frameEdit.previousFrameId,
                     frameCount = frameEdit.frameCount,
+                    estimateDate = frameEdit.estimateDate,
                     onNavigateUp = { navController.navigateUp() },
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
                     onNavigateToFilterEdit = {
                         navController.navigate(route = FrameFilterEdit(filterId = -1))
                     },
+                    onNavigateToAccessoryEdit = {
+                        navController.navigate(route = FrameFilterEdit(filterId = -1, isAccessory = true))
+                    },
                     onNavigateToLensEdit = {
                         navController.navigate(route = FrameLensEdit(lensId = -1))
                     },
-                    submitHandler = framesViewModel::submitFrame
+                    submitHandler = { framesViewModel.submitFrame(it, frameEdit.insert) }
                 )
             }
             composable<LocationPick> { backStackEntry ->
@@ -189,14 +195,7 @@ fun App(onFinish: () -> Unit) {
                     frame = null,
                     onNavigateUp = { navController.navigateUp() },
                     onLocationConfirm = { latLng, address ->
-                        framesViewModel.selectedFrames.value.forEach { frame ->
-                            framesViewModel.submitFrame(
-                                frame.copy(
-                                    location = latLng,
-                                    formattedAddress = address
-                                )
-                            )
-                        }
+                        framesViewModel.setSelectedFramesLocation(latLng, address)
                         navController.navigateUp()
                     },
                     themeViewModel = themeViewModel
@@ -263,6 +262,9 @@ fun App(onFinish: () -> Unit) {
                     onNavigateToLocationPick = { navController.navigate(route = LocationPick) },
                     onNavigateToFilterEdit = {
                         navController.navigate(route = FrameFilterEdit(filterId = -1))
+                    },
+                    onNavigateToAccessoryEdit = {
+                        navController.navigate(route = FrameFilterEdit(filterId = -1, isAccessory = true))
                     },
                     onNavigateToLensEdit = {
                         navController.navigate(route = FrameLensEdit(lensId = -1))
@@ -392,6 +394,7 @@ fun App(onFinish: () -> Unit) {
                 val frameViewModel = hiltViewModel<FrameViewModel>(frameEditEntry)
                 FilterEditScreen(
                     filterId = filter.filterId,
+                    isAccessory = filter.isAccessory,
                     onDismiss = { navController.navigateUp() },
                     submitHandler = frameViewModel::submitFilter
                 )
@@ -479,14 +482,15 @@ private data class FramesRollEdit(val rollId: Long)
 
 @Serializable
 private data class FrameEdit(
-    val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int
+    val rollId: Long, val frameId: Long, val previousFrameId: Long, val frameCount: Int,
+    val insert: Boolean = false, val estimateDate: Boolean = false
 )
 
 @Serializable
 private data class FrameLensEdit(val lensId: Long)
 
 @Serializable
-private data class FrameFilterEdit(val filterId: Long)
+private data class FrameFilterEdit(val filterId: Long, val isAccessory: Boolean = false)
 
 @Serializable
 private object LocationPick

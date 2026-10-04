@@ -20,6 +20,8 @@ package com.tommihirvonen.exifnotes.core.entities
 
 import android.content.Context
 import com.tommihirvonen.exifnotes.core.R
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 enum class FrameSortMode(val value: Int) {
     FrameCount(0),
@@ -30,7 +32,14 @@ enum class FrameSortMode(val value: Int) {
 
     fun getComparator(context: Context): Comparator<Frame> = when (this) {
         FrameCount -> compareByDescending { it.count }
-        Date -> compareByDescending { it.date }
+        Date -> {
+            val defaultZone = ZoneId.systemDefault()
+            compareByDescending {
+                val offset = it.utcOffsetSeconds?.let(ZoneOffset::ofTotalSeconds)
+                if (offset != null) it.date.toInstant(offset)
+                else it.date.atZone(defaultZone).toInstant()
+            }
+        }
         Lens -> compareBy { it.lens?.name }
         FStop -> {
             val allApertureValues = context.resources.getStringArray(R.array.AllApertureValues)

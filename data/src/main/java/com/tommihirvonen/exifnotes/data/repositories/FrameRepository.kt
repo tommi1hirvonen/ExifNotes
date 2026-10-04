@@ -20,6 +20,7 @@ package com.tommihirvonen.exifnotes.data.repositories
 
 import android.content.ContentValues
 import android.database.Cursor
+import androidx.core.database.sqlite.transaction
 import com.tommihirvonen.exifnotes.core.decimalString
 import com.tommihirvonen.exifnotes.core.entities.Filter
 import com.tommihirvonen.exifnotes.core.entities.Frame
@@ -49,6 +50,15 @@ class FrameRepository @Inject constructor(
             frame.filters.forEach { filter -> addFrameFilterLink(frame, filter) }
         }
         return frame
+    }
+
+    fun insertFrame(value: Frame): Frame = database.writableDatabase.transaction {
+        execSQL(
+            "update $TABLE_FRAMES set $KEY_COUNT = $KEY_COUNT + 1 " +
+                "where $KEY_ROLL_ID = ? and $KEY_COUNT >= ?",
+            arrayOf<Any>(value.rollId, value.count)
+        )
+        addFrame(value).also { check(it.id != -1L) { "Failed to insert frame" } }
     }
 
     private fun addFrameFilterLink(frame: Frame, filter: Filter) {
@@ -98,6 +108,8 @@ class FrameRepository @Inject constructor(
             flashPower = row.getStringOrNull(KEY_FLASH_POWER),
             location = row.getStringOrNull(KEY_LOCATION)?.let(::latLngOrNull),
             date = row.getStringOrNull(KEY_DATE)?.let(::localDateTimeOrNull) ?: LocalDateTime.now(),
+            timeZoneId = row.getStringOrNull(KEY_TIME_ZONE_ID),
+            utcOffsetSeconds = row.getLongOrNull(KEY_UTC_OFFSET_SECONDS)?.toInt(),
             lens = row.getLongOrNull(KEY_LENS_ID)?.let(lenses::getLens),
             filters = filters.getLinkedFilters(id)
         )
@@ -136,6 +148,8 @@ class FrameRepository @Inject constructor(
         put(KEY_ROLL_ID, frame.rollId)
         put(KEY_COUNT, frame.count)
         put(KEY_DATE, frame.date.sortableDateTime)
+        put(KEY_TIME_ZONE_ID, frame.timeZoneId)
+        put(KEY_UTC_OFFSET_SECONDS, frame.utcOffsetSeconds)
 
         val lens = frame.lens
         if (lens != null) put(KEY_LENS_ID, lens.id)

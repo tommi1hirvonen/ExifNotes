@@ -117,6 +117,9 @@ import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.Lens
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.accessories
+import com.tommihirvonen.exifnotes.core.entities.opticalFilters
+import com.tommihirvonen.exifnotes.core.entities.utcOffset
 import com.tommihirvonen.exifnotes.core.toShutterSpeedOrNull
 import com.tommihirvonen.exifnotes.screens.DateTimeButtonCombo
 import com.tommihirvonen.exifnotes.screens.DropdownButton
@@ -137,9 +140,11 @@ fun FrameEditScreen(
     rollId: Long,
     previousFrameId: Long = -1,
     frameCount: Int = -1,
+    estimateDate: Boolean = false,
     onNavigateUp: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onNavigateToFilterEdit: () -> Unit,
+    onNavigateToAccessoryEdit: () -> Unit,
     onNavigateToLensEdit: () -> Unit,
     submitHandler: (Frame) -> Unit
 ) {
@@ -148,9 +153,11 @@ fun FrameEditScreen(
         frameId = frameId,
         previousFrameId = previousFrameId,
         frameCount = frameCount,
+        estimateDate = estimateDate,
         onNavigateUp = onNavigateUp,
         onNavigateToLocationPick = onNavigateToLocationPick,
         onAddFilter = onNavigateToFilterEdit,
+        onAddAccessory = onNavigateToAccessoryEdit,
         onAddLens = onNavigateToLensEdit,
         onSubmit = { frame ->
             submitHandler(frame)
@@ -165,13 +172,15 @@ private fun FrameEditScreen(
     frameId: Long,
     previousFrameId: Long,
     frameCount: Int,
+    estimateDate: Boolean,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
+    onAddAccessory: () -> Unit,
     onAddLens: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
     onSubmit: (Frame) -> Unit,
     frameViewModel: FrameViewModel = hiltViewModel { factory: FrameViewModel.Factory ->
-        factory.create(rollId, frameId, previousFrameId, frameCount)
+        factory.create(rollId, frameId, previousFrameId, frameCount, estimateDate)
     }
 ) {
     val frame = frameViewModel.frame.collectAsState()
@@ -180,6 +189,7 @@ private fun FrameEditScreen(
     val apertureValues = frameViewModel.apertureValues.collectAsState()
     val filters = frameViewModel.filters.collectAsState()
     val isResolvingAddress = frameViewModel.isResolvingFormattedAddress.collectAsState()
+    val isResolvingTimeZone = frameViewModel.isResolvingTimeZone.collectAsState()
     val pictureBitmap = frameViewModel.pictureBitmap.collectAsState()
     val pictureRotation = frameViewModel.pictureRotation.collectAsState()
     val snackbarMessage = frameViewModel.snackbarMessage.collectAsState()
@@ -193,6 +203,8 @@ private fun FrameEditScreen(
         filters = filters.value,
         exposureCompValues = frameViewModel.exposureCompValues,
         isResolvingAddress = isResolvingAddress.value,
+        isResolvingTimeZone = isResolvingTimeZone.value,
+        onResolveTimeZone = frameViewModel::resolveTimeZone,
         pictureBitmap = pictureBitmap.value,
         pictureRotation = pictureRotation.value,
         pictureTempFileProvider = frameViewModel::createNewPictureFile,
@@ -218,10 +230,11 @@ private fun FrameEditScreen(
         onPictureRotateLeft = frameViewModel::rotatePictureLeft,
         onNavigateUp = onNavigateUp,
         onAddFilter = onAddFilter,
+        onAddAccessory = onAddAccessory,
         onAddLens = onAddLens,
         onSubmit = {
             if (frameViewModel.validate()) {
-                onSubmit(frameViewModel.frame.value)
+                onSubmit(frameViewModel.frameForSave())
             }
         },
         snackbarMessage = snackbarMessage.value
@@ -242,6 +255,8 @@ private fun FrameEditContentPreview() {
         filters = emptyList(),
         exposureCompValues = emptyList(),
         isResolvingAddress = true,
+        isResolvingTimeZone = false,
+        onResolveTimeZone = {},
         pictureBitmap = null,
         pictureRotation = 0f,
         pictureTempFileProvider = { Uri.fromFile(File("")) },
@@ -267,6 +282,7 @@ private fun FrameEditContentPreview() {
         onPictureRotateLeft = {},
         onNavigateUp = {},
         onAddFilter = {},
+        onAddAccessory = {},
         onAddLens = {},
         onSubmit = {},
         snackbarMessage = SnackbarMessage()
@@ -285,6 +301,8 @@ private fun FrameEditContent(
     filters: List<Filter>,
     exposureCompValues: List<String>,
     isResolvingAddress: Boolean,
+    isResolvingTimeZone: Boolean,
+    onResolveTimeZone: () -> Unit,
     pictureBitmap: Bitmap?,
     pictureRotation: Float,
     pictureTempFileProvider: () -> Uri,
@@ -310,6 +328,7 @@ private fun FrameEditContent(
     onPictureRotateLeft: () -> Unit,
     onNavigateUp: () -> Unit,
     onAddFilter: () -> Unit,
+    onAddAccessory: () -> Unit,
     onAddLens: () -> Unit,
     onSubmit: () -> Unit,
     snackbarMessage: SnackbarMessage
@@ -326,6 +345,7 @@ private fun FrameEditContent(
     var noOfExposuresExpanded by remember { mutableStateOf(false) }
     var lightSourceExpanded by remember { mutableStateOf(false) }
     var showFiltersDialog by remember { mutableStateOf(false) }
+    var showAccessoriesDialog by remember { mutableStateOf(false) }
     var showCustomApertureDialog by remember { mutableStateOf(false) }
     var showCustomShutterDialog by remember { mutableStateOf(false) }
     var showFocalLengthDialog by remember { mutableStateOf(false) }
@@ -377,6 +397,7 @@ private fun FrameEditContent(
                     val padding = ButtonDefaults.ContentPadding.copy(start = 18.dp)
                     Button(
                         contentPadding = padding,
+                        enabled = !isResolvingTimeZone,
                         onClick = onSubmit
                     ) {
                         Icon(
@@ -452,6 +473,25 @@ private fun FrameEditContent(
                         dateTime = frame.date,
                         onDateTimeSet = onDateChange
                     )
+                }
+                Text(
+                    modifier = Modifier.padding(top = 8.dp),
+                    text = stringResource(R.string.TimeZone),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = when {
+                        isResolvingTimeZone -> stringResource(R.string.ResolvingTimeZone)
+                        frame.timeZoneId == null -> stringResource(R.string.TimeZoneUnknown)
+                        frame.utcOffset == null -> stringResource(R.string.TimeZoneOffsetUnknown, frame.timeZoneId.orEmpty())
+                        else -> "${frame.timeZoneId} (UTC${frame.utcOffset})"
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (frame.location != null) {
+                    TextButton(onClick = onResolveTimeZone, enabled = !isResolvingTimeZone) {
+                        Text(stringResource(R.string.UseLocationTimeZone))
+                    }
                 }
                 Row(modifier = Modifier.padding(top = 16.dp)) {
                     Text(
@@ -628,7 +668,7 @@ private fun FrameEditContent(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val filtersText = frame.filters.joinToString(separator = "\n") { "-${it.name}" }
+                    val filtersText = frame.opticalFilters.joinToString(separator = "\n") { "-${it.name}" }
                     DropdownButton(
                         modifier = Modifier.weight(1f),
                         text = filtersText,
@@ -640,6 +680,27 @@ private fun FrameEditContent(
                         modifier = Modifier.padding(vertical = 4.dp)
                     ) {
                         FilledTonalIconButton(onClick = onAddFilter) {
+                            Icon(Icons.Outlined.Add, "")
+                        }
+                    }
+                }
+                Row(modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = stringResource(R.string.Accessories),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    val accessoriesText = frame.accessories.joinToString(separator = "\n") { "-${it.name}" }
+                    DropdownButton(
+                        modifier = Modifier.weight(1f),
+                        text = accessoriesText,
+                        maxLines = Int.MAX_VALUE,
+                        onClick = { showAccessoriesDialog = true }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.padding(vertical = 4.dp)) {
+                        FilledTonalIconButton(onClick = onAddAccessory) {
                             Icon(Icons.Outlined.Add, "")
                         }
                     }
@@ -1010,13 +1071,27 @@ private fun FrameEditContent(
     }
     if (showFiltersDialog) {
         MultiChoiceDialog(
-            initialItems = filters.associateWith { filter -> frame.filters.any { it.id == filter.id } },
+            initialItems = filters.filterNot(Filter::isAccessory)
+                .associateWith { filter -> frame.opticalFilters.any { it.id == filter.id } },
             itemText = { it.name },
             sortItemsBy = { it.name },
             onDismiss = { showFiltersDialog = false },
             onConfirm = { selectedFilters ->
                 showFiltersDialog = false
-                onFiltersChange(selectedFilters)
+                onFiltersChange(frame.accessories + selectedFilters)
+            }
+        )
+    }
+    if (showAccessoriesDialog) {
+        MultiChoiceDialog(
+            initialItems = filters.filter(Filter::isAccessory)
+                .associateWith { accessory -> frame.accessories.any { it.id == accessory.id } },
+            itemText = { it.name },
+            sortItemsBy = { it.name },
+            onDismiss = { showAccessoriesDialog = false },
+            onConfirm = { selectedAccessories ->
+                showAccessoriesDialog = false
+                onFiltersChange(frame.opticalFilters + selectedAccessories)
             }
         )
     }

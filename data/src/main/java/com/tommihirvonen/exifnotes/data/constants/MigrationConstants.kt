@@ -18,6 +18,11 @@
 
 package com.tommihirvonen.exifnotes.data.constants
 
+internal const val ALTER_TABLE_FRAMES_ADD_TIME_ZONE =
+    "alter table $TABLE_FRAMES add column $KEY_TIME_ZONE_ID text;"
+internal const val ALTER_TABLE_FRAMES_ADD_UTC_OFFSET =
+    "alter table $TABLE_FRAMES add column $KEY_UTC_OFFSET_SECONDS integer;"
+
 //Legacy table names for onUpgrade() statements.
 //These table names were used in pre 19 versions of the database.
 private const val LEGACY_TABLE_LINK_CAMERA_LENS = "mountables"
@@ -288,3 +293,8 @@ internal const val LENS_FILTER_LINK_TABLE_REVISION_4 = "drop table temp_mountabl
 
 internal const val ALTER_TABLE_ROLLS_ADD_FAVORITE =
     "alter table $TABLE_ROLLS add column $KEY_ROLL_FAVORITE integer not null default 0;"
+
+internal const val ALTER_TABLE_FILTERS_ADD_TYPE =
+    "alter table $TABLE_FILTERS add column $KEY_FILTER_TYPE integer not null default 0;"
+internal const val ALTER_TABLE_FILTERS_ADD_FACTOR =
+    "alter table $TABLE_FILTERS add column $KEY_FILTER_FACTOR text not null default '1.0';"

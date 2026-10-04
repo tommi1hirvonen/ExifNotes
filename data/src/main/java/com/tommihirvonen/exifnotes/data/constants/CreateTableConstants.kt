@@ -64,7 +64,9 @@ internal val CREATE_FILTER_TABLE = """
     |create table $TABLE_FILTERS(
     |   $KEY_FILTER_ID integer primary key autoincrement,
     |   $KEY_FILTER_MAKE text not null,
-    |   $KEY_FILTER_MODEL text not null
+    |   $KEY_FILTER_MODEL text not null,
+    |   $KEY_FILTER_TYPE integer not null default 0,
+    |   $KEY_FILTER_FACTOR text not null default '1.0'
     |);
     """.trimMargin()
 
@@ -92,6 +94,8 @@ internal val CREATE_FRAME_TABLE = """
     |   $KEY_ROLL_ID integer not null references $TABLE_ROLLS on delete cascade,
     |   $KEY_COUNT integer not null,
     |   $KEY_DATE text not null,
+    |   $KEY_TIME_ZONE_ID text,
+    |   $KEY_UTC_OFFSET_SECONDS integer,
     |   $KEY_LENS_ID integer references $TABLE_LENSES on delete set null,
     |   $KEY_SHUTTER text,
     |   $KEY_APERTURE text,

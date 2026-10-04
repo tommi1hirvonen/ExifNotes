@@ -23,6 +23,10 @@ import androidx.preference.PreferenceManager
 import com.tommihirvonen.exifnotes.core.entities.Frame
 import com.tommihirvonen.exifnotes.core.entities.LightSource
 import com.tommihirvonen.exifnotes.core.entities.Roll
+import com.tommihirvonen.exifnotes.core.entities.effectiveAperture
+import com.tommihirvonen.exifnotes.core.entities.effectiveFocalLength
+import com.tommihirvonen.exifnotes.core.entities.effectiveLensModel
+import com.tommihirvonen.exifnotes.core.entities.utcOffset
 import com.tommihirvonen.exifnotes.core.sortableDateTime
 import com.tommihirvonen.exifnotes.screens.settings.SettingsViewModel
 import com.tommihirvonen.exifnotes.util.exifToolLocation
@@ -54,8 +58,11 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
         private const val fNumberTag = "-FNumber="
         private const val commentTag = "-UserComment="
         private const val imageDescriptionTag = "-ImageDescription="
+        // ExifTool's name for the EXIF ExposureBiasValue tag (0x9204).
         private const val exposureCompTag = "-ExposureCompensation="
+        private val exposureCompFraction = Regex("([+-]?)(?:(\\d+)\\s+)?(\\d+)/(\\d+)")
         private const val focalLengthTag = "-FocalLength="
+        private const val focalLengthIn35mmFormatTag = "-FocalLengthIn35mmFormat="
         private const val isoTag = "-ISO="
         private const val serialNumberTag = "-SerialNumber="
         private const val lensSerialNumberTag = "-LensSerialNumber="
@@ -100,13 +107,14 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             }
             val lens = frame.lens
             if (lens != null) {
+                val lensModel = frame.effectiveLensModel ?: lens.model
                 //LensMakeTag
                 stringBuilder.append(lensMakeTag).append(quote).append(lens.make).append(quote).append(space)
                 //LensModelTag
-                stringBuilder.append(lensModelTag).append(quote).append(lens.model).append(quote).append(space)
+                stringBuilder.append(lensModelTag).append(quote).append(lensModel).append(quote).append(space)
                 //LensTag
                 stringBuilder.append(lensTag).append(quote).append(lens.make).append(space)
-                    .append(lens.model).append(quote).append(space)
+                    .append(lensModel).append(quote).append(space)
                 //LensSerialNumber
                 val serialNumber = lens.serialNumber
                 if (serialNumber?.isNotEmpty() == true) stringBuilder.append(lensSerialNumberTag).append(quote).append(serialNumber)
@@ -119,19 +127,28 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             //DateTimeOriginal
             stringBuilder.append(dateTimeOriginalTag).append(quote).append(date.sortableDateTime
                 .replace("-", ":")).append(quote).append(space)
+            frame.utcOffset?.let { offset ->
+                stringBuilder.append("-OffsetTime=").append(quote).append(offset).append(quote).append(space)
+                stringBuilder.append("-OffsetTimeOriginal=").append(quote).append(offset).append(quote).append(space)
+            }
 
-            //ShutterSpeedValue & ExposureTime
+            // ExifTool converts shutter times and f-numbers to APEX when writing.
             val shutter = frame.shutter
-            if (shutter != null) {
+            if (shutter != null && shutter != "B") {
                 stringBuilder.append(shutterTag).append(quote).append(shutter
                     .replace("\"", "")).append(quote).append(space)
                 stringBuilder.append(exposureTimeTag).append(quote).append(shutter
                     .replace("\"", "")).append(quote).append(space)
             }
             //ApertureValue & FNumber
-            val aperture = frame.aperture
+            val aperture = frame.effectiveAperture?.takeIf { it.isFinite() && it > 0 }
             if (aperture != null) {
-                stringBuilder.append(apertureTag).append(quote).append(aperture).append(quote).append(space)
+                if (aperture >= 1) {
+                    stringBuilder.append(apertureTag).append(quote).append(aperture).append(quote).append(space)
+                } else {
+                    // Clear stale values: EXIF's unsigned APEX cannot represent f-numbers below 1.
+                    stringBuilder.append(apertureTag).append(space)
+                }
                 stringBuilder.append(fNumberTag).append(quote).append(aperture).append(quote).append(space)
             }
             //UserComment & ImageDescription
@@ -153,14 +170,20 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             if (location?.exifToolLocation != null) {
                 stringBuilder.append(location.exifToolLocation)
             }
-            //ExposureCompensation
-            val exposureComp = frame.exposureComp
+            // Mixed fractions from the UI (e.g. -1 1/3) must be supplied as decimal EV.
+            val exposureComp = frame.exposureComp?.toExposureCompensationOrNull()
             if (exposureComp != null) stringBuilder.append(exposureCompTag)
                 .append(quote).append(exposureComp).append(quote).append(space)
             //FocalLength
-            val focalLength = frame.focalLength
-            if (focalLength > 0) stringBuilder.append(focalLengthTag).append(quote)
-                .append(focalLength).append(quote).append(space)
+            val focalLength = frame.effectiveFocalLength
+            if (focalLength > 0) {
+                stringBuilder.append(focalLengthTag).append(quote)
+                    .append(focalLength).append(quote).append(space)
+                roll.format.focalLengthIn35mmFormat(focalLength)?.let { equivalent ->
+                    stringBuilder.append(focalLengthIn35mmFormatTag).append(quote)
+                        .append(equivalent).append(quote).append(space)
+                }
+            }
             //ISO
             val iso = roll.iso
             if (iso > 0) stringBuilder.append(isoTag).append(quote).append(iso)
@@ -198,5 +221,17 @@ class ExifToolCommandsBuilder @Inject constructor(@ApplicationContext context: C
             stringBuilder.append(lineSep).append(lineSep)
         }
         return stringBuilder.toString()
+    }
+
+    private fun String.toExposureCompensationOrNull(): Double? {
+        val text = trim()
+        text.toDoubleOrNull()?.let { return it.takeIf(Double::isFinite) }
+        val match = exposureCompFraction.matchEntire(text) ?: return null
+        val (sign, whole, numerator, denominator) = match.destructured
+        val divisor = denominator.toDouble()
+        if (divisor <= 0 || !divisor.isFinite()) return null
+        val magnitude = whole.ifEmpty { "0" }.toDouble() + numerator.toDouble() / divisor
+        val value = if (sign == "-") -magnitude else magnitude
+        return value.takeIf(Double::isFinite)
     }
 }
